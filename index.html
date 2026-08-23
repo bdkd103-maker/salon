@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MESHWAR – Exklusiver Herrensalon und Barbershop in Deutschland. Jetzt Termin buchen, Auslastung prüfen und Standort finden.">
+  <title>MESHWAR | Premium Barbershop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #0e0d0b;
+      --bg-soft: #151310;
+      --card: rgba(28, 25, 20, .82);
+      --card-solid: #1c1914;
+      --gold: #d5a15d;
+      --gold-light: #f3d29d;
+      --gold-dark: #a87335;
+      --text: #f6f0e8;
+      --muted: #afa69b;
+      --line: rgba(213, 161, 93, .2);
+      --green: #55d49b;
+      --shadow: 0 24px 70px rgba(0,0,0,.34);
+    }
+
+    * { box-sizing: border-box; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      overflow-x: hidden;
+    }
+    body[dir="rtl"] { font-family: "Cairo", sans-serif; }
+    body.modal-open { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    .container { width: min(1160px, calc(100% - 40px)); margin: auto; }
+    .gold { color: var(--gold); }
+    .serif { font-family: "Playfair Display", serif; }
+    .eyebrow {
+      display: flex; align-items: center; gap: 11px;
+      color: var(--gold); text-transform: uppercase; letter-spacing: .2em;
+      font-size: 11px; font-weight: 700;
+    }
+    .eyebrow:before { content: ""; width: 34px; height: 1px; background: var(--gold); }
+    h1,h2,h3,p { margin-top: 0; }
+    h2 { font: 600 clamp(34px, 5vw, 58px)/1.05 "Playfair Display", serif; margin-bottom: 17px; }
+    .section { padding: 105px 0; }
+    .section-head { max-width: 650px; margin-bottom: 42px; }
+    .section-head p { color: var(--muted); line-height: 1.8; }
+
+    .hero {
+      min-height: 760px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background:
+        linear-gradient(90deg, rgba(9,8,7,.98) 0%, rgba(9,8,7,.72) 43%, rgba(9,8,7,.18) 100%),
+        linear-gradient(180deg, rgba(12,10,8,.15), #0e0d0b 98%),
+        url("https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=2200&q=88") center 22%/cover;
+    }
+    .hero:after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 74% 25%, rgba(213,161,93,.2), transparent 29%);
+    }
+    header {
+      position: absolute; z-index: 5; top: 0; left: 0; right: 0;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      background: linear-gradient(rgba(10,9,7,.72), transparent);
+    }
+    .nav { height: 83px; display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .13em; }
+    .logo-mark {
+      width: 37px; height: 37px; display: grid; place-items: center;
+      border: 1px solid var(--gold); color: var(--gold); transform: rotate(45deg);
+    }
+    .logo-mark i { transform: rotate(-45deg); }
+    .nav-links { display: flex; gap: 28px; color: #d6d0c9; font-size: 13px; }
+    .nav-links a { transition: .25s; }
+    .nav-links a:hover { color: var(--gold-light); }
+    .nav-actions { display: flex; align-items: center; gap: 9px; }
+    .lang-select, .admin-button {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+      color: #fff; padding: 9px 12px; border-radius: 7px; font-size: 12px;
+    }
+    .lang-select option { background: #201b15; }
+    .admin-button:hover { border-color: var(--gold); color: var(--gold-light); }
+    .mobile-menu { display: none; background: none; color: white; font-size: 22px; }
+
+    .hero-content { position: relative; z-index: 2; max-width: 700px; padding-top: 80px; }
+    .hero h1 { font: 700 clamp(52px, 8vw, 94px)/.94 "Playfair Display", serif; margin: 20px 0; }
+    .hero h1 span { color: var(--gold-light); font-style: italic; }
+    .hero-copy { max-width: 520px; color: #d2cbc2; line-height: 1.8; font-size: 16px; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 32px; }
+    .btn {
+      border-radius: 7px; padding: 14px 22px; display: inline-flex; align-items: center;
+      justify-content: center; gap: 10px; font-weight: 700; font-size: 13px; transition: .3s;
+    }
+    .btn-gold { color: #17120c; background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark)); box-shadow: 0 10px 30px rgba(213,161,93,.2); }
+    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 14px 38px rgba(213,161,93,.35); }
+    .btn-outline { border: 1px solid var(--line); background: rgba(255,255,255,.04); color: #f5eee6; }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold-light); }
+    .hero-trust { display: flex; gap: 25px; margin-top: 53px; color: var(--muted); font-size: 12px; }
+    .hero-trust strong { display: block; color: var(--gold-light); font-size: 21px; margin-bottom: 3px; }
+
+    .status-strip { position: relative; z-index: 3; margin-top: -52px; }
+    .status-card {
+      display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 20px; align-items: center;
+      padding: 23px 28px; border: 1px solid var(--line); background: rgba(28,25,20,.9);
+      box-shadow: var(--shadow); backdrop-filter: blur(13px); border-radius: 10px;
+    }
+    .status-name { font-weight: 700; }
+    .status-name small { display: block; color: var(--muted); font-weight: 400; margin-top: 5px; }
+    .status-item { border-left: 1px solid var(--line); padding-left: 23px; font-size: 13px; color: var(--muted); }
+    .status-item strong { display: block; color: var(--text); margin-top: 6px; }
+    .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(85,212,155,.13); margin-right: 8px; }
+
+    .dark-section { background: #12100d; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 28px;
+      transition: .35s; position: relative; overflow: hidden;
+    }
+    .card:hover { transform: translateY(-6px); border-color: rgba(213,161,93,.55); box-shadow: var(--shadow); }
+    .card-icon { color: var(--gold); font-size: 24px; margin-bottom: 25px; }
+    .card h3 { font: 600 25px "Playfair Display", serif; margin-bottom: 12px; }
+    .card p { color: var(--muted); line-height: 1.7; font-size: 14px; }
+    .service-price { color: var(--gold-light); font-weight: 700; margin-top: 22px; }
+    .service-price span { color: var(--muted); font-size: 12px; font-weight: 400; }
+
+    .booking-layout, .location-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 54px; align-items: center; }
+    .booking-box { padding: 33px; background: var(--card-solid); border: 1px solid var(--line); border-radius: 10px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { margin-bottom: 14px; }
+    .field.full { grid-column: 1/-1; }
+    label { display: block; color: #d9d0c6; font-size: 12px; margin-bottom: 7px; }
+    input, select, textarea {
+      width: 100%; color: var(--text); background: #100e0b; border: 1px solid rgba(255,255,255,.13);
+      border-radius: 6px; padding: 12px; outline: none; transition: .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(213,161,93,.13); }
+    select option { background: #18140f; }
+    .booking-box .btn { width: 100%; margin-top: 4px; }
+    .location-info p { color: var(--muted); line-height: 1.8; }
+    .contact-list { display: grid; gap: 17px; margin: 27px 0; }
+    .contact-row { display: flex; align-items: flex-start; gap: 15px; color: #e8dfd6; font-size: 14px; }
+    .contact-row i { width: 22px; color: var(--gold); text-align: center; margin-top: 3px; }
+    .map {
+      height: 370px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative;
+      background: url("https://tile.openstreetmap.org/14/8790/5370.png"), #29251e;
+      background-size: cover; box-shadow: var(--shadow);
+    }
+    .map:after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15,13,10,.1), rgba(15,13,10,.55)); }
+    .map-pin { position: absolute; z-index: 2; left: 50%; top: 50%; transform: translate(-50%,-100%); color: var(--gold); font-size: 42px; filter: drop-shadow(0 5px 5px #000); }
+    .map-label { position: absolute; z-index: 2; bottom: 20px; left: 20px; background: rgba(15,13,10,.85); padding: 13px 17px; border-radius: 6px; font-size: 12px; }
+
+    .join-section { background: linear-gradient(120deg, #211a12, #12100d 65%); text-align: center; }
+    .join-content { max-width: 700px; margin: auto; }
+    .join-content p { color: var(--muted); line-height: 1.8; }
+    footer { border-top: 1px solid var(--line); padding: 27px 0; color: var(--muted); font-size: 12px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; }
+    .footer-links { display: flex; gap: 20px; }
+
+    .modal {
+      position: fixed; inset: 0; z-index: 20; display: none; place-items: center; padding: 20px;
+      background: rgba(4,3,2,.8); backdrop-filter: blur(9px);
+    }
+    .modal.show { display: grid; }
+    .modal-box { width: min(560px, 100%); max-height: 90vh; overflow-y: auto; background: #1d1914; border: 1px solid var(--line); border-radius: 11px; padding: 30px; box-shadow: 0 30px 100px #000; position: relative; }
+    .modal-box h2 { font-size: 34px; }
+    .close { position: absolute; right: 20px; top: 17px; color: var(--muted); background: none; font-size: 22px; }
+    .close:hover { color: white; }
+    .notice { display: none; margin-top: 14px; padding: 12px; border-radius: 6px; color: #16271e; background: var(--green); font-size: 13px; }
+    .notice.show { display: block; }
+    .admin-note { color: var(--muted); font-size: 12px; line-height: 1.6; margin-bottom: 20px; }
+
+    @media (max-width: 800px) {
+      .nav-links { display: none; }
+      .mobile-menu { display: block; }
+      .nav-actions { margin-left: auto; }
+      .hero { min-height: 700px; background-position: 63% center; }
+      .hero-content { padding-top: 90px; }
+      .status-card { grid-template-columns: 1fr 1fr; }
+      .status-item:nth-child(3) { border-left: 0; padding-left: 0; }
+      .cards, .booking-layout, .location-layout { grid-template-columns: 1fr; }
+      .section { padding: 75px 0; }
+      .location-layout { gap: 30px; }
+    }
+    @media (max-width: 520px) {
+      .container { width: min(100% - 28px, 1160px); }
+      .logo { font-size: 13px; }
+      .logo-mark { width: 31px; height: 31px; }
+      .admin-button { display: none; }
+      .hero h1 { font-size: 55px; }
+      .hero-trust { gap: 16px; }
+      .status-card { grid-template-columns: 1fr; padding: 20px; }
+      .status-item { border-left: 0; border-top: 1px solid var(--line); padding: 15px 0 0; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .booking-box { padding: 22px; }
+      .footer-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container nav">
+      <a href="#top" class="logo">
+        <span class="logo-mark"><i class="fa-solid fa-scissors"></i></span>
+        <span id="brandNav">MESHWAR</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#services" data-i18n="navServices">Leistungen</a>
+        <a href="#booking" data-i18n="navBooking">Termin buchen</a>
+        <a href="#location" data-i18n="navLocation">Standort</a>
+        <a href="#join" data-i18n="navJoin">Partner werden</a>
+      </nav>
+      <div class="nav-actions">
+        <select class="lang-select" id="languageSelect" aria-label="Language">
+          <option value="de">DE</option>
+          <option value="en">EN</option>
+          <option value="ar">عربي</option>
+        </select>
+        <button class="admin-button" id="adminOpen"><i class="fa-solid fa-lock"></i> <span data-i18n="admin">Admin</span></button>
+        <button class="mobile-menu" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-content">
+        <div class="eyebrow" data-i18n="heroEyebrow">Die Kunst des guten Stils</div>
+        <h1 data-i18n="heroTitle">Ihr Stil.<br><span>Unsere Tradition.</span></h1>
+        <p class="hero-copy" data-i18n="heroText">Ein außergewöhnliches Barbershop-Erlebnis für Männer, die Wert auf Charakter, Präzision und zeitlosen Stil legen.</p>
+        <div class="hero-buttons">
+          <a href="#booking" class="btn btn-gold"><i class="fa-regular fa-calendar"></i> <span data-i18n="bookNow">Termin buchen</span></a>
+          <a href="#location" class="btn btn-outline"><i class="fa-solid fa-location-dot"></i> <span data-i18n="findUs">Salon finden</span></a>
+        </div>
+        <div class="hero-trust">
+          <div><strong>4.9/5</strong><span data-i18n="rating">Kundenbewertung</span></div>
+          <div><strong>12+</strong><span data-i18n="experience">Jahre Erfahrung</span></div>
+          <div><strong>100%</strong><span data-i18n="passion">Leidenschaft</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container status-strip">
+      <div class="status-card">
+        <div class="status-name"><span class="live-dot"></span><span data-i18n="liveStatus">Live-Auslastung</span><small id="salonStatus">MESHWAR Düsseldorf</small></div>
+        <div class="status-item"><span data-i18n="crowd">Aktuelle Auslastung</span><strong id="crowdText" class="gold">35% · <span data-i18n="low">Ruhig</span></strong></div>
+        <div class="status-item"><span data-i18n="wait">Wartezeit</span><strong id="waitText">ca. 10 Min.</strong></div>
+        <div class="status-item"><span data-i18n="openNow">Heute geöffnet</span><strong id="hoursShort">09:00 – 20:00</strong></div>
+      </div>
+    </div>
+
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="ourCraft">Unser Handwerk</div>
+          <h2 data-i18n="servicesTitle">Mehr als ein Haarschnitt.</h2>
+          <p data-i18n="servicesText">Traditionelle Barber-Kunst trifft auf moderne Techniken. Jeder Besuch wird zu Ihrem persönlichen Ritual.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon"><i class="fa-solid fa-scissors"></i></div>
+            <h3 data-i18n="service1">Signature Cut</h3>
+            <p data-i18n="service1Text">Individuelle Beratung, präziser Schnitt und professionelles Styling für Ihren perfekten Look.</p>
+            <div class="service-price">ab 35 € <span>· 45 Min.</span></div>
+          </article>
+          <article class="card">
+            <div class="card-icon"><i class="fa-solid fa-user-tie"></i></div>
+            <h3 data-i18n="service2">Classic Shave</h3>
+            <p data-i18n="service2Text">Das klassische Rasurerlebnis mit heißem Handtuch, hochwertigem Öl und messerscharfer Präzision.</p>
+            <div class="service-price">ab 28 € <span>· 30 Min.</span></div>
+          </article>
+          <article class="card">
+            <div class="card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <h3 data-i18n="service3">Beard Ritual</h3>
+            <p data-i18n="service3Text">Bartkontur, Pflege und Styling – abgestimmt auf Ihre Gesichtsform und Ihren persönlichen Charakter.</p>
+            <div class="service-price">ab 25 € <span>· 30 Min.</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark-section" id="booking">
+      <div class="container booking-layout">
+        <div class="section-head">
+          <div class="eyebrow" data-i18n="appointment">Ihr Termin</div>
+          <h2 data-i18n="bookingTitle">Zeit für Ihren besten Look.</h2>
+          <p data-i18n="bookingText">Wählen Sie Ihren Wunschtermin online. Wir bestätigen Ihre Anfrage schnell und unkompliziert.</p>
+          <p class="gold"><i class="fa-solid fa-circle-check"></i> <span data-i18n="bookingTip">Keine Registrierung erforderlich</span></p>
+        </div>
+        <form class="booking-box" id="bookingForm">
+          <div class="form-grid">
+            <div class="field"><label data-i18n="nameLabel">Ihr Name</label><input required type="text" placeholder="Max Mustermann"></div>
+            <div class="field"><label data-i18n="phoneLabel">Telefon</label><input required type="tel" placeholder="+49 170 0000000"></div>
+            <div class="field"><label data-i18n="serviceLabel">Leistung</label><select required><option value="" data-i18n="chooseService">Bitte wählen</option><option>Signature Cut</option><option>Classic Shave</option><option>Beard Ritual</option></select></div>
+            <div class="field"><label data-i18n="barberLabel">Barber</label><select><option>Keine Präferenz</option><option>Omar</option><option>David</option><option>Youssef</option></select></div>
+            <div class="field"><label data-i18n="dateLabel">Datum</label><input required type="date" id="dateInput"></div>
+            <div class="field"><label data-i18n="timeLabel">Uhrzeit</label><select required><option value="" data-i18n="chooseTime">Zeit wählen</option><option>09:00</option><option>10:30</option><option>12:00</option><option>14:30</option><option>16:00</option><option>18:30</option></select></div>
+            <div class="field full"><label data-i18n="messageLabel">Nachricht (optional)</label><textarea rows="3" placeholder="..." data-i18n-placeholder="messagePlaceholder"></textarea></div>
+          </div>
+          <button class="btn btn-gold" type="submit"><i class="fa-regular fa-calendar-check"></i> <span data-i18n="requestAppointment">Termin anfragen</span></button>
+          <div class="notice" id="bookingNotice" data-i18n="bookingSuccess">Vielen Dank! Ihre Terminanfrage wurde erfolgreich gesendet.</div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="location">
+      <div class="container location-layout">
+        <div class="location-info">
+          <div class="eyebrow" data-i18n="visitUs">Besuchen Sie uns</div>
+          <h2 data-i18n="locationTitle">Ihr Weg zu MESHWAR.</h2>
+          <p data-i18n="locationText">Mitten im Herzen von Düsseldorf erwartet Sie ein Salon mit Atmosphäre, Stil und echter Handwerkskunst.</p>
+          <div class="contact-list">
+            <div class="contact-row"><i class="fa-solid fa-location-dot"></i><span id="addressText">Kölner Straße ುದ್ಧ 22<br>40211 Düsseldorf, Deutschland</span></div>
+            <div class="contact-row"><i class="fa-solid fa-phone"></i><span id="phoneText">+49 211 123 45 67</span></div>
+            <div class="contact-row"><i class="fa-regular fa-clock"></i><span id="hoursText">Mo–Sa: 09:00–20:00<br>Sonntag: Geschlossen</span></div>
+          </div>
+          <a class="btn btn-outline" href="https://www.google.com/maps/search/?api=1&query=Kölner+Straße+22+Düsseldorf" target="_blank"><i class="fa-solid fa-diamond-turn-right"></i> <span data-i18n="directions">Route planen</span></a>
+        </div>
+        <div class="map">
+          <i class="fa-solid fa-location-dot map-pin"></i>
+          <div class="map-label"><strong id="mapSalonName">MESHWAR Düsseldorf</strong><br><span data-i18n="mapLabel">Kölner Straße 22 · Jetzt geöffnet</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section join-section" id="join">
+      <div class="container join-content">
+        <div class="eyebrow" style="justify-content:center" data-i18n="network">Das MESHWAR Netzwerk</div>
+        <h2 data-i18n="joinTitle">Werden Sie Teil unserer Geschichte.</h2>
+        <p data-i18n="joinText">Sie führen einen hochwertigen Barbershop und möchten gemeinsam mit uns wachsen? Bewerben Sie sich jetzt als Partner-Salon in unserem exklusiven Netzwerk.</p>
+        <button class="btn btn-gold" id="partnerOpen"><i class="fa-solid fa-handshake"></i> <span data-i18n="joinButton">Als Salon bewerben</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>© 2024 MESHWAR · <span data-i18n="rights">Alle Rechte vorbehalten</span></div>
+      <div class="footer-links"><a href="#" data-i18n="privacy">Datenschutz</a><a href="#" data-i18n="imprint">Impressum</a><a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></div>
+    </div>
+  </footer>
+
+  <div class="modal" id="partnerModal">
+    <div class="modal-box">
+      <button class="close" data-close="partnerModal">×</button>
+      <div class="eyebrow" data-i18n="network">Das MESHWAR Netzwerk</div>
+      <h2 data-i18n="partnerTitle">Gemeinsam stärker.</h2>
+      <p class="admin-note" data-i18n="partnerText">Füllen Sie das Formular aus. Unser Team meldet sich innerhalb von 48 Stunden bei Ihnen.</p>
+      <form id="partnerForm">
+        <div class="field"><label data-i18n="salonName">Name des Salons</label><input required type="text"></div>
+        <div class="field"><label data-i18n="contactPerson">Ansprechpartner</label><input required type="text"></div>
+        <div class="field"><label data-i18n="email">E-Mail</label><input required type="email"></div>
+        <div class="field"><label data-i18n="city">Stadt</label><input required type="text"></div>
+        <button class="btn btn-gold" style="width:100%" type="submit" data-i18n="sendApplication">Bewerbung senden</button>
+        <div class="notice" id="partnerNotice" data-i18n="applicationSuccess">Ihre Bewerbung wurde gesendet. Vielen Dank!</div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="adminModal">
+    <div class="modal-box">
+      <button class="close" data-close="adminModal">×</button>
+      <div class="eyebrow" data-i18n="controlCenter">Kontrollzentrum</div>
+      <h2 data-i18n="adminTitle">Salon verwalten.</h2>
+      <p class="admin-note" data-i18n="adminText">Ändern Sie die wichtigsten Informationen. Die Daten werden lokal in diesem Browser gespeichert.</p>
+      <form id="adminForm">
+        <div class="field"><label data-i18n="salonName">Salonname</label><input id="adminName" required></div>
+        <div class="field"><label data-i18n="addressLabel">Adresse</label><input id="adminAddress" required></div>
+        <div class="field"><label data-i18n="phoneLabel">Telefon</label><input id="adminPhone" required></div>
+        <div class="form-grid">
+          <div class="field"><label data-i18n="openLabel">Öffnet um</label><input id="adminOpenTime" type="time" required></div>
+          <div class="field"><label data-i18n="closeLabel">Schließt um</label><input id="adminCloseTime" type="time" required></div>
+        </div>
+        <div class="field"><label data-i18n="crowdLabel">Auslastung</label><input id="adminCrowd" type="range" min="0" max="100" value="35" oninput="crowdValue.textContent=this.value+'%'"><strong id="crowdValue" class="gold">35%</strong></div>
+        <button class="btn btn-gold" style="width:100%" type="submit" data-i18n="saveChanges">Änderungen speichern</button>
+        <div class="notice" id="adminNotice" data-i18n="saved">Gespeichert!</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      de: {
+        navServices:"Leistungen",navBooking:"Termin buchen",navLocation:"Standort",navJoin:"Partner werden",admin:"Admin",
+        heroEyebrow:"Die Kunst des guten Stils",heroTitle:"Ihr Stil.<br><span>Unsere Tradition.</span>",heroText:"Ein außergewöhnliches Barbershop-Erlebnis für Männer, die Wert auf Charakter, Präzision und zeitlosen Stil legen.",bookNow:"Termin buchen",findUs:"Salon finden",rating:"Kundenbewertung",experience:"Jahre Erfahrung",passion:"Leidenschaft",liveStatus:"Live-Auslastung",crowd:"Aktuelle Auslastung",low:"Ruhig",wait:"Wartezeit",openNow:"Heute geöffnet",ourCraft:"Unser Handwerk",servicesTitle:"Mehr als ein Haarschnitt.",servicesText:"Traditionelle Barber-Kunst trifft auf moderne Techniken. Jeder Besuch wird zu Ihrem persönlichen Ritual.",service1:"Signature Cut",service1Text:"Individuelle Beratung, präziser Schnitt und professionelles Styling für Ihren perfekten Look.",service2:"Classic Shave",service2Text:"Das klassische Rasurerlebnis mit heißem Handtuch, hochwertigem Öl und messerscharfer Präzision.",service3:"Beard Ritual",service3Text:"Bartkontur, Pflege und Styling – abgestimmt auf Ihre Gesichtsform und Ihren persönlichen Charakter.",appointment:"Ihr Termin",bookingTitle:"Zeit für Ihren besten Look.",bookingText:"Wählen Sie Ihren Wunschtermin online. Wir bestätigen Ihre Anfrage schnell und unkompliziert.",bookingTip:"Keine Registrierung erforderlich",nameLabel:"Ihr Name",phoneLabel:"Telefon",serviceLabel:"Leistung",chooseService:"Bitte wählen",barberLabel:"Barber",dateLabel:"Datum",timeLabel:"Uhrzeit",chooseTime:"Zeit wählen",messageLabel:"Nachricht (optional)",messagePlaceholder:"Ihre Nachricht ...",requestAppointment:"Termin anfragen",bookingSuccess:"Vielen Dank! Ihre Terminanfrage wurde erfolgreich gesendet.",visitUs:"Besuchen Sie uns",locationTitle:"Ihr Weg zu MESHWAR.",locationText:"Mitten im Herzen von Düsseldorf erwartet Sie ein Salon mit Atmosphäre, Stil und echter Handwerkskunst.",directions:"Route planen",mapLabel:"Kölner Straße 22 · Jetzt geöffnet",network:"Das MESHWAR Netzwerk",joinTitle:"Werden Sie Teil unserer Geschichte.",joinText:"Sie führen einen hochwertigen Barbershop und möchten gemeinsam mit uns wachsen? Bewerben Sie sich jetzt als Partner-Salon in unserem exklusiven Netzwerk.",joinButton:"Als Salon bewerben",partnerTitle:"Gemeinsam stärker.",partnerText:"Füllen Sie das Formular aus. Unser Team meldet sich innerhalb von 48 Stunden bei Ihnen.",salonName:"Name des Salons",contactPerson:"Ansprechpartner",email:"E-Mail",city:"Stadt",sendApplication:"Bewerbung senden",applicationSuccess:"Ihre Bewerbung wurde gesendet. Vielen Dank!",controlCenter:"Kontrollzentrum",adminTitle:"Salon verwalten.",adminText:"Ändern Sie die wichtigsten Informationen. Die Daten werden lokal in diesem Browser gespeichert.",addressLabel:"Adresse",openLabel:"Öffnet um",closeLabel:"Schließt um",crowdLabel:"Auslastung",saveChanges:"Änderungen speichern",saved:"Gespeichert!",rights:"Alle Rechte vorbehalten",privacy:"Datenschutz",imprint:"Impressum"
+      },
+      en: {
+        navServices:"Services",navBooking:"Book appointment",navLocation:"Location",navJoin:"Become a partner",admin:"Admin",heroEyebrow:"The art of good style",heroTitle:"Your style.<br><span>Our tradition.</span>",heroText:"An exceptional barbershop experience for men who value character, precision and timeless style.",bookNow:"Book appointment",findUs:"Find our salon",rating:"Customer rating",experience:"Years of experience",passion:"Passion",liveStatus:"Live occupancy",crowd:"Current occupancy",low:"Quiet",wait:"Waiting time",openNow:"Open today",ourCraft:"Our craft",servicesTitle:"More than a haircut.",servicesText:"Traditional barbering meets modern techniques. Every visit becomes your personal ritual.",service1:"Signature Cut",service1Text:"Personal consultation, precise cut and professional styling for your perfect look.",service2:"Classic Shave",service2Text:"The classic shaving experience with a hot towel, premium oil and razor-sharp precision.",service3:"Beard Ritual",service3Text:"Beard contouring, care and styling tailored to your face shape and personal character.",appointment:"Your appointment",bookingTitle:"Time for your best look.",bookingText:"Choose your preferred appointment online. We will confirm your request quickly and easily.",bookingTip:"No registration required",nameLabel:"Your name",phoneLabel:"Phone",serviceLabel:"Service",chooseService:"Please choose",barberLabel:"Barber",dateLabel:"Date",timeLabel:"Time",chooseTime:"Choose time",messageLabel:"Message (optional)",messagePlaceholder:"Your message ...",requestAppointment:"Request appointment",bookingSuccess:"Thank you! Your appointment request was sent successfully.",visitUs:"Visit us",locationTitle:"Your way to MESHWAR.",locationText:"In the heart of Düsseldorf, a salon with atmosphere, style and genuine craftsmanship awaits you.",directions:"Get directions",mapLabel:"Kölner Straße 22 · Open now",network:"The MESHWAR network",joinTitle:"Become part of our story.",joinText:"Do you run a premium barbershop and want to grow with us? Apply now as a partner salon in our exclusive network.",joinButton:"Apply as a salon",partnerTitle:"Stronger together.",partnerText:"Complete the form. Our team will contact you within 48 hours.",salonName:"Salon name",contactPerson:"Contact person",email:"Email",city:"City",sendApplication:"Send application",applicationSuccess:"Your application was sent. Thank you!",controlCenter:"Control center",adminTitle:"Manage salon.",adminText:"Change the most important information. Data is saved locally in this browser.",addressLabel:"Address",openLabel:"Opens at",closeLabel:"Closes at",crowdLabel:"Occupancy",saveChanges:"Save changes",saved:"Saved!",rights:"All rights reserved",privacy:"Privacy",imprint:"Legal notice"
+      },
+      ar: {
+        navServices:"الخدمات",navBooking:"حجز موعد",navLocation:"الموقع",navJoin:"انضم كشريك",admin:"الإدارة",heroEyebrow:"فن الأناقة",heroTitle:"أسلوبك.<br><span>تقليدنا.</span>",heroText:"تجربة حلاقة استثنائية للرجال الذين يقدّرون الشخصية والدقة والأناقة الخالدة.",bookNow:"احجز موعداً",findUs:"اعثر علينا",rating:"تقييم العملاء",experience:"سنوات خبرة",passion:"شغف",liveStatus:"الازدحام المباشر",crowd:"نسبة الازدحام",low:"هادئ",wait:"وقت الانتظار",openNow:"مفتوح اليوم",ourCraft:"حرفتنا",servicesTitle:"أكثر من مجرد حلاقة.",servicesText:"فن الحلاقة التقليدي يلتقي مع التقنيات الحديثة. كل زيارة تصبح طقساً خاصاً بك.",service1:"قصّة مميزة",service1Text:"استشارة شخصية وقص دقيق وتصفيف احترافي لإطلالة مثالية.",service2:"حلاقة كلاسيكية",service2Text:"تجربة الحلاقة الكلاسيكية مع منشفة ساخنة وزيوت فاخرة ودقة فائقة.",service3:"طقس اللحية",service3Text:"تحديد اللحية والعناية بها وتصفيفها بما يناسب شكل وجهك وشخصيتك.",appointment:"موعدك",bookingTitle:"حان وقت إطلالتك الأفضل.",bookingText:"اختر موعدك المفضل عبر الإنترنت وسنؤكد طلبك بسرعة وسهولة.",bookingTip:"لا حاجة للتسجيل",nameLabel:"الاسم",phoneLabel:"الهاتف",serviceLabel:"الخدمة",chooseService:"اختر الخدمة",barberLabel:"الحلاق",dateLabel:"التاريخ",timeLabel:"الوقت",chooseTime:"اختر الوقت",messageLabel:"رسالة اختيارية",messagePlaceholder:"رسالتك ...",requestAppointment:"إرسال طلب الموعد",bookingSuccess:"شكراً لك! تم إرسال طلب الموعد بنجاح.",visitUs:"زورونا",locationTitle:"طريقك إلى MESHWAR.",locationText:"في قلب دوسلدورف، ننتظركم في صالون يجمع الأجواء والأناقة والحرفية الأصيلة.",directions:"احصل على الاتجاهات",mapLabel:"شارع كولن 22 · مفتوح الآن",network:"شبكة MESHWAR",joinTitle:"كن جزءاً من قصتنا.",joinText:"هل تدير صالون حلاقة راقياً وتريد النمو معنا؟ قدم طلبك الآن للانضمام إلى شبكتنا الحصرية.",joinButton:"التقديم كشريك",partnerTitle:"معاً أقوى.",partnerText:"املأ النموذج وسيتواصل معك فريقنا خلال 48 ساعة.",salonName:"اسم الصالون",contactPerson:"الشخص المسؤول",email:"البريد الإلكتروني",city:"المدينة",sendApplication:"إرسال الطلب",applicationSuccess:"تم إرسال طلبك، شكراً لك!",controlCenter:"لوحة التحكم",adminTitle:"إدارة الصالون.",adminText:"يمكنك تعديل المعلومات الأساسية، وسيتم حفظها على هذا المتصفح.",addressLabel:"العنوان",openLabel:"يفتح الساعة",closeLabel:"يغلق الساعة",crowdLabel:"الازدحام",saveChanges:"حفظ التغييرات",saved:"تم الحفظ!",rights:"جميع الحقوق محفوظة",privacy:"الخصوصية",imprint:"بيانات قانونية"
+      }
+    };
+
+    const defaults = { name:"MESHWAR Düsseldorf", address:"Kölner Straße 22, 40211 Düsseldorf, Deutschland", phone:"+49 211 123 45 67", open:"09:00", close:"20:00", crowd:35 };
+    let data = JSON.parse(localStorage.getItem("meshwarSalon")) || defaults;
+    const $ = id => document.getElementById(id);
+
+    function applyLanguage(lang) {
+      const t = translations[lang] || translations.de;
+      document.documentElement.lang = lang;
+      document.body.dir = lang === "ar" ? "rtl" : "ltr";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[key]) el.innerHTML = t[key];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (t[key]) el.placeholder = t[key];
+      });
+      localStorage.setItem("meshwarLang", lang);
+      updateSalon();
+    }
+
+    function updateSalon() {
+      $("salonStatus").textContent = data.name;
+      $("mapSalonName").textContent = data.name;
+      $("addressText").innerHTML = data.address.replace(", ", "<br>");
+      $("phoneText").textContent = data.phone;
+      $("hoursText").innerHTML = `Mo–Sa: ${data.open}–${data.close}<br>Sonntag: Geschlossen`;
+      $("hoursShort").textContent = `${data.open} – ${data.close}`;
+      const lang = document.documentElement.lang;
+      const label = lang === "en" ? (data.crowd < 50 ? "Quiet" : "Busy") : lang === "ar" ? (data.crowd < 50 ? "هادئ" : "مزدحم") : (data.crowd < 50 ? "Ruhig" : "Belebt");
+      $("crowdText").innerHTML = `${data.crowd}% · <span>${label}</span>`;
+      $("crowdValue").textContent = data.crowd + "%";
+    }
+
+    function openModal(id) { $(id).classList.add("show"); document.body.classList.add("modal-open"); }
+    function closeModal(id) { $(id).classList.remove("show"); document.body.classList.remove("modal-open"); }
+
+    $("languageSelect").addEventListener("change", e => applyLanguage(e.target.value));
+    $("adminOpen").addEventListener("click", () => {
+      $("adminName").value = data.name; $("adminAddress").value = data.address; $("adminPhone").value = data.phone;
+      $("adminOpenTime").value = data.open; $("adminCloseTime").value = data.close; $("adminCrowd").value = data.crowd;
+      $("crowdValue").textContent = data.crowd + "%"; openModal("adminModal");
+    });
+    $("partnerOpen").addEventListener("click", () => openModal("partnerModal"));
+    document.querySelectorAll("[data-close]").forEach(btn => btn.addEventListener("click", () => closeModal(btn.dataset.close)));
+    document.querySelectorAll(".modal").forEach(modal => modal.addEventListener("click", e => { if (e.target === modal) closeModal(modal.id); }));
+
+    $("bookingForm").addEventListener("submit", e => {
+      e.preventDefault(); $("bookingNotice").classList.add("show"); e.target.reset();
+    });
+    $("partnerForm").addEventListener("submit", e => {
+      e.preventDefault(); $("partnerNotice").classList.add("show"); e.target.reset();
+    });
+    $("adminForm").addEventListener("submit", e => {
+      e.preventDefault();
+      data = { name:$("adminName").value, address:$("adminAddress").value, phone:$("adminPhone").value, open:$("adminOpenTime").value, close:$("adminCloseTime").value, crowd:$("adminCrowd").value };
+      localStorage.setItem("meshwarSalon", JSON.stringify(data)); updateSalon(); $("adminNotice").classList.add("show");
+      setTimeout(() => closeModal("adminModal"), 900);
+    });
+
+    const today = new Date().toISOString().split("T")[0];
+    $("dateInput").min = today;
+    $("languageSelect").value = localStorage.getItem("meshwarLang") || "de";
+    applyLanguage($("languageSelect").value);
+  </script>
+</body>
+</html>
