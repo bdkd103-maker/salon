@@ -1,0 +1,437 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String                          @id @default(uuid())
+  email                     String                          @unique
+  phone                     String?
+  fullName                  String
+  passwordHash              String?
+  role                      UserRole                        @default(CUSTOMER)
+  status                    UserStatus                      @default(ACTIVE)
+  emailVerified             Boolean                         @default(false)
+  phoneVerified             Boolean                         @default(false)
+  avatarUrl                 String?
+  locale                    String                          @default("ar")
+  createdAt                 DateTime                        @default(now())
+  updatedAt                 DateTime                        @updatedAt
+  deletedAt                 DateTime?
+  analyticsEvents           AnalyticsEvent[]
+  bookings                  Booking[]
+  deviceTokens              DeviceToken[]
+  loyaltyCustomers          LoyaltyCustomer[]
+  loyaltyStamps             LoyaltyStamp[]
+  receivedMessages          Message[]                       @relation("MessageReceiver")
+  sentMessages              Message[]                       @relation("MessageSender")
+  notifications             Notification[]
+  passwordResets            PasswordReset[]
+  reviews                   Review[]
+  ownedSalons               Salon[]
+  availabilitySubscriptions SalonAvailabilitySubscription[]
+  sessions                  Session[]
+  subscriptions             UserSubscription?
+}
+
+model UserSubscription {
+  id                String             @id @default(uuid())
+  userId            String             @unique
+  plan              SubscriptionPlan   @default(FREE)
+  status            SubscriptionStatus @default(ACTIVE)
+  monthlyPrice      Decimal?           @db.Decimal(10, 2)
+  startDate         DateTime?
+  renewalDate       DateTime?
+  cancellationDate  DateTime?
+  providerReference String?
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DeviceToken {
+  id         String         @id @default(uuid())
+  userId     String
+  platform   DevicePlatform
+  token      String
+  isActive   Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  lastSeenAt DateTime       @default(now())
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId, isActive])
+}
+
+model Salon {
+  id                        String                          @id @default(uuid())
+  ownerId                   String
+  name                      String
+  slug                      String                          @unique
+  city                      String
+  address                   String
+  latitude                  Float?
+  longitude                 Float?
+  phone                     String
+  email                     String?
+  website                   String?
+  description               String?
+  isVip                     Boolean                         @default(false)
+  isWomenOnly               Boolean                         @default(false)
+  isActive                  Boolean                         @default(true)
+  status                    SalonStatus                     @default(OPEN)
+  rating                    Float                           @default(0)
+  reviewCount               Int                             @default(0)
+  openingTime               String?
+  closingTime               String?
+  createdAt                 DateTime                        @default(now())
+  updatedAt                 DateTime                        @updatedAt
+  analyticsEvents           AnalyticsEvent[]
+  availability              AvailabilitySlot[]
+  barbers                   Barber[]
+  bookings                  Booking[]
+  loyaltyCards              LoyaltyCard[]
+  messages                  Message[]
+  offers                    Offer[]
+  reviews                   Review[]
+  owner                     User                            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  availabilitySubscriptions SalonAvailabilitySubscription[]
+  boostPlacement            SalonBoost?
+  media                     SalonMedia[]
+  services                  Service[]
+}
+
+model SalonBoost {
+  id                String      @id @default(uuid())
+  salonId           String      @unique
+  status            BoostStatus @default(ACTIVE)
+  durationDays      Int         @default(7)
+  startsAt          DateTime?
+  endsAt            DateTime?
+  amountCents       Int?        @default(0)
+  currency          String?     @default("EUR")
+  providerReference String?
+  paymentIntentId   String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  salon             Salon       @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
+  @@index([status, endsAt])
+}
+
+model LoyaltyCard {
+  id             String            @id @default(uuid())
+  salonId        String
+  isActive       Boolean           @default(true)
+  requiredStamps Int               @default(8)
+  rewardType     LoyaltyRewardType @default(FREE_SERVICE)
+  rewardTitle    String            @default("Free haircut")
+  rewardText     String            @default("Free haircut")
+  description    String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  salon          Salon             @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  customers      LoyaltyCustomer[]
+  stamps         LoyaltyStamp[]
+}
+
+model LoyaltyCustomer {
+  id               String      @id @default(uuid())
+  cardId           String
+  customerId       String
+  currentStamps    Int         @default(0)
+  totalVisits      Int         @default(0)
+  lastStampedAt    DateTime?
+  rewardRedeemedAt DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  card             LoyaltyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  customer         User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, customerId])
+}
+
+model LoyaltyStamp {
+  id                String      @id @default(uuid())
+  cardId            String
+  customerId        String
+  barberId          String?
+  transactionId     String      @unique
+  stampAt           DateTime    @default(now())
+  isValid           Boolean     @default(true)
+  verificationToken String?
+  createdAt         DateTime    @default(now())
+  card              LoyaltyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  customer          User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, customerId])
+  @@index([transactionId])
+}
+
+model Barber {
+  id        String             @id @default(uuid())
+  salonId   String
+  name      String
+  specialty String?
+  isActive  Boolean            @default(true)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  slots     AvailabilitySlot[]
+  salon     Salon              @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  salonId     String
+  name        String
+  description String?
+  durationMin Int
+  price       Decimal   @db.Decimal(10, 2)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  bookings    Booking[]
+  salon       Salon     @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+model AvailabilitySlot {
+  id        String     @id @default(uuid())
+  salonId   String
+  barberId  String?
+  startAt   DateTime
+  endAt     DateTime
+  status    SlotStatus @default(AVAILABLE)
+  createdAt DateTime   @default(now())
+  barber    Barber?    @relation(fields: [barberId], references: [id])
+  salon     Salon      @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
+  @@unique([salonId, barberId, startAt])
+  @@index([salonId, startAt])
+}
+
+model Booking {
+  id                 String        @id @default(uuid())
+  userId             String
+  salonId            String
+  barberId           String?
+  serviceId          String?
+  startAt            DateTime
+  endAt              DateTime
+  status             BookingStatus @default(PENDING)
+  notes              String?
+  customerName       String?
+  customerPhone      String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  cancelledAt        DateTime?
+  cancellationReason String?
+  barber             Barber?       @relation(fields: [barberId], references: [id])
+  salon              Salon         @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  service            Service?      @relation(fields: [serviceId], references: [id])
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([salonId, startAt])
+  @@index([userId, createdAt])
+}
+
+model Offer {
+  id             String    @id @default(uuid())
+  salonId        String?
+  title          String
+  description    String?
+  price          Decimal?  @db.Decimal(10, 2)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  availableSlots Int?
+  discount       Decimal?  @db.Decimal(10, 2)
+  endAt          DateTime?
+  endTime        String?
+  serviceName    String?
+  startAt        DateTime?
+  startTime      String?
+  salon          Salon?    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  salonId   String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, salonId])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  salonId    String?
+  senderId   String?
+  receiverId String?
+  subject    String?
+  body       String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  receiver   User?    @relation("MessageReceiver", fields: [receiverId], references: [id])
+  salon      Salon?   @relation(fields: [salonId], references: [id])
+  sender     User?    @relation("MessageSender", fields: [senderId], references: [id])
+}
+
+model SalonMedia {
+  id        String   @id @default(uuid())
+  salonId   String
+  kind      String   @default("image")
+  url       String
+  createdAt DateTime @default(now())
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String
+  refreshToken String?
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordReset {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  type      String
+  isRead    Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  salonId   String
+  userId    String?
+  eventType String
+  source    String   @default("app")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([salonId, createdAt])
+  @@index([eventType, createdAt])
+}
+
+model SalonAvailabilitySubscription {
+  id                       String                  @id @default(uuid())
+  userId                   String
+  salonId                  String
+  status                   AvailabilityWatchStatus @default(ACTIVE)
+  lastKnownAvailableChairs Int                     @default(0)
+  lastNotifiedAt           DateTime?
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+  salon                    Salon                   @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  user                     User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, salonId])
+  @@index([userId, status])
+  @@index([salonId, status])
+}
+
+enum UserRole {
+  CUSTOMER
+  OWNER
+  STAFF
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum SalonStatus {
+  OPEN
+  BUSY
+  QUIET
+  CLOSED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum SlotStatus {
+  AVAILABLE
+  BOOKED
+  BLOCKED
+}
+
+enum DevicePlatform {
+  ANDROID
+  IOS
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  PREMIUM
+}
+
+enum LoyaltyRewardType {
+  FREE_SERVICE
+  PERCENTAGE_DISCOUNT
+  FIXED_DISCOUNT
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIAL
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum BoostStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum AvailabilityWatchStatus {
+  ACTIVE
+  FIRED
+  CANCELLED
+}

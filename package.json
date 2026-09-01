@@ -1,0 +1,39 @@
+{
+  "name": "salon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "python3 -m http.server 8000",
+    "cap:sync": "npx cap sync",
+    "cap:doctor": "npx cap doctor",
+    "android:open": "npx cap open android",
+    "ios:open": "npx cap open ios",
+    "android:debug": "npx cap sync && cd android && ./gradlew assembleDebug",
+    "android:release": "npx cap sync && cd android && ./gradlew assembleRelease",
+    "ios:build": "echo 'iOS build requires macOS + Xcode; run: npx cap open ios'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdkd103-maker/salon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bdkd103-maker/salon/issues"
+  },
+  "homepage": "https://github.com/bdkd103-maker/salon#readme",
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/push-notifications": "^7.0.0"
+  }
+}

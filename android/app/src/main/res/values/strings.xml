@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">صالونك</string>
+    <string name="title_activity_main">صالونك</string>
+    <string name="package_name">com.salon.app</string>
+    <string name="custom_url_scheme">com.salon.app</string>
+</resources>
