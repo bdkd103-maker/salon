@@ -15,13 +15,33 @@ import { salonRoutes } from "./routes/salons.js";
 
 dotenv.config();
 
+const allowedLocalOrigins = new Set([
+  "http://localhost:8000",
+  "http://127.0.0.1:8000",
+  "http://localhost:4000",
+  "http://127.0.0.1:4000",
+]);
+
+const codespacesFrontendOriginPattern = /^https:\/\/(?:8000-[a-z0-9][a-z0-9-]*|[a-z0-9][a-z0-9-]*-8000)\.(?:preview\.app\.github\.dev|app\.github\.dev|githubpreview\.dev)$/i;
+
+function resolveCorsOrigin(origin?: string) {
+  if (!origin) return true;
+  if (allowedLocalOrigins.has(origin)) return origin;
+
+  return codespacesFrontendOriginPattern.test(origin)
+    ? origin
+    : false;
+}
+
 async function buildServer() {
   const app = Fastify({
     logger: true,
   });
 
   await app.register(cors, {
-    origin: true,
+    origin: (origin, callback) => {
+      callback(null, resolveCorsOrigin(origin));
+    },
     credentials: true,
   });
 

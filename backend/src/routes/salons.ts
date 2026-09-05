@@ -3,7 +3,19 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { requireRole, requireUserFromAuthHeader } from "../lib/auth.js";
 import { normalizeOfferInput } from "../lib/offer.js";
+import { salonImageUrlSchema, serializeSalonMedia, syncSalonPrimaryImage } from "../lib/salon-media.js";
+import {
+  buildPublicSalonState,
+  getAutoVipSalonIds,
+  getManualVipFlag,
+  getManualVipSalonIds,
+  MAX_ADMIN_VIP_SLOTS,
+  normalizeSalonClassification,
+} from "../lib/salon-vip.js";
 import { normalizeServiceInput } from "../lib/service.js";
+import { salonScheduleFields } from "../lib/salon-schedule.js";
+
+const salonClassificationSchema = z.enum(["REGULAR", "PREMIUM"]).optional();
 
 const salonSchema = z.object({
   name: z.string().min(2),
@@ -14,9 +26,11 @@ const salonSchema = z.object({
   website: z.string().url().optional(),
   description: z.string().optional(),
   isVip: z.boolean().optional(),
+  adminVip: z.boolean().optional(),
+  classification: salonClassificationSchema,
   isWomenOnly: z.boolean().optional(),
-  openingTime: z.string().optional(),
-  closingTime: z.string().optional(),
+  ...salonScheduleFields,
+  imageUrl: salonImageUrlSchema,
 });
 
 const serviceSchema = z.object({
@@ -39,6 +53,11 @@ const offerSchema = z.object({
   endTime: z.string().trim().max(16).optional().or(z.literal("")),
   availableSlots: z.union([z.number(), z.string()]).optional(),
   isActive: z.boolean().optional(),
+});
+
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
 function serializeService(service: any) {
@@ -75,34 +94,213 @@ function serializeOffer(offer: any) {
   };
 }
 
+function serializeBarber(barber: any) {
+  return {
+    id: barber.id,
+    salonId: barber.salonId,
+    name: barber.name,
+    specialty: barber.specialty ?? null,
+    isActive: barber.isActive ?? true,
+    createdAt: barber.createdAt,
+    updatedAt: barber.updatedAt,
+  };
+}
+
+function serializeReview(review: any) {
+  return {
+    id: review.id,
+    salonId: review.salonId,
+    userId: review.userId,
+    rating: Number(review.rating ?? 0),
+    comment: review.comment ?? null,
+    createdAt: review.createdAt,
+    updatedAt: review.updatedAt ?? null,
+    name: review.user?.fullName ?? "Customer",
+  };
+}
+
+function serializeSalon(salon: any, options: { adminVipIds?: Set<string>; autoVipIds?: Set<string> } = {}) {
+  const publicState = buildPublicSalonState(salon, options);
+  return {
+    ...salon,
+    ...publicState,
+    rating: Number(salon?.rating ?? 0),
+    reviewCount: Number(salon?.reviewCount ?? 0),
+    isVip: publicState.isVip,
+    vip: publicState.isVip,
+    barbers: Array.isArray(salon?.barbers) ? salon.barbers.map(serializeBarber) : [],
+    offers: Array.isArray(salon?.offers) ? salon.offers.map(serializeOffer) : [],
+    services: Array.isArray(salon?.services) ? salon.services.map(serializeService) : [],
+    reviews: Array.isArray(salon?.reviews) ? salon.reviews.map(serializeReview) : [],
+    media: Array.isArray(salon?.media) ? salon.media.map(serializeSalonMedia) : [],
+  };
+}
+
+function decorateSalonList(salons: any[]) {
+  const adminVipIds = new Set(getManualVipSalonIds(salons));
+  const autoVipIds = new Set(getAutoVipSalonIds(salons));
+  return salons.map((salon) => serializeSalon(salon, { adminVipIds, autoVipIds }));
+}
+
+function withStalePrismaTypes<T>(value: T) {
+  return value as any;
+}
+
+async function assertAdminVipCapacity(db: any, options: { ignoreSalonId?: string | null } = {}) {
+  const salons = await db.salon.findMany({
+    where: options.ignoreSalonId
+      ? { adminVip: true, NOT: { id: options.ignoreSalonId } }
+      : { adminVip: true },
+    select: { id: true, name: true, adminVip: true, isActive: true, createdAt: true, updatedAt: true },
+  });
+  const activeManualVipIds = getManualVipSalonIds(salons);
+  if (activeManualVipIds.length >= MAX_ADMIN_VIP_SLOTS) {
+    throw Object.assign(new Error(`Only ${MAX_ADMIN_VIP_SLOTS} admin VIP salons can be selected at the same time.`), { statusCode: 409 });
+  }
+}
+
+async function refreshSalonRatingAggregate(db: any, salonId: string) {
+  const aggregate = await db.review.aggregate({
+    where: { salonId },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+  const rating = Number(aggregate?._avg?.rating ?? 0);
+  const reviewCount = Number(aggregate?._count?.rating ?? 0);
+  await db.salon.update({
+    where: { id: salonId },
+    data: {
+      rating: reviewCount > 0 ? Number(rating.toFixed(2)) : 0,
+      reviewCount,
+    },
+  });
+}
+
 export async function salonRoutes(app: any) {
   app.get("/api/v1/salons", async () => {
     const salons = await prisma.salon.findMany({
       where: { isActive: true },
       include: {
         services: true,
-        reviews: true,
+        reviews: {
+          include: {
+            user: { select: { fullName: true } },
+          },
+        },
+        media: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return { salons };
+    return { salons: decorateSalonList(salons) };
   });
 
   app.get("/api/v1/salons/:id", async (request: any, reply: any) => {
-    const salon = await prisma.salon.findUnique({
-      where: { id: request.params.id },
+    const salons = await prisma.salon.findMany({
+      where: { isActive: true },
       include: {
+        barbers: true,
+        offers: {
+          orderBy: { createdAt: "desc" },
+        },
         services: true,
-        reviews: true,
+        reviews: {
+          include: {
+            user: { select: { fullName: true } },
+          },
+        },
+        media: true,
       },
     });
+    const salon = salons.find((entry: any) => entry.id === request.params.id);
 
     if (!salon) {
       return reply.code(404).send({ error: "Salon not found" });
     }
 
-    return { salon: { ...salon, services: salon.services.map(serializeService) } };
+    return { salon: decorateSalonList(salons).find((entry: any) => entry.id === request.params.id) };
+  });
+
+  app.post("/api/v1/salons/:salonId/reviews", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      requireRole(user, ["CUSTOMER"], reply);
+
+      const parsed = reviewSchema.safeParse(request.body ?? {});
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      }
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.salonId },
+        select: { id: true, isActive: true },
+      });
+      if (!salon || salon.isActive === false) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+
+      const eligibleBooking = await prisma.booking.findFirst({
+        where: {
+          salonId: request.params.salonId,
+          userId: user.id,
+          status: "COMPLETED",
+        },
+        select: { id: true },
+      });
+      if (!eligibleBooking) {
+        return reply.code(403).send({ error: "A completed booking is required before submitting a review." });
+      }
+
+      const result = await prisma.$transaction(async (tx) => {
+        const review = await tx.review.upsert({
+          where: {
+            userId_salonId: {
+              userId: user.id,
+              salonId: request.params.salonId,
+            },
+          },
+          update: {
+            rating: parsed.data.rating,
+            comment: parsed.data.comment?.trim() || null,
+          },
+          create: {
+            userId: user.id,
+            salonId: request.params.salonId,
+            rating: parsed.data.rating,
+            comment: parsed.data.comment?.trim() || null,
+          },
+          include: {
+            user: { select: { fullName: true } },
+          },
+        });
+
+        await refreshSalonRatingAggregate(tx, request.params.salonId);
+        const salons = await tx.salon.findMany({
+          where: { isActive: true },
+          include: {
+            services: true,
+            reviews: {
+              include: {
+                user: { select: { fullName: true } },
+              },
+            },
+            media: true,
+          },
+          orderBy: { createdAt: "desc" },
+        });
+        return {
+          review,
+          salon: decorateSalonList(salons).find((entry: any) => entry.id === request.params.salonId),
+        };
+      });
+
+      return {
+        review: serializeReview(result.review),
+        salon: result.salon,
+      };
+    } catch {
+      return reply.code(401).send({ error: "Unauthorized" });
+    }
   });
 
   app.get("/api/v1/salons/:salonId/services", async (request: any, reply: any) => {
@@ -379,8 +577,8 @@ export async function salonRoutes(app: any) {
       const user = await requireUserFromAuthHeader(request, reply);
       const salon = await prisma.salon.findUnique({
         where: { id: request.params.id },
-        select: { ownerId: true, id: true },
-      });
+        select: withStalePrismaTypes({ ownerId: true, id: true, adminVip: true, classification: true }),
+      }) as { ownerId: string; id: string; adminVip?: boolean | null; classification?: string | null } | null;
 
       if (!salon) {
         return reply.code(404).send({ error: "Salon not found" });
@@ -396,25 +594,54 @@ export async function salonRoutes(app: any) {
       }
 
       const payload = parsed.data;
-      const nextSalon = await prisma.salon.update({
-        where: { id: request.params.id },
-        data: {
-          name: payload.name ?? undefined,
-          city: payload.city ?? undefined,
-          address: payload.address ?? undefined,
-          phone: payload.phone ?? undefined,
-          email: payload.email ?? undefined,
-          website: payload.website ?? undefined,
-          description: payload.description ?? undefined,
-          isVip: payload.isVip ?? undefined,
-          isWomenOnly: payload.isWomenOnly ?? undefined,
-          openingTime: payload.openingTime ?? undefined,
-          closingTime: payload.closingTime ?? undefined,
-        },
-        include: { services: true, reviews: true },
+      const requestedClassification = normalizeSalonClassification(payload.classification ?? salon.classification);
+      const requestedAdminVip = user.role === "ADMIN"
+        ? Boolean(payload.adminVip ?? payload.isVip ?? salon.adminVip)
+        : Boolean(salon.adminVip);
+      if (user.role === "ADMIN" && requestedAdminVip && !getManualVipFlag(salon)) {
+        await assertAdminVipCapacity(prisma, { ignoreSalonId: request.params.id });
+      }
+      const nextSalon = await prisma.$transaction(async (tx) => {
+        await tx.salon.update({
+          where: { id: request.params.id },
+          data: withStalePrismaTypes({
+            name: payload.name ?? undefined,
+            city: payload.city ?? undefined,
+            address: payload.address ?? undefined,
+            phone: payload.phone ?? undefined,
+            email: payload.email ?? undefined,
+            website: payload.website ?? undefined,
+            description: payload.description ?? undefined,
+            isVip: requestedAdminVip,
+            adminVip: requestedAdminVip,
+            classification: requestedClassification,
+            isWomenOnly: payload.isWomenOnly ?? undefined,
+            openingTime: payload.openingTime ?? undefined,
+            closingTime: payload.closingTime ?? undefined,
+            workingDays: payload.workingDays,
+            timeZone: payload.timeZone,
+          }),
+        });
+
+        if (Object.prototype.hasOwnProperty.call(payload, "imageUrl")) {
+          await syncSalonPrimaryImage(tx, request.params.id, payload.imageUrl);
+        }
+
+        return tx.salon.findUnique({
+          where: { id: request.params.id },
+          include: {
+            services: true,
+            reviews: {
+              include: {
+                user: { select: { fullName: true } },
+              },
+            },
+            media: true,
+          },
+        });
       });
 
-      return { salon: { ...nextSalon, services: nextSalon.services.map(serializeService) } };
+      return { salon: serializeSalon(nextSalon) };
     } catch {
       return reply.code(401).send({ error: "Unauthorized" });
     }
@@ -431,6 +658,13 @@ export async function salonRoutes(app: any) {
       }
 
       const payload = parsed.data;
+      const requestedClassification = user.role === "ADMIN"
+        ? normalizeSalonClassification(payload.classification)
+        : "REGULAR";
+      const requestedAdminVip = user.role === "ADMIN" ? Boolean(payload.adminVip ?? payload.isVip) : false;
+      if (requestedAdminVip) {
+        await assertAdminVipCapacity(prisma);
+      }
       const slug = payload.name
         .trim()
         .toLowerCase()
@@ -443,25 +677,46 @@ export async function salonRoutes(app: any) {
         return reply.code(409).send({ error: "Salon slug already exists" });
       }
 
-      const salon = await prisma.salon.create({
-        data: {
-          ownerId: user.id,
-          name: payload.name,
-          slug,
-          city: payload.city,
-          address: payload.address,
-          phone: payload.phone,
-          email: payload.email ?? null,
-          website: payload.website ?? null,
-          description: payload.description ?? null,
-          isVip: payload.isVip ?? false,
-          isWomenOnly: payload.isWomenOnly ?? false,
-          openingTime: payload.openingTime ?? null,
-          closingTime: payload.closingTime ?? null,
-        },
+      const salon = await prisma.$transaction(async (tx) => {
+        const createdSalon = await tx.salon.create({
+          data: withStalePrismaTypes({
+            ownerId: user.id,
+            name: payload.name,
+            slug,
+            city: payload.city,
+            address: payload.address,
+            phone: payload.phone,
+            email: payload.email ?? null,
+            website: payload.website ?? null,
+            description: payload.description ?? null,
+            isVip: requestedAdminVip,
+            adminVip: requestedAdminVip,
+            classification: requestedClassification,
+            isWomenOnly: payload.isWomenOnly ?? false,
+            openingTime: payload.openingTime ?? null,
+            closingTime: payload.closingTime ?? null,
+            workingDays: payload.workingDays ?? [],
+            timeZone: payload.timeZone ?? null,
+          }),
+        });
+
+        await syncSalonPrimaryImage(tx, createdSalon.id, payload.imageUrl);
+
+        return tx.salon.findUnique({
+          where: { id: createdSalon.id },
+          include: {
+            services: true,
+            reviews: {
+              include: {
+                user: { select: { fullName: true } },
+              },
+            },
+            media: true,
+          },
+        });
       });
 
-      return { salon };
+      return { salon: serializeSalon(salon) };
     } catch {
       return reply.code(401).send({ error: "Unauthorized" });
     }

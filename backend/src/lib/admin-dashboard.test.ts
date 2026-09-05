@@ -12,9 +12,9 @@ describe("summarizeAdminDashboard", () => {
         { id: "u3", role: "ADMIN" },
       ],
       salons: [
-        { id: "s1", isActive: true, isVip: true, status: "OPEN" },
-        { id: "s2", isActive: true, isVip: false, status: "BUSY" },
-        { id: "s3", isActive: false, isVip: false, status: "CLOSED" },
+        { id: "s1", isActive: true, isVip: true, adminVip: true, classification: "REGULAR", status: "OPEN" },
+        { id: "s2", isActive: true, isVip: false, adminVip: false, classification: "PREMIUM", status: "BUSY" },
+        { id: "s3", isActive: false, isVip: false, adminVip: false, classification: "REGULAR", status: "CLOSED" },
       ],
       barbers: [
         { id: "b1", isActive: true },
@@ -74,6 +74,7 @@ describe("summarizeAdminDashboard", () => {
     assert.equal(summary.blockedSlots, 1);
     assert.equal(summary.activeSubscriptions, 2);
     assert.equal(summary.premiumSalons, 1);
+    assert.equal(summary.manualVipSalons, 1);
     assert.equal(summary.totalBookings, 3);
     assert.equal(summary.pendingBookings, 1);
     assert.equal(summary.totalReviews, 2);

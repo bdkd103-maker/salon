@@ -83,6 +83,8 @@ model Salon {
   website                   String?
   description               String?
   isVip                     Boolean                         @default(false)
+  adminVip                  Boolean                         @default(false)
+  classification            SalonClassification             @default(REGULAR)
   isWomenOnly               Boolean                         @default(false)
   isActive                  Boolean                         @default(true)
   status                    SalonStatus                     @default(OPEN)
@@ -90,6 +92,8 @@ model Salon {
   reviewCount               Int                             @default(0)
   openingTime               String?
   closingTime               String?
+  workingDays               String[]                        @default([])
+  timeZone                  String?
   createdAt                 DateTime                        @default(now())
   updatedAt                 DateTime                        @updatedAt
   analyticsEvents           AnalyticsEvent[]
@@ -383,6 +387,11 @@ enum SalonStatus {
   BUSY
   QUIET
   CLOSED
+}
+
+enum SalonClassification {
+  REGULAR
+  PREMIUM
 }
 
 enum BookingStatus {

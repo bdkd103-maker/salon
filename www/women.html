@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
       --bg: #f8f1eb;
@@ -57,8 +58,7 @@
     body[dir="rtl"] { font-family: "Cairo", sans-serif; }
     body {
       padding: calc(20px + var(--safe-top)) calc(18px + var(--safe-right)) calc(52px + var(--safe-bottom)) calc(18px + var(--safe-left));
-      opacity: 0;
-      animation: pageFadeIn 0.5s ease forwards;
+      opacity: 1;
       line-height: 1.75;
       position: relative;
       isolation: isolate;
@@ -77,9 +77,9 @@
     body::before {
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(253, 249, 245, 0.88), rgba(249, 242, 236, 0.93)),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
-      backdrop-filter: blur(4px) saturate(0.88);
+        linear-gradient(180deg, rgba(253, 249, 245, 0.6), rgba(249, 242, 236, 0.68)),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+      backdrop-filter: blur(2px) saturate(0.94);
     }
     body::after {
       inset: auto -54px 8% auto;
@@ -126,73 +126,174 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: clamp(18px, 4vw, 36px);
-      background:
-        linear-gradient(180deg, rgba(29, 20, 18, 0.35), rgba(29, 20, 18, 0.72)),
-        url("./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg") center center / cover no-repeat;
+      padding: 12px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #f5efe8;
     }
     .experience-gate.show { display: flex; }
     .experience-gate-panel {
-      width: min(500px, 100%);
-      padding: clamp(24px, 5vw, 38px);
+      position: relative;
+      width: min(100%, 1440px);
+      min-height: calc(100dvh - 24px);
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 28px;
-      background: rgba(255, 249, 244, 0.82);
-      border: 1px solid rgba(120, 80, 72, 0.12);
-      box-shadow: 0 28px 62px rgba(63, 40, 36, 0.16);
-      backdrop-filter: blur(18px);
+      overflow: hidden;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
+    }
+    .experience-gate-visual {
+      position: absolute;
+      inset: 0;
+      background-color: #ebe0d7;
+    }
+    .experience-gate-visual img {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 38%;
+    }
+    .experience-gate-copy {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: min(430px, calc(100% - 32px));
+      padding: clamp(22px, 3vw, 32px);
+      border-radius: 26px;
+      background: rgba(248, 241, 235, 0.64);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 18px 40px rgba(51, 32, 24, 0.14);
+      backdrop-filter: blur(6px);
+      color: #241c19;
       text-align: center;
     }
     .experience-gate-brand {
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 18px;
-      color: var(--accent-strong);
+      margin: 0;
+      color: #3c2b24;
       font-family: "Playfair Display", serif;
       font-style: italic;
-      font-size: clamp(1.6rem, 4vw, 2.25rem);
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
       letter-spacing: 0.04em;
     }
+    .experience-gate-brand .logo-mark,
+    .experience-gate-brand .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: rgba(255, 251, 247, 0.96);
+      color: #b67f4f;
+      box-shadow: 0 14px 30px rgba(111, 74, 49, 0.14);
+      flex: 0 0 auto;
+    }
     .experience-gate-panel h2 {
-      margin-bottom: 10px;
-      font-size: clamp(2rem, 6vw, 2.9rem);
+      margin: 0;
+      color: #221916;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 0.98;
     }
     .experience-gate-panel p {
-      margin: 0 auto 22px;
-      max-width: 32rem;
-      color: var(--muted);
+      margin: 0;
+      max-width: 28rem;
+      color: #6e5b52;
+      font-size: 1rem;
+      line-height: 1.6;
     }
     .experience-gate-actions {
       display: grid;
-      gap: 12px;
+      gap: 14px;
+      margin-top: 4px;
     }
     .experience-gate-choice {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
       width: 100%;
-      padding: 16px 18px;
-      border-radius: 22px;
-      border: 1px solid rgba(120, 80, 72, 0.12);
-      background: rgba(255,255,255,0.7);
-      color: var(--ink);
+      padding: 18px 20px;
+      border-radius: 24px;
+      border: 1px solid rgba(136, 102, 82, 0.12);
+      background: rgba(255, 252, 249, 0.96);
+      color: #241c19;
+      box-shadow: 0 12px 28px rgba(79, 58, 49, 0.08);
       text-align: start;
+    }
+    .experience-gate-choice:first-child {
+      background: #fbf2ea;
+    }
+    .experience-gate-choice > span {
+      display: block;
+      flex: 1 1 auto;
     }
     .experience-gate-choice strong {
       display: block;
       margin-bottom: 4px;
-      font-size: 1.05rem;
+      font-size: 1.08rem;
+      color: #201714;
     }
-    .experience-gate-choice span {
-      color: var(--muted);
+    .experience-gate-choice span span {
+      color: #6e5b52;
       font-size: 0.94rem;
+      line-height: 1.5;
     }
     .experience-gate-choice i {
-      color: var(--accent-strong);
+      color: #b67f4f;
+      flex: 0 0 auto;
+    }
+    .experience-gate-choice:focus-visible {
+      outline: 2px solid rgba(182, 127, 79, 0.7);
+      outline-offset: 3px;
+    }
+    @media (max-width: 760px) {
+      .experience-gate {
+        padding: 12px;
+      }
+      .experience-gate-panel {
+        min-height: calc(100dvh - 24px);
+        border-radius: 24px;
+      }
+      .experience-gate-copy {
+        width: min(100%, 420px);
+        padding: 20px 18px 22px;
+        gap: 16px;
+      }
+      .experience-gate-brand {
+        font-size: clamp(1.5rem, 8vw, 2rem);
+      }
+      .experience-gate-brand .logo-mark,
+      .experience-gate-brand .brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+      }
+      .experience-gate-panel h2 {
+        font-size: clamp(1.8rem, 7vw, 2.4rem);
+      }
+      .experience-gate-panel p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .experience-gate-choice {
+        padding: 16px 18px;
+        border-radius: 20px;
+      }
     }
     .app-stack {
-      width: min(1040px, 100%);
+      width: min(1160px, 100%);
       margin: 0 auto;
       display: grid;
       gap: 16px;
@@ -208,8 +309,8 @@
       border: 1px solid rgba(120, 80, 72, 0.07);
       box-shadow: 0 18px 38px rgba(84, 61, 57, 0.08);
       backdrop-filter: blur(18px);
-      position: sticky;
-      top: calc(6px + var(--safe-top));
+      position: static;
+      top: auto;
       z-index: 12;
       margin-bottom: 2px;
     }
@@ -329,16 +430,105 @@
       cursor: pointer;
       box-shadow: 0 10px 20px rgba(91, 67, 60, 0.05), inset 0 1px 0 rgba(255,255,255,0.35);
     }
+    .lang-select-shell {
+      position: relative;
+      min-width: 110px;
+    }
     .lang-select {
-      background: rgba(255,255,255,0.86);
-      border: 1px solid rgba(120, 80, 72, 0.08);
-      color: var(--ink);
-      border-radius: 18px;
-      padding: 12px 14px;
-      font: inherit;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .lang-select-trigger {
+      width: 100%;
       min-height: 50px;
-      outline: none;
+      padding: 10px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(120, 80, 72, 0.08);
+      background: rgba(255,255,255,0.86);
+      color: var(--ink);
       box-shadow: 0 10px 20px rgba(73, 55, 52, 0.04);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .lang-select-trigger:focus-visible {
+      outline: 2px solid rgba(184, 111, 106, 0.32);
+      outline-offset: 2px;
+    }
+    .lang-select-current,
+    .lang-select-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .lang-select-code {
+      color: var(--ink);
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .lang-select-caret {
+      color: rgba(73, 55, 52, 0.74);
+      font-size: 0.76rem;
+      flex: 0 0 auto;
+    }
+    .lang-select-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      inset-inline-end: 0;
+      min-width: 100%;
+      padding: 8px;
+      border-radius: 18px;
+      border: 1px solid rgba(120, 80, 72, 0.1);
+      background: rgba(255, 251, 247, 0.96);
+      box-shadow: 0 18px 34px rgba(84, 61, 57, 0.12);
+      backdrop-filter: blur(16px);
+      display: grid;
+      gap: 4px;
+      z-index: 20;
+    }
+    .lang-select-menu[hidden] {
+      display: none;
+    }
+    .lang-select-option {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      text-align: start;
+      cursor: pointer;
+      font: inherit;
+    }
+    .lang-select-option:hover,
+    .lang-select-option.is-active {
+      background: rgba(184, 111, 106, 0.08);
+    }
+    .lang-flag {
+      width: 24px;
+      height: 16px;
+      border-radius: 5px;
+      overflow: hidden;
+      flex: 0 0 auto;
+      box-shadow: inset 0 0 0 1px rgba(36, 25, 24, 0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.6);
+    }
+    .lang-flag svg {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
     .btn {
       appearance: none;
@@ -1935,6 +2125,280 @@
       padding: 10px 12px;
       font: inherit;
     }
+    .card[data-open-profile-salon],
+    .nearby-item[data-open-profile-salon],
+    .popular-card[data-open-profile-salon] {
+      cursor: pointer;
+    }
+    .card[data-open-profile-salon]:focus-visible,
+    .nearby-item[data-open-profile-salon]:focus-visible,
+    .popular-card[data-open-profile-salon]:focus-visible {
+      outline: 2px solid rgba(184, 111, 106, 0.45);
+      outline-offset: 3px;
+    }
+    .salon-profile-modal .modal-box {
+      width: min(900px, 96vw);
+      max-height: 92vh;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255, 250, 247, 0.98), rgba(248, 240, 236, 0.96));
+      border: 1px solid rgba(184, 111, 106, 0.16);
+      box-shadow: 0 34px 72px rgba(49, 30, 28, 0.24);
+    }
+    .salon-profile-shell {
+      max-height: 92vh;
+      overflow: auto;
+      background: linear-gradient(180deg, rgba(255, 250, 247, 0.98), rgba(248, 240, 236, 0.96));
+    }
+    .salon-profile-state {
+      display: grid;
+      gap: 10px;
+      padding: 34px 28px;
+      color: var(--accent-strong);
+      text-align: center;
+    }
+    .salon-profile-state p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .salon-profile-hero {
+      position: relative;
+      min-height: 280px;
+      display: flex;
+      align-items: flex-end;
+      background: linear-gradient(180deg, rgba(248, 228, 221, 0.9), rgba(236, 214, 205, 0.9));
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .salon-profile-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(44, 27, 28, 0.14), rgba(44, 27, 28, 0.56));
+      z-index: 0;
+    }
+    .salon-profile-hero-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      padding: 26px 28px 24px;
+      color: #fffaf8;
+    }
+    .salon-profile-hero-top,
+    .salon-profile-meta,
+    .salon-profile-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .salon-profile-badge,
+    .salon-profile-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.14);
+      color: #fffaf8;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .salon-profile-name {
+      margin: 14px 0 10px;
+      color: #fffaf8;
+      font-size: clamp(2rem, 3vw, 2.7rem);
+      line-height: 1;
+    }
+    .salon-profile-meta {
+      justify-content: flex-start;
+      color: rgba(255, 250, 248, 0.84);
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+    .salon-profile-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .salon-profile-highlights {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .salon-profile-highlight {
+      display: grid;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+    .salon-profile-highlight span,
+    .salon-profile-highlight small {
+      color: rgba(255, 250, 248, 0.78);
+      font-size: 0.75rem;
+      line-height: 1.45;
+    }
+    .salon-profile-highlight strong {
+      color: #fffaf8;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+    .salon-profile-content {
+      display: grid;
+      gap: 18px;
+      padding: 22px 24px 24px;
+    }
+    .salon-profile-section {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(120, 80, 72, 0.08);
+      background: rgba(255,255,255,0.72);
+      box-shadow: 0 10px 24px rgba(95, 66, 59, 0.04);
+    }
+    .salon-profile-section h3 {
+      margin: 0;
+      color: var(--accent-strong);
+      font-size: 1.05rem;
+    }
+    .salon-profile-price-list,
+    .salon-profile-grid,
+    .salon-profile-gallery {
+      display: grid;
+      gap: 10px;
+    }
+    .salon-profile-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .salon-profile-price-item,
+    .salon-profile-review {
+      display: grid;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(120, 80, 72, 0.08);
+      background: rgba(255,255,255,0.82);
+    }
+    .salon-profile-price-item strong,
+    .salon-profile-review strong {
+      color: var(--accent-strong);
+    }
+    .salon-profile-price-item span,
+    .salon-profile-review p,
+    .salon-profile-story,
+    .salon-profile-hours li span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+    .salon-profile-review p,
+    .salon-profile-story {
+      margin: 0;
+    }
+    .salon-profile-review-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .salon-profile-review-head small {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .salon-profile-hours {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .salon-profile-hours li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(120, 80, 72, 0.08);
+    }
+    .salon-profile-hours li strong {
+      color: var(--accent-strong);
+      font-size: 0.86rem;
+    }
+    .salon-profile-gallery {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+    .salon-profile-gallery img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      border-radius: 18px;
+      background: rgba(120, 80, 72, 0.08);
+    }
+    .salon-profile-cta {
+      position: sticky;
+      bottom: 0;
+      padding: 16px 24px 24px;
+      background: linear-gradient(180deg, rgba(248, 240, 236, 0), rgba(248, 240, 236, 0.96) 35%);
+    }
+    .salon-profile-cta .btn {
+      min-height: 46px;
+    }
+    @media (max-width: 760px) {
+      .salon-profile-hero-inner,
+      .salon-profile-content,
+      .salon-profile-cta {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+      .salon-profile-highlights,
+      .salon-profile-grid {
+        grid-template-columns: 1fr;
+      }
+      .salon-profile-name {
+        font-size: clamp(1.7rem, 7vw, 2.2rem);
+      }
+      .salon-profile-gallery {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 520px) {
+      .salon-profile-hero {
+        min-height: 228px;
+      }
+      .salon-profile-content {
+        gap: 14px;
+      }
+      .salon-profile-section {
+        padding: 14px;
+      }
+      .salon-profile-gallery {
+        grid-template-columns: 1fr;
+      }
+      .salon-profile-hours li,
+      .salon-profile-review-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .salon-profile-cta .btn {
+        width: 100%;
+      }
+    }
     .customer-auth-grid,
     .customer-form-grid {
       display: grid;
@@ -2266,7 +2730,7 @@
       .header-field,
       .header-search,
       .profile-button,
-      .lang-select,
+      .lang-select-trigger,
       .btn {
         min-height: 42px;
       }
@@ -2331,27 +2795,32 @@
 <body>
   <div class="experience-gate" id="experienceGate" aria-modal="true" role="dialog" aria-labelledby="experienceGateTitle">
     <div class="experience-gate-panel">
-      <div class="experience-gate-brand">
-        <span class="brand-mark"><i class="fa-solid fa-scissors"></i></span>
-        <span id="experienceGateBrand">Beauty &amp; Hair</span>
+      <div class="experience-gate-visual" aria-hidden="true">
+        <img src="./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg" alt="">
       </div>
-      <h2 id="experienceGateTitle">اختري التجربة المناسبة</h2>
-      <p id="experienceGateText">تابعي إلى صفحة النساء أو الرجال بدون الحاجة إلى تسجيل الدخول أولاً.</p>
-      <div class="experience-gate-actions">
-        <button class="experience-gate-choice" id="experienceGateWomen" type="button">
-          <span>
-            <strong id="experienceGateWomenLabel">Frauen / Women</strong>
-            <span id="experienceGateWomenText">الانتقال إلى تجربة النساء</span>
-          </span>
-          <i class="fa-solid fa-arrow-left-long" aria-hidden="true"></i>
-        </button>
-        <button class="experience-gate-choice" id="experienceGateMen" type="button">
-          <span>
-            <strong id="experienceGateMenLabel">Männer / Men</strong>
-            <span id="experienceGateMenText">الانتقال إلى تجربة الرجال</span>
-          </span>
-          <i class="fa-solid fa-arrow-left-long" aria-hidden="true"></i>
-        </button>
+      <div class="experience-gate-copy">
+        <div class="experience-gate-brand">
+          <span class="brand-mark"><i class="fa-solid fa-scissors"></i></span>
+          <span id="experienceGateBrand">Beauty &amp; Hair</span>
+        </div>
+        <h2 id="experienceGateTitle">اختري القسم المناسب</h2>
+        <p id="experienceGateText">اختاري تجربة النساء أو الرجال للمتابعة إلى الصفحة المناسبة دون الحاجة إلى تسجيل الدخول.</p>
+        <div class="experience-gate-actions">
+          <button class="experience-gate-choice" id="experienceGateWomen" type="button">
+            <span>
+              <strong id="experienceGateWomenLabel">Frauen / Women</strong>
+              <span id="experienceGateWomenText">الانتقال إلى تجربة النساء</span>
+            </span>
+            <i class="fa-solid fa-arrow-left-long" aria-hidden="true"></i>
+          </button>
+          <button class="experience-gate-choice" id="experienceGateMen" type="button">
+            <span>
+              <strong id="experienceGateMenLabel">Männer / Men</strong>
+              <span id="experienceGateMenText">الانتقال إلى تجربة الرجال</span>
+            </span>
+            <i class="fa-solid fa-arrow-left-long" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2385,11 +2854,56 @@
         </button>
       </div>
 
-      <select class="lang-select" id="languageSelect" aria-label="Language" data-i18n-aria-label="languageAria">
-        <option value="ar">عربي</option>
-        <option value="en">EN</option>
-        <option value="de">DE</option>
-      </select>
+      <div class="lang-select-shell">
+        <select class="lang-select" id="languageSelect" aria-label="Language" data-i18n-aria-label="languageAria">
+          <option value="ar">عربي</option>
+          <option value="en">EN</option>
+          <option value="de">DE</option>
+        </select>
+        <button type="button" class="lang-select-trigger" id="languageSelectTrigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Language" data-i18n-aria-label="languageAria">
+          <span class="lang-select-current">
+            <span class="lang-flag" id="languageSelectFlag" aria-hidden="true"></span>
+            <span class="lang-select-code" id="languageSelectCode">AR</span>
+          </span>
+          <i class="fa-solid fa-chevron-down lang-select-caret" aria-hidden="true"></i>
+        </button>
+        <div class="lang-select-menu" id="languageSelectMenu" role="listbox" aria-label="Language options" hidden>
+          <button type="button" class="lang-select-option" data-language-option="de" role="option" aria-selected="false">
+            <span class="lang-flag" aria-hidden="true">
+              <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="16" fill="#ffce00"/>
+                <rect width="24" height="10.6667" y="0" fill="#dd0000"/>
+                <rect width="24" height="5.3333" y="0" fill="#000000"/>
+              </svg>
+            </span>
+            <span class="lang-select-code">DE</span>
+          </button>
+          <button type="button" class="lang-select-option" data-language-option="en" role="option" aria-selected="false">
+            <span class="lang-flag" aria-hidden="true">
+              <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="16" fill="#012169"/>
+                <path d="M0 0L24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/>
+                <path d="M0 0L24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.6"/>
+                <path d="M12 0V16M0 8H24" stroke="#fff" stroke-width="5.4"/>
+                <path d="M12 0V16M0 8H24" stroke="#C8102E" stroke-width="3"/>
+              </svg>
+            </span>
+            <span class="lang-select-code">EN</span>
+          </button>
+          <button type="button" class="lang-select-option" data-language-option="ar" role="option" aria-selected="false">
+            <span class="lang-flag" aria-hidden="true">
+              <svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="16" fill="#ed1c24"/>
+                <rect y="3.5" width="24" height="9" fill="#ffffff"/>
+                <path d="M12 4.8L13.3 7.6H14.9L13.5 9.3L14.5 12.2L12 10.6L9.5 12.2L10.5 9.3L9.1 7.6H10.7L12 4.8Z" fill="#007A3D"/>
+                <path d="M12 5.6C10.9 7 10.3 8.2 10 9.2C10.7 8.9 11.4 8.8 12 8.8C12.6 8.8 13.3 8.9 14 9.2C13.7 8.2 13.1 7 12 5.6Z" fill="#007A3D"/>
+                <rect x="11.5" y="8.7" width="1" height="2.8" rx="0.4" fill="#007A3D"/>
+              </svg>
+            </span>
+            <span class="lang-select-code">AR</span>
+          </button>
+        </div>
+      </div>
     </header>
 
     <div class="app-stack">
@@ -2764,6 +3278,13 @@
     </div>
   </div>
 
+  <div class="modal salon-profile-modal" id="salonProfileModal" aria-modal="true" role="dialog">
+    <div class="modal-box">
+      <button class="close" data-close="salonProfileModal" type="button">×</button>
+      <div id="salonProfileContent"></div>
+    </div>
+  </div>
+
   <script>
     const categoryDefinitions = [
       { key: "haircut", icon: "fa-scissors", tintStart: "#f6ddd6", tintEnd: "#edd0c7", iconColor: "#8d5d58", glow: "rgba(208, 152, 141, 0.24)", label: { ar: "قص شعر", en: "Haircut", de: "Haarschnitt" }, keywords: ["haircut", "haarschnitt", "friseur", "styling", "cut", "trim", "hair", "scissors", "قص", "تصفيف", "حلاقة"] },
@@ -2793,7 +3314,7 @@
     function getCategoryPreviewCover(categoryKey) {
       const salons = collectWomenSalonCandidates()
         .filter(salon => categoryMatchesSalon(salon, categoryKey));
-      if (!salons.length) return "";
+      if (!salons.length) return buildOptimizedImageUrl(categoryFallbackCovers[categoryKey] || salonCards[0], 640);
       const preferred = salons.find(salon => salon?.image || salon?.photo || salon?.cover || salon?.img) || salons[0];
       return getSalonCover(preferred, 0);
     }
@@ -2884,7 +3405,7 @@
         const note = premium ? copy.popularPremiumNote : copy.popularStandardNote;
         const services = getWomenServicePreview(salon).slice(0, 2);
         return `
-          <article class="popular-card">
+          <article class="popular-card" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
             <div class="popular-card-media" style="background-image:url('${escapeHtml(String(cover))}')">
               <div class="popular-card-media-top">
                 <span class="popular-rating">★ ${escapeHtml(String(rating.toFixed(1)))}</span>
@@ -2906,6 +3427,7 @@
           </article>
         `;
       }).join("");
+      bindWomenSalonProfileCardTriggers();
     }
 
     function renderWomenOffers() {
@@ -3536,10 +4058,10 @@
       ar: {
         gateTitle: "اختري التجربة المناسبة",
         gateText: "تابعي إلى صفحة النساء أو الرجال بدون الحاجة إلى تسجيل الدخول أولاً.",
-        gateWomenLabel: "Frauen / Women",
-        gateWomenText: "الانتقال إلى تجربة النساء",
-        gateMenLabel: "Männer / Men",
-        gateMenText: "الانتقال إلى تجربة الرجال",
+        gateWomenLabel: "النساء",
+        gateWomenText: "الانتقال إلى قسم النساء",
+        gateMenLabel: "الرجال",
+        gateMenText: "الانتقال إلى قسم الرجال",
         loginEyebrow: "تسجيل الدخول",
         loginHeading: "مرحباً بعودتك",
         loginIntro: "سجلي دخول الزبون للوصول إلى ملفك الشخصي ومتابعة الحجز.",
@@ -3576,10 +4098,10 @@
       en: {
         gateTitle: "Choose your experience",
         gateText: "Continue to the women or men page without signing in first.",
-        gateWomenLabel: "Women / Frauen",
-        gateWomenText: "Go to the women experience",
-        gateMenLabel: "Men / Männer",
-        gateMenText: "Go to the men experience",
+        gateWomenLabel: "Women",
+        gateWomenText: "Go to the women's section",
+        gateMenLabel: "Men",
+        gateMenText: "Go to the men's section",
         loginEyebrow: "Login",
         loginHeading: "Welcome back",
         loginIntro: "Sign in as a customer to access your profile and continue booking.",
@@ -3616,9 +4138,9 @@
       de: {
         gateTitle: "Wählen Sie Ihren Bereich",
         gateText: "Wechseln Sie ohne Anmeldung zuerst in den Frauen- oder Männerbereich.",
-        gateWomenLabel: "Frauen / Women",
+        gateWomenLabel: "Frauen",
         gateWomenText: "Zum Frauenbereich wechseln",
-        gateMenLabel: "Männer / Men",
+        gateMenLabel: "Männer",
         gateMenText: "Zum Männerbereich wechseln",
         loginEyebrow: "Anmelden",
         loginHeading: "Willkommen zurück",
@@ -3670,6 +4192,17 @@
       "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
       "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg"
     ];
+    const categoryFallbackCovers = {
+      haircut: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      color: "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      balayage: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      nails: "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      lashes: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      makeup: "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      cosmetics: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      beauty: "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      bridal: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg"
+    };
     let activeBackgroundIndex = 0;
 
     function buildOptimizedImageUrl(url, width = 900) {
@@ -3749,12 +4282,51 @@
       if (document.getElementById("languageSelect")) {
         document.getElementById("languageSelect").value = nextLang;
       }
+      updateLanguageSelectorUI(nextLang);
+      syncWomenHeaderFilters();
       applyWomenCustomerFlowCopy();
       renderLegalModals();
+      renderCategoryButtons();
       renderPopularSalons();
       renderWomenSalons();
       renderNearbySalons();
       renderWomenOffers();
+    }
+
+    const languageFlagMarkup = {
+      de: '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="16" fill="#ffce00"/><rect width="24" height="10.6667" y="0" fill="#dd0000"/><rect width="24" height="5.3333" y="0" fill="#000000"/></svg>',
+      en: '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="16" fill="#012169"/><path d="M0 0L24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0L24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.6"/><path d="M12 0V16M0 8H24" stroke="#fff" stroke-width="5.4"/><path d="M12 0V16M0 8H24" stroke="#C8102E" stroke-width="3"/></svg>',
+      ar: '<svg viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="16" fill="#ed1c24"/><rect y="3.5" width="24" height="9" fill="#ffffff"/><path d="M12 4.8L13.3 7.6H14.9L13.5 9.3L14.5 12.2L12 10.6L9.5 12.2L10.5 9.3L9.1 7.6H10.7L12 4.8Z" fill="#007A3D"/><path d="M12 5.6C10.9 7 10.3 8.2 10 9.2C10.7 8.9 11.4 8.8 12 8.8C12.6 8.8 13.3 8.9 14 9.2C13.7 8.2 13.1 7 12 5.6Z" fill="#007A3D"/><rect x="11.5" y="8.7" width="1" height="2.8" rx="0.4" fill="#007A3D"/></svg>'
+    };
+
+    function updateLanguageSelectorUI(lang = document.getElementById("languageSelect")?.value || defaultLang) {
+      const normalizedLang = languageFlagMarkup[lang] ? lang : "ar";
+      const flag = document.getElementById("languageSelectFlag");
+      const code = document.getElementById("languageSelectCode");
+      if (flag) flag.innerHTML = languageFlagMarkup[normalizedLang];
+      if (code) code.textContent = normalizedLang.toUpperCase();
+      document.querySelectorAll("[data-language-option]").forEach(button => {
+        const isActive = button.dataset.languageOption === normalizedLang;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+    }
+
+    function closeLanguageSelectorMenu() {
+      const menu = document.getElementById("languageSelectMenu");
+      const trigger = document.getElementById("languageSelectTrigger");
+      if (!menu || !trigger) return;
+      menu.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleLanguageSelectorMenu(forceOpen) {
+      const menu = document.getElementById("languageSelectMenu");
+      const trigger = document.getElementById("languageSelectTrigger");
+      if (!menu || !trigger) return;
+      const nextState = typeof forceOpen === "boolean" ? forceOpen : menu.hidden;
+      menu.hidden = !nextState;
+      trigger.setAttribute("aria-expanded", String(nextState));
     }
 
     function renderLegalModals() {
@@ -4132,8 +4704,10 @@
     function shouldShowExperienceGate() {
       const params = new URLSearchParams(window.location.search);
       if (params.get("customerAuth") === "login") return false;
+      if (params.get("preview") === "1") return false;
+      if (params.get("admin") === "1") return false;
       if (sessionStorage.getItem("meshwarEntryChoiceSeen") === "true") return false;
-      if (womenSession?.role === "admin" || womenSession?.role === "owner" || hasStoredCustomerAuth()) return false;
+      if (womenSession?.role === "admin" || womenSession?.role === "owner") return false;
       return true;
     }
 
@@ -4351,8 +4925,9 @@
 
     function normalizeSalon(salon) {
       if (!salon || typeof salon !== "object") return null;
-      const womenFlag = normalizeBooleanFlag(salon.forWomen ?? salon.women ?? salon.isForWomen ?? salon.gender ?? salon.category ?? salon.targetAudience ?? salon.section ?? false);
+      const womenFlag = normalizeBooleanFlag(salon.forWomen ?? salon.women ?? salon.isWomenOnly ?? salon.isForWomen ?? salon.gender ?? salon.category ?? salon.targetAudience ?? salon.section ?? false);
       return {
+        ...salon,
         id: salon.id || `salon-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         name: salon.name || "Salon",
         city: salon.city || "",
@@ -4363,12 +4938,638 @@
         status: salon.status || "quiet",
         totalChairs: Number(salon.totalChairs || 0),
         availableChairs: Number(salon.availableChairs || 0),
+        isWomenOnly: womenFlag,
         forWomen: womenFlag,
         women: womenFlag,
         workingDays: Array.isArray(salon.workingDays) && salon.workingDays.length ? salon.workingDays : ["mon", "tue", "wed", "thu", "fri", "sat"],
         rating: Number(salon.rating || 0),
-        ratingCount: Number(salon.ratingCount || 0)
+        ratingCount: Number(salon.ratingCount ?? salon.reviewCount ?? 0),
+        reviewCount: Number(salon.reviewCount ?? salon.ratingCount ?? 0),
+        services: Array.isArray(salon.services) ? salon.services : [],
+        customServices: Array.isArray(salon.customServices) ? salon.customServices : [],
+        barbers: Array.isArray(salon.barbers) ? salon.barbers : [],
+        reviews: Array.isArray(salon.reviews) ? salon.reviews : [],
+        media: Array.isArray(salon.media) ? salon.media : [],
+        offers: Array.isArray(salon.offers) ? salon.offers : [],
+        gallery: Array.isArray(salon.gallery) ? salon.gallery : []
       };
+    }
+
+    function getWomenSalonProfileCopy(lang = document.documentElement.lang || defaultLang) {
+      const map = {
+        ar: {
+          loading: "جار تحميل بيانات الصالون...",
+          services: "الخدمات",
+          staff: "الفريق",
+          about: "نبذة",
+          openingHours: "أوقات العمل",
+          gallery: "الصور",
+          reviews: "التقييمات",
+          loyalty: "بطاقة الولاء",
+          offers: "العروض",
+          location: "الموقع والتواصل",
+          status: "الحالة",
+          availability: "التوفر",
+          serviceCount: "الخدمات",
+          closed: "مغلق",
+          noRating: "لا يوجد تقييم",
+          vip: "VIP",
+          premium: "Premium",
+          regular: "Regular"
+        },
+        en: {
+          loading: "Loading salon details...",
+          services: "Services",
+          staff: "Staff",
+          about: "About",
+          openingHours: "Opening hours",
+          gallery: "Gallery",
+          reviews: "Reviews",
+          loyalty: "Loyalty",
+          offers: "Offers",
+          location: "Location & contact",
+          status: "Status",
+          availability: "Availability",
+          serviceCount: "Services",
+          closed: "Closed",
+          noRating: "No rating",
+          vip: "VIP",
+          premium: "Premium",
+          regular: "Regular"
+        },
+        de: {
+          loading: "Salondetails werden geladen...",
+          services: "Services",
+          staff: "Team",
+          about: "Über den Salon",
+          openingHours: "Öffnungszeiten",
+          gallery: "Galerie",
+          reviews: "Bewertungen",
+          loyalty: "Treuekarte",
+          offers: "Angebote",
+          location: "Standort & Kontakt",
+          status: "Status",
+          availability: "Verfügbarkeit",
+          serviceCount: "Services",
+          closed: "Geschlossen",
+          noRating: "Keine Bewertung",
+          vip: "VIP",
+          premium: "Premium",
+          regular: "Regular"
+        }
+      };
+      return map[lang] || map.en;
+    }
+
+    function getWomenWorkingDayMap(lang = document.documentElement.lang || defaultLang) {
+      const labels = {
+        ar: { mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس", fri: "الجمعة", sat: "السبت", sun: "الأحد" },
+        en: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
+        de: { mon: "Montag", tue: "Dienstag", wed: "Mittwoch", thu: "Donnerstag", fri: "Freitag", sat: "Samstag", sun: "Sonntag" }
+      };
+      return labels[lang] || labels.en;
+    }
+
+    function normalizeWomenSalonProfileData(salon) {
+      if (!salon || typeof salon !== "object") return null;
+      return {
+        ...salon,
+        media: Array.isArray(salon.media) ? salon.media : [],
+        gallery: Array.isArray(salon.gallery) ? salon.gallery : [],
+        services: Array.isArray(salon.services) ? salon.services : [],
+        customServices: Array.isArray(salon.customServices) ? salon.customServices : [],
+        reviews: Array.isArray(salon.reviews) ? salon.reviews : [],
+        barbers: Array.isArray(salon.barbers) ? salon.barbers : [],
+        offers: Array.isArray(salon.offers) ? salon.offers : [],
+        workingDays: Array.isArray(salon.workingDays) ? salon.workingDays.filter(Boolean) : [],
+        rating: Number(salon.rating || 0),
+        ratingCount: Number(salon.ratingCount ?? salon.reviewCount ?? 0),
+        reviewCount: Number(salon.reviewCount ?? salon.ratingCount ?? 0)
+      };
+    }
+
+    function getWomenSalonReviewCount(salon) {
+      if (Number.isFinite(Number(salon?.reviewCount))) return Number(salon.reviewCount);
+      if (Number.isFinite(Number(salon?.ratingCount))) return Number(salon.ratingCount);
+      if (Array.isArray(salon?.reviews)) return salon.reviews.length;
+      if (Number.isFinite(Number(salon?.votes))) return Number(salon.votes);
+      return 0;
+    }
+
+    function formatWomenSalonProfilePrice(value) {
+      if (value == null || value === "") return "";
+      const numeric = Number(value);
+      if (Number.isFinite(numeric) && numeric > 0) return `${numeric.toFixed(Number.isInteger(numeric) ? 0 : 2)} €`;
+      return String(value).trim();
+    }
+
+    function formatWomenSalonProfileDuration(value) {
+      if (value == null || value === "") return "";
+      const numeric = Number(value);
+      if (Number.isFinite(numeric) && numeric > 0) return `${Math.round(numeric)} min`;
+      return String(value).trim();
+    }
+
+    function isRenderableWomenSalonImageUrl(value) {
+      const text = String(value || "").trim();
+      return Boolean(text && !/^undefined|null$/i.test(text));
+    }
+
+    function getWomenSalonProfileGallery(salon) {
+      const mediaUrls = Array.isArray(salon?.media) ? salon.media.map(entry => entry?.url) : [];
+      const galleryUrls = Array.isArray(salon?.gallery) ? salon.gallery : [];
+      return Array.from(new Set([
+        salon?.image,
+        salon?.photo,
+        salon?.cover,
+        salon?.img,
+        ...mediaUrls,
+        ...galleryUrls
+      ].map(value => String(value || "").trim()).filter(isRenderableWomenSalonImageUrl))).slice(0, 6);
+    }
+
+    function getWomenSalonProfileOpeningHours(salon) {
+      const orderedDays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+      const workingDayMap = getWomenWorkingDayMap();
+      const openTime = String(salon?.openingTime || salon?.open || "").trim();
+      const closeTime = String(salon?.closingTime || salon?.close || "").trim();
+      const rawDays = Array.isArray(salon?.workingDays) ? salon.workingDays : [];
+      const defaultDaysMatch = rawDays.length === 6
+        && rawDays.every((entry, index) => typeof entry === "string" && entry === ["mon", "tue", "wed", "thu", "fri", "sat"][index])
+        && !salon?.openingTime
+        && !salon?.closingTime
+        && String(salon?.open || "") === "09:00"
+        && String(salon?.close || "") === "20:00";
+
+      if (!rawDays.length || defaultDaysMatch) return [];
+
+      const dayEntries = new Map();
+      rawDays.forEach((entry) => {
+        if (typeof entry === "string") {
+          const key = entry.trim().toLowerCase();
+          if (!key) return;
+          dayEntries.set(key, { isOpen: true, open: openTime, close: closeTime, breakText: "" });
+          return;
+        }
+        if (!entry || typeof entry !== "object") return;
+        const key = String(entry.day || entry.key || entry.name || "").trim().toLowerCase();
+        if (!key) return;
+        const explicitClosed = entry.closed === true || entry.isClosed === true || String(entry.status || "").trim().toLowerCase() === "closed";
+        dayEntries.set(key, {
+          isOpen: !explicitClosed,
+          open: String(entry.open || entry.openingTime || openTime || "").trim(),
+          close: String(entry.close || entry.closingTime || closeTime || "").trim(),
+          breakText: String(entry.breakText || entry.break || entry.interval || entry.pause || "").trim()
+        });
+      });
+
+      return orderedDays.map(dayKey => {
+        const value = dayEntries.get(dayKey);
+        const isOpen = Boolean(value?.isOpen);
+        return {
+          day: workingDayMap[dayKey] || dayKey,
+          isOpen,
+          open: isOpen ? String(value?.open || openTime || "").trim() : "",
+          close: isOpen ? String(value?.close || closeTime || "").trim() : "",
+          breakText: String(value?.breakText || "").trim()
+        };
+      });
+    }
+
+    function getWomenSalonProfileReviews(salon) {
+      const reviews = Array.isArray(salon?.reviews) ? salon.reviews : [];
+      return reviews
+        .map(review => ({
+          name: String(review?.name || review?.user?.fullName || "Customer").trim(),
+          rating: Number(review?.rating || 0),
+          text: String(review?.comment || review?.text || "").trim()
+        }))
+        .filter(review => review.text || review.rating > 0)
+        .slice(0, 6);
+    }
+
+    function getWomenSalonProfileServices(salon) {
+      const services = Array.isArray(salon?.services) ? salon.services : [];
+      const mapped = services.map(service => ({
+        name: String(typeof service === "string" ? service : service?.name || service?.label || "").trim(),
+        price: formatWomenSalonProfilePrice(service?.price),
+        duration: formatWomenSalonProfileDuration(service?.durationMin || service?.duration),
+        category: String(service?.category || "").trim(),
+        description: String(service?.description || "").trim()
+      })).filter(service => service.name);
+      if (mapped.length) return mapped;
+      return (Array.isArray(salon?.customServices) ? salon.customServices : []).map(service => ({
+        name: String(service?.name || service?.label || "").trim(),
+        price: formatWomenSalonProfilePrice(service?.price),
+        duration: formatWomenSalonProfileDuration(service?.durationMin || service?.duration),
+        category: String(service?.category || "").trim(),
+        description: String(service?.description || "").trim()
+      })).filter(service => service.name);
+    }
+
+    function getWomenSalonProfileBarbers(salon) {
+      return (Array.isArray(salon?.barbers) ? salon.barbers : [])
+        .map(barber => ({
+          name: String(barber?.name || "").trim(),
+          role: String(barber?.specialty || barber?.role || "").trim(),
+          status: String(barber?.status || "").trim()
+        }))
+        .filter(barber => barber.name);
+    }
+
+    function normalizeWomenFlashDeal(value) {
+      if (!value || typeof value !== "object") return {};
+      return {
+        title: String(value.title || value.name || "").trim(),
+        description: String(value.description || "").trim(),
+        price: value.price ?? "",
+        discount: value.discount ?? "",
+        active: value.active === true || value.isActive === true,
+        service: String(value.service || value.serviceName || "").trim(),
+        startTime: String(value.startTime || "").trim(),
+        endTime: String(value.endTime || "").trim()
+      };
+    }
+
+    function isWomenFlashDealActive(salon) {
+      const flashDeal = normalizeWomenFlashDeal(salon?.flashDeal || salon?.lastMinuteOffer || salon?.deal || {});
+      return flashDeal.active || Boolean(flashDeal.title || flashDeal.description || flashDeal.price || flashDeal.discount);
+    }
+
+    function getWomenFlashDealWindowText(salon) {
+      const flashDeal = normalizeWomenFlashDeal(salon?.flashDeal || salon?.lastMinuteOffer || salon?.deal || {});
+      if (flashDeal.startTime && flashDeal.endTime) return `${flashDeal.startTime} - ${flashDeal.endTime}`;
+      return flashDeal.startTime || flashDeal.endTime || "";
+    }
+
+    function getWomenSalonProfileOffers(salon) {
+      const copy = getWomenSalonProfileCopy();
+      const offers = [];
+
+      (Array.isArray(salon?.offers) ? salon.offers : []).forEach(offer => {
+        if (!offer || offer.isActive === false) return;
+        const title = String(offer.title || "").trim();
+        const description = String(offer.description || "").trim();
+        const price = formatWomenSalonProfilePrice(offer.discount || offer.price);
+        const meta = [String(offer.serviceName || "").trim(), formatWomenSalonProfilePrice(offer.price)].filter(Boolean);
+        if (!title && !description && !price) return;
+        offers.push({ title, description, price, meta, badge: copy.offers });
+      });
+
+      const legacyOffer = salon?.offer;
+      if (legacyOffer && legacyOffer.active && (legacyOffer.title || legacyOffer.description || legacyOffer.price)) {
+        offers.push({
+          title: String(legacyOffer.title || legacyOffer.name || "").trim(),
+          description: String(legacyOffer.description || "").trim(),
+          price: formatWomenSalonProfilePrice(legacyOffer.price),
+          meta: [],
+          badge: copy.offers
+        });
+      }
+
+      const flashDeal = normalizeWomenFlashDeal(salon?.flashDeal || salon?.lastMinuteOffer || salon?.deal || {});
+      if (isWomenFlashDealActive(salon) && (flashDeal.title || flashDeal.description || flashDeal.price || flashDeal.discount)) {
+        offers.unshift({
+          title: String(flashDeal.title || copy.offers).trim(),
+          description: String(flashDeal.description || "").trim(),
+          price: String(flashDeal.discount || "").trim() || formatWomenSalonProfilePrice(flashDeal.price),
+          meta: [getWomenFlashDealWindowText(salon), flashDeal.service].filter(Boolean),
+          badge: copy.offers
+        });
+      }
+
+      return offers.filter((entry, index, list) => {
+        const key = `${entry.badge}|${entry.title}|${entry.description}|${entry.price}`.toLowerCase();
+        return list.findIndex(candidate => `${candidate.badge}|${candidate.title}|${candidate.description}|${candidate.price}`.toLowerCase() === key) === index;
+      });
+    }
+
+    function getWomenSalonMapLink(salon) {
+      const query = [salon?.name, salon?.address, salon?.city].filter(Boolean).join(" ").trim();
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query || "Salon")}`;
+    }
+
+    function getWomenSalonClassificationLabel(salon) {
+      const copy = getWomenSalonProfileCopy();
+      const rawClassification = String(salon?.classification || salon?.baseClassification || "").trim().toUpperCase();
+      const vipSource = String(salon?.vipSource || "").trim().toUpperCase();
+      if (rawClassification === "VIP" || vipSource === "ADMIN" || vipSource === "AUTO_RATING" || salon?.adminVip === true || salon?.isVip === true || salon?.vip === true) {
+        return copy.vip;
+      }
+      if (rawClassification === "PREMIUM") {
+        return copy.premium;
+      }
+      return copy.regular;
+    }
+
+    async function fetchWomenSalonProfileData(salon) {
+      const salonId = String(salon?.id || "").trim();
+      if (!salonId) return { salon: normalizeWomenSalonProfileData(salon), loyaltyCard: null };
+
+      const [salonResult, loyaltyResult] = await Promise.allSettled([
+        apiRequest(`/api/v1/salons/${encodeURIComponent(salonId)}`),
+        apiRequest(`/api/v1/loyalty/cards/${encodeURIComponent(salonId)}`)
+      ]);
+
+      const liveSalon = salonResult.status === "fulfilled" && salonResult.value?.salon ? salonResult.value.salon : null;
+      const loyaltyCard = loyaltyResult.status === "fulfilled" ? (loyaltyResult.value?.card || null) : null;
+
+      return {
+        salon: normalizeWomenSalonProfileData(liveSalon || salon),
+        loyaltyCard
+      };
+    }
+
+    function renderWomenSalonProfileState(title, message) {
+      const content = document.getElementById("salonProfileContent");
+      if (!content) return;
+      content.innerHTML = `
+        <div class="salon-profile-shell">
+          <div class="salon-profile-state">
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeHtml(message)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWomenSalonProfileContent(salon, loyaltyCard = null) {
+      if (!salon) return;
+      const content = document.getElementById("salonProfileContent");
+      if (!content) return;
+
+      const lang = document.documentElement.lang || defaultLang;
+      const copy = getWomenCopy(lang);
+      const profileCopy = getWomenSalonProfileCopy(lang);
+      const gallery = getWomenSalonProfileGallery(salon);
+      const heroImage = gallery[0] || "";
+      const ratingValue = Number(salon.rating || 0);
+      const reviewCount = getWomenSalonReviewCount(salon);
+      const formattedRating = Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : profileCopy.noRating;
+      const services = getWomenSalonProfileServices(salon);
+      const barbers = getWomenSalonProfileBarbers(salon);
+      const hours = getWomenSalonProfileOpeningHours(salon);
+      const reviews = getWomenSalonProfileReviews(salon);
+      const offers = getWomenSalonProfileOffers(salon);
+      const loyaltySummary = loyaltyCard
+        ? {
+            label: loyaltyCard.rewardTitle || profileCopy.loyalty,
+            requiredStamps: Number(loyaltyCard.requiredStamps || 0) || null,
+            rewardTitle: loyaltyCard.rewardTitle || "",
+            description: loyaltyCard.description || loyaltyCard.rewardText || ""
+          }
+        : null;
+      const classificationLabel = getWomenSalonClassificationLabel(salon);
+      const phoneValue = String(salon.phone || "").trim();
+      const phoneLink = phoneValue ? `tel:${phoneValue.replace(/[^+0-9]/g, "")}` : "";
+      const emailValue = String(salon.email || "").trim();
+      const websiteValue = String(salon.website || "").trim();
+      const availableSeats = Number(salon.availableChairs ?? 0);
+      const totalSeats = Number(salon.totalChairs ?? 0);
+      const statusText = getLocalizedStatusLabel(salon.status || (availableSeats > 0 ? "open" : "closed"), lang);
+      const openingTime = String(salon.openingTime || salon.open || "").trim();
+      const closingTime = String(salon.closingTime || salon.close || "").trim();
+      const openingHoursText = openingTime && closingTime ? `${openingTime} – ${closingTime}` : "";
+      const sections = [];
+
+      if (services.length) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.services)}</h3>
+            <div class="salon-profile-price-list">
+              ${services.map(service => {
+                const meta = [service.price, service.duration, service.category].filter(Boolean).join(" · ");
+                return `<div class="salon-profile-price-item"><strong>${escapeHtml(service.name)}</strong><span>${escapeHtml(meta || service.description || "")}</span>${service.description && meta ? `<span>${escapeHtml(service.description)}</span>` : ""}</div>`;
+              }).join("")}
+            </div>
+          </section>
+        `);
+      }
+
+      if (barbers.length) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.staff)}</h3>
+            <div class="salon-profile-grid">
+              ${barbers.map(barber => `<article class="salon-profile-review"><div class="salon-profile-review-head"><strong>${escapeHtml(barber.name)}</strong><small>${escapeHtml(barber.status || barber.role || "")}</small></div>${barber.role ? `<p>${escapeHtml(barber.role)}</p>` : ""}</article>`).join("")}
+            </div>
+          </section>
+        `);
+      }
+
+      if (salon.description || salon.bio) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.about)}</h3>
+            <p class="salon-profile-story">${escapeHtml(String(salon.description || salon.bio || "").trim())}</p>
+          </section>
+        `);
+      }
+
+      if (hours.length) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.openingHours)}</h3>
+            <ul class="salon-profile-hours">
+              ${hours.map(entry => {
+                const statusLine = entry.isOpen
+                  ? [entry.open && entry.close ? `${entry.open} – ${entry.close}` : "", entry.breakText].filter(Boolean).join(" · ")
+                  : profileCopy.closed;
+                return `<li><strong>${escapeHtml(entry.day)}</strong><span>${escapeHtml(statusLine || statusText)}</span></li>`;
+              }).join("")}
+            </ul>
+          </section>
+        `);
+      }
+
+      if (gallery.length > 1) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.gallery)}</h3>
+            <div class="salon-profile-gallery">
+              ${gallery.map(image => `<img src="${escapeHtml(image)}" alt="${escapeHtml(salon.name || copy.genericSalon)}" loading="lazy">`).join("")}
+            </div>
+          </section>
+        `);
+      }
+
+      if (reviews.length || reviewCount > 0) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.reviews)}</h3>
+            ${reviews.length ? `<div class="salon-profile-grid">
+              ${reviews.map(review => `<article class="salon-profile-review"><div class="salon-profile-review-head"><strong>${escapeHtml(review.name)}</strong><small>${"★".repeat(Math.min(5, Math.max(1, Number(review.rating || 0))))}</small></div>${review.text ? `<p>${escapeHtml(review.text)}</p>` : ""}</article>`).join("")}
+            </div>` : `<div class="salon-profile-review"><div class="salon-profile-review-head"><strong>${escapeHtml(formattedRating)}</strong><small>${escapeHtml(String(reviewCount))}</small></div></div>`}
+          </section>
+        `);
+      }
+
+      if (loyaltySummary) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.loyalty)}</h3>
+            <div class="salon-profile-review">
+              <div class="salon-profile-review-head">
+                <strong>${escapeHtml(loyaltySummary.label)}</strong>
+                <small>${escapeHtml(loyaltySummary.requiredStamps ? `${loyaltySummary.requiredStamps}` : "")}</small>
+              </div>
+              ${loyaltySummary.rewardTitle || loyaltySummary.description ? `<p>${escapeHtml([loyaltySummary.rewardTitle, loyaltySummary.description].filter(Boolean).join(" · "))}</p>` : ""}
+            </div>
+          </section>
+        `);
+      }
+
+      if (offers.length) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.offers)}</h3>
+            <div class="salon-profile-grid">
+              ${offers.map(offer => `<article class="salon-profile-review"><div class="salon-profile-review-head"><strong>${escapeHtml(offer.title || offer.badge)}</strong><small>${escapeHtml(offer.price || offer.badge || "")}</small></div>${offer.description ? `<p>${escapeHtml(offer.description)}</p>` : ""}${offer.meta.length ? `<p>${escapeHtml(offer.meta.join(" · "))}</p>` : ""}</article>`).join("")}
+            </div>
+          </section>
+        `);
+      }
+
+      if (salon.address || salon.city || phoneValue || emailValue || websiteValue) {
+        sections.push(`
+          <section class="salon-profile-section">
+            <h3>${escapeHtml(profileCopy.location)}</h3>
+            <div class="salon-profile-review">
+              <div class="salon-profile-review-head">
+                <strong>${escapeHtml(salon.name || copy.genericSalon)}</strong>
+                <small>${escapeHtml(String(salon.city || "").trim())}</small>
+              </div>
+              ${salon.address ? `<p>${escapeHtml(salon.address)}</p>` : ""}
+              ${phoneValue ? `<p>${escapeHtml(phoneValue)}</p>` : ""}
+              ${emailValue ? `<p>${escapeHtml(emailValue)}</p>` : ""}
+              ${websiteValue ? `<p>${escapeHtml(websiteValue)}</p>` : ""}
+              <div class="salon-profile-cta">
+                <a class="btn btn-secondary btn-compact" href="${getWomenSalonMapLink(salon)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-route"></i> ${escapeHtml(copy.route)}</a>
+                ${phoneLink ? `<a class="btn btn-secondary btn-compact" href="${phoneLink}"><i class="fa-solid fa-phone"></i> ${escapeHtml(copy.call)}</a>` : ""}
+              </div>
+            </div>
+          </section>
+        `);
+      }
+
+      content.innerHTML = `
+        <div class="salon-profile-shell">
+          <div class="salon-profile-hero"${heroImage ? ` style="background-image:url('${escapeHtml(heroImage)}')"` : ""}>
+            <div class="salon-profile-hero-inner">
+              <div class="salon-profile-hero-top">
+                <span class="salon-profile-badge"><i class="fa-solid fa-crown"></i> ${escapeHtml(classificationLabel)}</span>
+                <span class="salon-profile-rating"><i class="fa-solid fa-star"></i> ${escapeHtml(formattedRating)}${reviewCount ? ` (${escapeHtml(String(reviewCount))})` : ""}</span>
+              </div>
+              <h2 class="salon-profile-name">${escapeHtml(salon.name || copy.genericSalon)}</h2>
+              <div class="salon-profile-meta">
+                ${salon.city ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(salon.city)}</span>` : ""}
+                ${salon.address ? `<span><i class="fa-solid fa-map-location-dot"></i> ${escapeHtml(salon.address)}</span>` : ""}
+                ${phoneValue ? `<span><i class="fa-solid fa-phone"></i> ${escapeHtml(phoneValue)}</span>` : ""}
+              </div>
+              <div class="salon-profile-highlights">
+                <div class="salon-profile-highlight">
+                  <span>${escapeHtml(profileCopy.status)}</span>
+                  <strong>${escapeHtml(statusText)}</strong>
+                  <small>${escapeHtml(classificationLabel)}</small>
+                </div>
+                <div class="salon-profile-highlight">
+                  <span>${escapeHtml(profileCopy.availability)}</span>
+                  <strong>${totalSeats > 0 ? `${availableSeats} / ${totalSeats}` : (Number.isFinite(availableSeats) ? String(availableSeats) : "—")}</strong>
+                  <small>${escapeHtml(copy.seats)}</small>
+                </div>
+                <div class="salon-profile-highlight">
+                  <span>${escapeHtml(copy.workingHours)}</span>
+                  <strong>${escapeHtml(openingHoursText || "—")}</strong>
+                  <small>${escapeHtml(hours.length ? hours.filter(entry => entry.isOpen).map(entry => entry.day).slice(0, 2).join(" · ") : "")}</small>
+                </div>
+                <div class="salon-profile-highlight">
+                  <span>${escapeHtml(profileCopy.serviceCount)}</span>
+                  <strong>${escapeHtml(String(services.length || 0))}</strong>
+                  <small>${escapeHtml(services[0]?.name || "")}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="salon-profile-content">
+            ${sections.join("")}
+          </div>
+          <div class="salon-profile-cta">
+            <button class="btn btn-primary" type="button" data-book-from-profile="${escapeHtml(salon.id)}">${escapeHtml(copy.bookNow)}</button>
+          </div>
+        </div>
+      `;
+
+      document.querySelector("[data-book-from-profile]")?.addEventListener("click", () => {
+        closeWomenModal("salonProfileModal");
+        openWomenBookingModal(salon);
+      });
+    }
+
+    let womenSalonProfileRequestToken = 0;
+
+    async function openWomenSalonProfile(salon) {
+      if (!salon) return;
+      const profileCopy = getWomenSalonProfileCopy();
+      const requestToken = ++womenSalonProfileRequestToken;
+      renderWomenSalonProfileState(String(salon.name || "Salon"), profileCopy.loading);
+      openWomenModal("salonProfileModal");
+
+      try {
+        const result = await fetchWomenSalonProfileData(salon);
+        if (requestToken !== womenSalonProfileRequestToken) return;
+        renderWomenSalonProfileContent(result.salon, result.loyaltyCard);
+      } catch (error) {
+        if (requestToken !== womenSalonProfileRequestToken) return;
+        renderWomenSalonProfileContent(normalizeWomenSalonProfileData(salon), null);
+      }
+    }
+
+    function findWomenSalonById(salonId) {
+      return collectWomenSalonCandidates().find(item => String(item.id) === String(salonId || "")) || null;
+    }
+
+    function bindWomenSalonProfileCardTriggers() {
+      document.querySelectorAll("[data-open-profile-salon]").forEach(card => {
+        if (card.dataset.profileCardBound === "true") return;
+
+        const openFromCard = () => {
+          const salon = findWomenSalonById(card.dataset.openProfileSalon);
+          if (salon) openWomenSalonProfile(salon);
+        };
+
+        card.addEventListener("click", event => {
+          if (event.target.closest("button, a, input, select, textarea, label")) return;
+          openFromCard();
+        });
+
+        card.addEventListener("keydown", event => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          if (event.target.closest("button, a, input, select, textarea, label")) return;
+          event.preventDefault();
+          openFromCard();
+        });
+
+        card.dataset.profileCardBound = "true";
+      });
+    }
+
+    async function loadLiveWomenSalons() {
+      try {
+        const response = await apiRequest("/api/v1/salons");
+        if (!Array.isArray(response.salons)) return;
+        const liveSalons = response.salons.map(normalizeSalon).filter(Boolean);
+        localStorage.setItem("meshwarWomenSalons", JSON.stringify(
+          liveSalons.filter(salon => salon.forWomen || salon.women)
+        ));
+        localStorage.setItem("meshwarSalons", JSON.stringify(liveSalons));
+        womenCandidateCache.value = null;
+        renderPopularSalons();
+        renderNearbySalons();
+        renderWomenSalons();
+        renderWomenOffers();
+      } catch (error) {
+        console.warn("Live women salon load failed, using local fallback.", error);
+      }
     }
 
     function collectWomenSalonCandidates() {
@@ -4393,7 +5594,7 @@
           const raw = localStorage.getItem("meshwarSalons");
           const parsed = raw ? JSON.parse(raw) : [];
           const list = Array.isArray(parsed) ? parsed : [];
-          return list.filter(item => item && typeof item === "object" && !isDefaultDemoSalon(item) && normalizeBooleanFlag(item.forWomen ?? item.women ?? item.isForWomen ?? item.gender ?? item.category ?? item.targetAudience ?? item.section ?? false));
+          return list.filter(item => item && typeof item === "object" && !isDefaultDemoSalon(item) && normalizeBooleanFlag(item.forWomen ?? item.women ?? item.isWomenOnly ?? item.isForWomen ?? item.gender ?? item.category ?? item.targetAudience ?? item.section ?? false));
         } catch (error) {
           localStorage.removeItem("meshwarSalons");
           return [];
@@ -4404,7 +5605,7 @@
           const raw = localStorage.getItem("meshwarSalon");
           const parsed = raw ? JSON.parse(raw) : null;
           if (!parsed || typeof parsed !== "object" || isDefaultDemoSalon(parsed)) return [];
-          return normalizeBooleanFlag(parsed.forWomen ?? parsed.women ?? parsed.isForWomen ?? parsed.gender ?? parsed.category ?? parsed.targetAudience ?? parsed.section ?? false) ? [parsed] : [];
+          return normalizeBooleanFlag(parsed.forWomen ?? parsed.women ?? parsed.isWomenOnly ?? parsed.isForWomen ?? parsed.gender ?? parsed.category ?? parsed.targetAudience ?? parsed.section ?? false) ? [parsed] : [];
         } catch (error) {
           localStorage.removeItem("meshwarSalon");
           return [];
@@ -4472,7 +5673,7 @@
         const statusClass = salon.status === "busy" ? "status-busy" : salon.status === "medium" ? "status-medium" : "status-quiet";
         const services = getWomenServicePreview(salon).slice(0, 2);
         return `
-          <div class="nearby-item">
+          <div class="nearby-item" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
             <div class="nearby-item-media" style="background-image:url('${escapeHtml(String(cover))}')">
               <div class="nearby-media-top">
                 <span class="popular-rating">★ ${escapeHtml(String(rating.toFixed(1)))}</span>
@@ -4494,6 +5695,7 @@
           </div>
         `;
       }).join("");
+      bindWomenSalonProfileCardTriggers();
     }
 
     function getWomenSearchTerms(salon) {
@@ -4905,7 +6107,7 @@
           const seatValue = `${salon.availableChairs || 0} / ${salon.totalChairs || 0}`;
 
           return `
-            <article class="card ${premium ? "premium-card" : ""}">
+            <article class="card ${premium ? "premium-card" : ""}" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
               <div class="card-cover" data-cover-src="${escapeHtml(String(cover))}" style="background-image: linear-gradient(180deg, rgba(21,17,17,0.18), rgba(21,17,17,0.54));">
                 <div class="card-badges">
                   <div class="card-badge-stack">
@@ -5002,6 +6204,7 @@
             button.innerHTML = `<i class="fa-${isNowFavorite ? "solid" : "regular"} fa-heart"></i> ${copy.favorite}`;
           });
         });
+        bindWomenSalonProfileCardTriggers();
       } catch (error) {
         renderWomenErrorState();
       }
@@ -5151,15 +6354,30 @@
           method: "POST",
           body: JSON.stringify({ email, password }),
         });
-        if (!(response?.user && String(response.user.role || "").toUpperCase() === "CUSTOMER")) {
+        const normalizedRole = String(response?.user?.role || "").toUpperCase();
+        if (!["CUSTOMER", "OWNER"].includes(normalizedRole)) {
           throw new Error(copy.loginErrorRole);
+        }
+        storeAuthToken({ accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user.id, role: response.user.role });
+        saveCustomerLogin(email, password, remember);
+        if (normalizedRole === "OWNER") {
+          womenSession = { role: "owner", userId: response.user.id, salonId: null };
+          localStorage.setItem("meshwarSession", JSON.stringify(womenSession));
+          if (errorBox) errorBox.classList.remove("show");
+          if (noticeBox) {
+            noticeBox.textContent = copy.loginSuccess;
+            noticeBox.classList.add("show");
+          }
+          closeWomenModal("customerLoginModal");
+          localStorage.setItem("meshwarSelectedExperience", "men");
+          localStorage.setItem("meshwarCustomerLastPage", "./index.html");
+          window.location.href = "./index.html";
+          return;
         }
         womenCustomerProfile = normalizeCustomerProfile(response.user);
         localStorage.setItem("meshwarCustomer", JSON.stringify(womenCustomerProfile));
         womenSession = { role: "customer", customerId: response.user.id, userId: response.user.id };
         localStorage.setItem("meshwarSession", JSON.stringify(womenSession));
-        storeAuthToken({ accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user.id, role: response.user.role });
-        saveCustomerLogin(email, password, remember);
         if (errorBox) errorBox.classList.remove("show");
         if (noticeBox) {
           noticeBox.textContent = copy.loginSuccess;
@@ -5251,7 +6469,7 @@
       const time = document.getElementById("womenBookingTime").value;
       const notes = document.getElementById("womenBookingNotes").value.trim();
 
-      localStorage.setItem("meshwarSalon", JSON.stringify(selectedWomenSalon));
+      localStorage.setItem("meshwarPendingBookingSalon", JSON.stringify(selectedWomenSalon));
       localStorage.setItem("meshwarCustomerQuickInfo", JSON.stringify({
         name,
         phone,
@@ -5269,6 +6487,30 @@
     });
 
     document.getElementById("languageSelect")?.addEventListener("change", e => setLanguage(e.target.value));
+    document.getElementById("languageSelectTrigger")?.addEventListener("click", event => {
+      event.stopPropagation();
+      toggleLanguageSelectorMenu();
+    });
+    document.querySelectorAll("[data-language-option]").forEach(button => {
+      button.addEventListener("click", () => {
+        const lang = button.dataset.languageOption;
+        const select = document.getElementById("languageSelect");
+        if (!lang || !select) return;
+        select.value = lang;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        closeLanguageSelectorMenu();
+      });
+    });
+    document.addEventListener("click", event => {
+      const menu = document.getElementById("languageSelectMenu");
+      const trigger = document.getElementById("languageSelectTrigger");
+      if (!menu || !trigger || menu.hidden) return;
+      if (menu.contains(event.target) || trigger.contains(event.target)) return;
+      closeLanguageSelectorMenu();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeLanguageSelectorMenu();
+    });
     document.getElementById("experienceGateWomen")?.addEventListener("click", () => openExperiencePage("women"));
     document.getElementById("experienceGateMen")?.addEventListener("click", () => openExperiencePage("men"));
     document.querySelectorAll('a[href="index.html"]').forEach(link => {
@@ -5280,6 +6522,7 @@
     });
     window.addEventListener("storage", event => {
       if (["meshwarWomenSalons", "meshwarSalons", "meshwarSalon", "meshwarLang", "meshwarApiAuth"].includes(event.key)) {
+        womenCandidateCache.value = null;
         renderWomenLoadingState();
         try {
           renderWomenSalons();
@@ -5298,12 +6541,14 @@
     });
     setInterval(updateBackground, 5000);
     initLegalCompliance();
+    loadLiveWomenSalons();
     renderCategoryButtons();
     renderPopularSalons();
     renderNearbySalons();
     renderWomenSalons();
     renderWomenOffers();
     setLanguage(defaultLang);
+    updateLanguageSelectorUI(defaultLang);
     renderPopularSalons();
     renderNearbySalons();
     renderWomenOffers();

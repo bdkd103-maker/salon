@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { requireRole, requireUserFromAuthHeader, sanitizeUser } from "../lib/auth.js";
 import { summarizeAdminDashboard } from "../lib/admin-dashboard.js";
+import { serializeSalonMedia } from "../lib/salon-media.js";
+import { buildPublicSalonState, getAutoVipSalonIds, getManualVipSalonIds } from "../lib/salon-vip.js";
 import { getSubscriptionMeta, normalizeSubscriptionPlan } from "../lib/subscription-plan.js";
 
 const profileUpdateSchema = z.object({
@@ -32,6 +34,35 @@ const subscriptionUpdateSchema = z.object({
   plan: z.enum(["FREE", "PRO", "PREMIUM"]).optional(),
   status: z.enum(["ACTIVE", "TRIAL", "PAST_DUE", "CANCELLED", "EXPIRED"]).optional(),
 });
+
+function serializeOwnerSalon(salon: any) {
+  const publicState = salon?.vipSource
+    ? {
+        baseClassification: salon.baseClassification ?? salon.classification ?? "REGULAR",
+        classification: salon.classification ?? "REGULAR",
+        vipSource: salon.vipSource,
+        adminVip: Boolean(salon.adminVip),
+        isVip: Boolean(salon.isVip ?? salon.vip),
+      }
+    : buildPublicSalonState(salon);
+  return {
+    ...salon,
+    ...publicState,
+    isVip: publicState.isVip,
+    vip: publicState.isVip,
+    media: Array.isArray(salon?.media) ? salon.media.map(serializeSalonMedia) : [],
+  };
+}
+
+function decorateSalons(salons: any[]) {
+  const adminVipIds = new Set(getManualVipSalonIds(salons));
+  const autoVipIds = new Set(getAutoVipSalonIds(salons));
+  return salons.map((salon) => serializeOwnerSalon({ ...salon, ...buildPublicSalonState(salon, { adminVipIds, autoVipIds }) }));
+}
+
+function withStalePrismaTypes<T>(value: T) {
+  return value as any;
+}
 
 export async function dashboardRoutes(app: any) {
   app.get("/api/v1/profile/me", async (request: any, reply: any) => {
@@ -91,6 +122,12 @@ export async function dashboardRoutes(app: any) {
           bookings: true,
           services: true,
           barbers: true,
+          reviews: {
+            include: {
+              user: { select: { fullName: true } },
+            },
+          },
+          media: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -107,10 +144,14 @@ export async function dashboardRoutes(app: any) {
           totalBookings,
           pendingBookings,
         },
-        salons,
+        salons: decorateSalons(salons),
       };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+    } catch (error) {
+      if (reply.sent) {
+        return reply;
+      }
+
+      throw error;
     }
   });
 
@@ -138,7 +179,7 @@ export async function dashboardRoutes(app: any) {
           orderBy: { createdAt: "desc" },
         }),
         prisma.salon.findMany({
-          select: { id: true, isActive: true, isVip: true, status: true, createdAt: true },
+          select: withStalePrismaTypes({ id: true, isActive: true, isVip: true, adminVip: true, classification: true, status: true, createdAt: true }),
           orderBy: { createdAt: "desc" },
         }),
         prisma.barber.findMany({

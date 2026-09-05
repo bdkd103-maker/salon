@@ -1,0 +1,17 @@
+{
+  "name": "salon",
+  "forwardPorts": [8000, 4000],
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "portsAttributes": {
+    "8000": {
+      "label": "Salon Frontend",
+      "onAutoForward": "openPreview",
+      "visibility": "public"
+    },
+    "4000": {
+      "label": "Salon Backend",
+      "onAutoForward": "silent",
+      "visibility": "public"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 export type AdminDashboardInput = {
   users?: Array<{ id?: string; role?: string | null; status?: string | null; deletedAt?: Date | string | null }>;
-  salons?: Array<{ id?: string; isActive?: boolean | null; isVip?: boolean | null; status?: string | null; createdAt?: Date | string | null; ownerId?: string | null }>;
+  salons?: Array<{ id?: string; isActive?: boolean | null; isVip?: boolean | null; adminVip?: boolean | null; classification?: string | null; status?: string | null; createdAt?: Date | string | null; ownerId?: string | null }>;
   barbers?: Array<{ id?: string; isActive?: boolean | null }>;
   availabilitySlots?: Array<{ id?: string; status?: string | null }>;
   bookings?: Array<{ id?: string; status?: string | null; startAt?: Date | string | null }>;
@@ -43,7 +43,8 @@ export function summarizeAdminDashboard(input: AdminDashboardInput = {}) {
   const totalUsers = users.filter((user) => user?.status !== "DELETED").length;
   const totalSalons = salons.length;
   const activeSalons = salons.filter((salon) => salon?.isActive !== false).length;
-  const premiumSalons = salons.filter((salon) => Boolean(salon?.isVip)).length;
+  const premiumSalons = salons.filter((salon) => String(salon?.classification ?? "").toUpperCase() === "PREMIUM").length;
+  const manualVipSalons = salons.filter((salon) => Boolean(salon?.adminVip ?? salon?.isVip)).length;
   const totalBarbers = barbers.length;
   const activeBarbers = barbers.filter((barber) => barber?.isActive !== false).length;
   const totalAvailabilitySlots = availabilitySlots.length;
@@ -128,6 +129,7 @@ export function summarizeAdminDashboard(input: AdminDashboardInput = {}) {
     totalSalons,
     activeSalons,
     premiumSalons,
+    manualVipSalons,
     totalBarbers,
     activeBarbers,
     totalAvailabilitySlots,
