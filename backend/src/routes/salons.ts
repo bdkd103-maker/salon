@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { prisma } from "../lib/prisma.js";
-import { requireRole, requireUserFromAuthHeader } from "../lib/auth.js";
+import { hashPassword, requireRole, requireUserFromAuthHeader } from "../lib/auth.js";
 import { normalizeOfferInput } from "../lib/offer.js";
 import { salonImageUrlSchema, serializeSalonMedia, syncSalonPrimaryImage } from "../lib/salon-media.js";
 import {
@@ -31,6 +31,10 @@ const salonSchema = z.object({
   isWomenOnly: z.boolean().optional(),
   ...salonScheduleFields,
   imageUrl: salonImageUrlSchema,
+});
+
+const salonPatchSchema = salonSchema.partial().extend({
+  ownerPassword: z.string().trim().min(8).max(128).optional().or(z.literal("")),
 });
 
 const serviceSchema = z.object({
@@ -588,12 +592,18 @@ export async function salonRoutes(app: any) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
-      const parsed = salonSchema.partial().safeParse(request.body ?? {});
+      const requestedOwnerPassword = request.body?.ownerPassword;
+      if (requestedOwnerPassword && user.role !== "ADMIN") {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const parsed = salonPatchSchema.safeParse(request.body ?? {});
       if (!parsed.success) {
         return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
       }
 
       const payload = parsed.data;
+      const ownerPassword = payload.ownerPassword?.trim() || "";
       const requestedClassification = normalizeSalonClassification(payload.classification ?? salon.classification);
       const requestedAdminVip = user.role === "ADMIN"
         ? Boolean(payload.adminVip ?? payload.isVip ?? salon.adminVip)
@@ -602,6 +612,24 @@ export async function salonRoutes(app: any) {
         await assertAdminVipCapacity(prisma, { ignoreSalonId: request.params.id });
       }
       const nextSalon = await prisma.$transaction(async (tx) => {
+        if (ownerPassword) {
+          const attachedOwner = await tx.user.findUnique({
+            where: { id: salon.ownerId },
+            select: { id: true, role: true, status: true },
+          });
+
+          if (!attachedOwner
+            || String(attachedOwner.role || "").toUpperCase() !== "OWNER"
+            || String(attachedOwner.status || "").toUpperCase() !== "ACTIVE") {
+            throw Object.assign(new Error("Salon owner is not an active OWNER"), { statusCode: 409 });
+          }
+
+          await tx.user.update({
+            where: { id: salon.ownerId },
+            data: { passwordHash: await hashPassword(ownerPassword) },
+          });
+        }
+
         await tx.salon.update({
           where: { id: request.params.id },
           data: withStalePrismaTypes({
@@ -642,7 +670,10 @@ export async function salonRoutes(app: any) {
       });
 
       return { salon: serializeSalon(nextSalon) };
-    } catch {
+    } catch (error) {
+      if ((error as any)?.statusCode === 409) {
+        return reply.code(409).send({ error: (error as Error).message });
+      }
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
