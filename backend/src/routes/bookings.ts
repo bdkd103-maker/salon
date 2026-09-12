@@ -32,6 +32,23 @@ const bookingUpdateSchema = z.object({
   timeZone: z.string().trim().min(1).optional(),
 });
 
+function canMutateBooking(
+  user: { id: string; role: string },
+  booking: { userId: string; status: string; salon: { ownerId: string } },
+  requestedStatus?: string,
+) {
+  if (user.role === "ADMIN") return true;
+  if (user.role === "OWNER" || user.role === "STAFF") {
+    // Match the persisted tenant boundary used by booking listing. There is
+    // currently no staff-membership relation that can grant additional access.
+    return booking.salon.ownerId === user.id;
+  }
+  return user.role === "CUSTOMER"
+    && booking.userId === user.id
+    && ["PENDING", "CONFIRMED"].includes(booking.status)
+    && (requestedStatus === undefined || requestedStatus === booking.status || requestedStatus === "CANCELLED");
+}
+
 function validateBookingWindow(salon: any, startAt: Date, endAt: Date, timeZone: string, requestedServiceDurationMin: number) {
   if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime()) || endAt <= startAt) {
     return "Invalid time window";
@@ -115,7 +132,10 @@ export async function bookingRoutes(app: any) {
       const bookings = await prisma.booking.findMany({
         where: user.role === "ADMIN" ? {} : { salon: { ownerId: user.id } },
         orderBy: { startAt: "asc" },
-        include: { salon: true, service: true, barber: true, user: true },
+        include: {
+          salon: true, service: true, barber: true,
+          user: { select: { id: true, fullName: true, email: true, phone: true } },
+        },
       });
 
       return { bookings };
@@ -155,6 +175,9 @@ export async function bookingRoutes(app: any) {
       const timeZone = payload.timeZone || "Europe/Berlin";
 
       const { salon, selectedService } = await getSalonBookingContext(payload.salonId, serviceId, barberId);
+      if (!salon.bookingIntakeEnabled) {
+        return reply.code(409).send({ error: "Booking intake is currently disabled" });
+      }
       const startAt = parseWallClockInTimeZone(payload.startAt, timeZone);
       const endAt = parseWallClockInTimeZone(payload.endAt, timeZone);
 
@@ -239,8 +262,7 @@ export async function bookingRoutes(app: any) {
         return reply.code(404).send({ error: "Booking not found" });
       }
 
-      const canModify = user.id === booking.userId || user.role === "OWNER" || user.role === "ADMIN" || user.role === "STAFF";
-      if (!canModify) {
+      if (!canMutateBooking(user, booking, parsed.data.status)) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
@@ -330,14 +352,16 @@ export async function bookingRoutes(app: any) {
   app.delete("/api/v1/bookings/:id", async (request: any, reply: any) => {
     try {
       const user = await requireUserFromAuthHeader(request, reply);
-      const booking = await prisma.booking.findUnique({ where: { id: request.params.id } });
+      const booking = await prisma.booking.findUnique({
+        where: { id: request.params.id },
+        include: { salon: { select: { ownerId: true } } },
+      });
 
       if (!booking) {
         return reply.code(404).send({ error: "Booking not found" });
       }
 
-      const canModify = user.id === booking.userId || user.role === "OWNER" || user.role === "ADMIN" || user.role === "STAFF";
-      if (!canModify) {
+      if (!canMutateBooking(user, booking, "CANCELLED")) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 

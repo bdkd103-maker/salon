@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title description">
+  <title id="title">SALO Smart Salon</title>
+  <desc id="description">Neutral SALO branded salon image placeholder</desc>
+  <rect width="1200" height="700" fill="#20211e"/>
+  <path d="M0 560h1200v140H0z" fill="#181916"/>
+  <path d="M180 525h840M240 175h720" stroke="#4a473f" stroke-width="2"/>
+  <rect x="430" y="225" width="340" height="190" rx="8" fill="#262722" stroke="#5b564b" stroke-width="2"/>
+  <text x="600" y="320" fill="#f2eee5" font-family="Arial, sans-serif" font-size="72" font-weight="700" letter-spacing="18" text-anchor="middle">SALO</text>
+  <text x="600" y="360" fill="#cdb487" font-family="Arial, sans-serif" font-size="18" letter-spacing="8" text-anchor="middle">SMART SALON</text>
+</svg>

@@ -4,6 +4,11 @@ import assert from "node:assert/strict";
 import { summarizeAdminDashboard } from "./admin-dashboard.js";
 
 describe("summarizeAdminDashboard", () => {
+  it("counts all four subscription tiers", () => {
+    const summary = summarizeAdminDashboard({ subscriptions: ["FREE", "SMART", "PREMIUM", "PRO", "SMART"].map(plan => ({ plan, status: "ACTIVE" })) });
+    assert.deepEqual(summary.planCounts, { FREE: 1, SMART: 2, PREMIUM: 1, PRO: 1 });
+    assert.equal(summary.activeSubscriptions, 5);
+  });
   it("aggregates real backend counts from users, salons, bookings and analytics", () => {
     const summary = summarizeAdminDashboard({
       users: [

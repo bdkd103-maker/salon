@@ -1,0 +1,209 @@
+/* Shared customer directory cards. Scoped away from profile, owner, and admin surfaces. */
+.salon-card,
+#womenGrid > .card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  border: 1px solid rgba(198, 164, 112, .24);
+  border-radius: 8px;
+  background: #181816;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .16);
+  overflow: hidden;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.salon-card:hover,
+#womenGrid > .card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(211, 174, 116, .52);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, .22);
+}
+
+.salon-card:focus-visible,
+#womenGrid > .card:focus-visible {
+  outline: 3px solid #f2d49d;
+  outline-offset: 4px;
+}
+
+.salon-card-media,
+#womenGrid .card-cover {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  border-radius: 0;
+  background-color: #252521;
+  background-position: center;
+  background-size: cover;
+}
+
+.salon-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#womenGrid .card-cover > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.salon-card-media::after,
+#womenGrid .card-cover::after {
+  background: linear-gradient(180deg, rgba(10, 10, 9, .08), rgba(10, 10, 9, .68));
+}
+
+.salon-card-body,
+#womenGrid .card-content {
+  padding: 18px;
+  gap: 14px;
+}
+
+.salon-card h3,
+#womenGrid .card h3 {
+  color: #f6f1e8;
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.salon-card-rating,
+#womenGrid .rating-chip {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ead2a5;
+  font-weight: 700;
+}
+
+.salon-card-no-reviews,
+#womenGrid .rating-chip.no-reviews {
+  color: #cbc4b8;
+}
+
+.salon-card-meta,
+#womenGrid .meta {
+  color: #bdb5a9;
+}
+
+.salon-card-summary {
+  display: block;
+}
+
+.salon-card-operating-hours,
+#womenGrid .card-status-badge {
+  width: fit-content;
+}
+
+.salon-card-status,
+#womenGrid .card-status-badge {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+}
+
+#womenGrid .status-open {
+  color: #bce8ce;
+}
+
+#womenGrid .status-closed {
+  color: #e7c0bd;
+}
+
+#womenGrid .status-open .status-dot {
+  background: #54c789;
+  box-shadow: none;
+}
+
+#womenGrid .status-closed .status-dot {
+  background: #cc726a;
+  box-shadow: none;
+}
+
+.salon-services,
+#womenGrid .card-service-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.salon-service-tag,
+#womenGrid .service-chip,
+#womenGrid .service-tag {
+  border: 1px solid rgba(209, 175, 123, .2);
+  border-radius: 5px;
+  background: rgba(209, 175, 123, .07);
+  color: #ddd4c7;
+}
+
+#womenGrid .actions,
+.salon-card-utility {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#womenGrid .actions .btn,
+.salon-card-utility .btn {
+  min-height: 44px;
+  border: 1px solid rgba(218, 180, 119, .28);
+  background: #24231f;
+  color: #eee7dc;
+  box-shadow: none;
+}
+
+#womenGrid .card-content > .btn-primary,
+.salon-card-primary {
+  min-height: 48px;
+  border-color: #d9a45f;
+  background: #d9a45f;
+  color: #18130d;
+  box-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .salon-card-media,
+  #womenGrid .card-cover {
+    min-height: 0;
+    max-height: none;
+  }
+
+  .salon-card-body,
+  #womenGrid .card-content {
+    padding: 15px;
+  }
+
+  #womenGrid .actions,
+  .salon-card-utility {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #womenGrid .actions .btn,
+  .salon-card-utility .btn {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 374px) {
+  #womenGrid .actions,
+  .salon-card-utility {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .salon-card,
+  #womenGrid > .card {
+    transition: none;
+  }
+}

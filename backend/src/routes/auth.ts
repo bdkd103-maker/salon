@@ -1,3 +1,7 @@
+import { createRegistrationVerification, serializable } from "../lib/registration-verification.js";
+import { createCustomerPasswordReset } from "../lib/customer-password-reset.js";
+import { VerificationError } from "../lib/verification-email.js";
+import { normalizeGermanPhone } from "../lib/german-phone.js";
 import { z } from "zod";
 
 import { prisma } from "../lib/prisma.js";
@@ -11,7 +15,8 @@ const registerSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
   email: z.string().trim().email(),
   password: z.string().min(8).max(128),
-  phone: z.string().trim().min(7).max(20).optional().or(z.literal("")),
+  phone: z.string().trim().min(7).max(40),
+  verificationToken: z.string().regex(/^[a-f0-9-]{36}\.[a-f0-9]{64}$/),
 });
 
 const loginSchema = z.object({
@@ -122,39 +127,97 @@ function withStalePrismaTypes<T>(value: T) {
   return value as any;
 }
 
-export async function authRoutes(app: any) {
+export async function authRoutes(
+  app: any,
+  verification = createRegistrationVerification(prisma),
+  passwordReset = createCustomerPasswordReset(prisma),
+) {
+  function sendVerificationError(error: unknown, reply: any) {
+    if (error instanceof VerificationError) {
+      if (error.retryAfter) reply.header("Retry-After", String(error.retryAfter));
+      return reply.code(error.statusCode).send({ error: error.message, code: error.code });
+    }
+    return reply.code(503).send({ error: "Email verification is temporarily unavailable.", code: "VERIFICATION_UNAVAILABLE" });
+  }
+  const requestSchema = z.object({ channel: z.literal("EMAIL"), purpose: z.literal("CUSTOMER_REGISTRATION"), email: z.string().trim().email().max(254).transform(value => value.toLowerCase()) }).strict();
+  const resendSchema = z.object({ challengeId: z.string().uuid() }).strict();
+  const confirmSchema = resendSchema.extend({ code: z.string().regex(/^\d{6}$/) });
+  app.post("/api/v1/auth/verification/request", async (request: any, reply: any) => {
+    const parsed = requestSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Invalid email verification request." });
+    try { return reply.code(202).send(await verification.request(parsed.data.email, request.ip)); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
+  app.post("/api/v1/auth/verification/resend", async (request: any, reply: any) => {
+    const parsed = resendSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Invalid verification request." });
+    try { return reply.code(202).send(await verification.request(null, request.ip, parsed.data.challengeId)); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
+  app.post("/api/v1/auth/verification/confirm", async (request: any, reply: any) => {
+    const parsed = confirmSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Enter the six-digit verification code." });
+    try { return await verification.confirm(parsed.data.challengeId, parsed.data.code, request.ip); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
   app.post("/api/v1/auth/register", async (request: any, reply: any) => {
     const parsed = registerSchema.safeParse(request.body);
-
-    if (!parsed.success) {
-      return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
-    }
-
-    const { fullName, email, password, phone } = parsed.data;
+    if (!parsed.success) return reply.code(400).send({ error: "Valid registration details and email verification are required.", details: parsed.error.flatten() });
+    const { fullName, email, password, phone, verificationToken } = parsed.data;
     const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPhone = phone && phone.trim() ? phone.trim() : null;
-
-    const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-    if (existingUser) {
-      return reply.code(409).send({ error: "User already exists" });
+    let normalizedPhone: string;
+    try { normalizedPhone = normalizeGermanPhone(phone); }
+    catch { return reply.code(400).send({ error: "Enter a valid German (+49) phone number.", code: "PHONE_INVALID" }); }
+    try {
+      const passwordHash = await hashPassword(password);
+      return await serializable(prisma, async tx => {
+        await verification.consume(tx, verificationToken, normalizedEmail);
+        const user = await tx.user.create({ data: { fullName, email: normalizedEmail, phone: normalizedPhone, passwordHash, role: "CUSTOMER", emailVerified: true, phoneVerified: false } });
+        const tokens = await createSessionForUser(user, request, tx);
+        return { user: sanitizeUser(user), ...tokens };
+      });
+    } catch (error: any) {
+      if (error?.code === "P2002") return reply.code(409).send({ error: "User already exists" });
+      return sendVerificationError(error, reply);
     }
+  });
 
-    const user = await prisma.user.create({
-      data: {
-        fullName,
-        email: normalizedEmail,
-        phone: normalizedPhone,
-        passwordHash: await hashPassword(password),
-        role: "CUSTOMER",
-      },
-    });
+  const passwordResetRequestSchema = z.object({
+    email: z.string().trim().email().max(254).transform(value => value.toLowerCase()),
+  }).strict();
+  const passwordResetChallengeSchema = z.object({ challengeId: z.string().uuid() }).strict();
+  const passwordResetConfirmSchema = passwordResetChallengeSchema.extend({ code: z.string().regex(/^\d{6}$/) });
+  const passwordResetCompleteSchema = z.object({
+    resetToken: z.string().regex(/^[a-f0-9-]{36}\.[a-f0-9]{64}$/),
+    newPassword: z.string().min(8).max(128),
+  }).strict();
 
-    const tokens = await createSessionForUser(user, request);
+  app.post("/api/v1/auth/password-reset/request", async (request: any, reply: any) => {
+    const parsed = passwordResetRequestSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Enter a valid email address." });
+    try { return reply.code(202).send(await passwordReset.request(parsed.data.email, request.ip)); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
 
-    return {
-      user: sanitizeUser(user),
-      ...tokens,
-    };
+  app.post("/api/v1/auth/password-reset/resend", async (request: any, reply: any) => {
+    const parsed = passwordResetChallengeSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Invalid password reset request." });
+    try { return reply.code(202).send(await passwordReset.resend(parsed.data.challengeId, request.ip)); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
+
+  app.post("/api/v1/auth/password-reset/confirm", async (request: any, reply: any) => {
+    const parsed = passwordResetConfirmSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Enter the six-digit reset code." });
+    try { return await passwordReset.confirm(parsed.data.challengeId, parsed.data.code, request.ip); }
+    catch (error) { return sendVerificationError(error, reply); }
+  });
+
+  app.post("/api/v1/auth/password-reset/complete", async (request: any, reply: any) => {
+    const parsed = passwordResetCompleteSchema.safeParse(request.body);
+    if (!parsed.success) return reply.code(400).send({ error: "Valid reset proof and a new password are required." });
+    try { return await passwordReset.complete(parsed.data.resetToken, parsed.data.newPassword, request.ip); }
+    catch (error) { return sendVerificationError(error, reply); }
   });
 
   app.post("/api/v1/auth/admin/provision-owner", async (request: any, reply: any) => {

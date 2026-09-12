@@ -1,0 +1,4 @@
+ALTER TABLE "Salon"
+ADD COLUMN "bookingIntakeEnabled" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN "saloTicketIntakeEnabled" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN "walkInIntakeEnabled" BOOLEAN NOT NULL DEFAULT true;

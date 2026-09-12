@@ -42,7 +42,7 @@ describe("unified auth flow", () => {
     prismaMock.$transaction = originalPrisma.$transaction;
   });
 
-  it("forces public registration to create CUSTOMER even when OWNER is supplied", async () => {
+  it("rejects public registration without server email verification", async () => {
     let createdUserPayload: any = null;
     prismaMock.user = {
       ...originalPrisma.user,
@@ -81,10 +81,8 @@ describe("unified auth flow", () => {
       },
     });
 
-    assert.equal(response.statusCode, 200);
-    const payload = response.json();
-    assert.equal(createdUserPayload.role, "CUSTOMER");
-    assert.equal(payload.user.role, "CUSTOMER");
+    assert.equal(response.statusCode, 400);
+    assert.equal(createdUserPayload, null);
 
     await app.close();
   });

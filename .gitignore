@@ -10,3 +10,7 @@ build/
 test-results/
 *.tmp
 *.temp
+.header-*.png
+.verification-test-build/
+backend/.verification-test-build/
+backend/.npm-cache/

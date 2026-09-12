@@ -12,7 +12,7 @@ import { deviceTokenRoutes } from "./routes/device-tokens.js";
 import { loyaltyRoutes } from "./routes/loyalty.js";
 import { privacyRoutes } from "./routes/privacy.js";
 import { salonRoutes } from "./routes/salons.js";
-
+import { queueRoutes } from "./routes/queue.js";
 dotenv.config();
 
 const allowedLocalOrigins = new Set([
@@ -85,6 +85,7 @@ async function buildServer() {
 
   await authRoutes(app);
   await salonRoutes(app);
+  await queueRoutes(app);
   await bookingRoutes(app);
   await deviceTokenRoutes(app);
   await loyaltyRoutes(app);

@@ -31,7 +31,7 @@ const availabilityWatchSchema = z.object({
 });
 
 const subscriptionUpdateSchema = z.object({
-  plan: z.enum(["FREE", "PRO", "PREMIUM"]).optional(),
+  plan: z.enum(["FREE", "SMART", "PREMIUM", "PRO"]).optional(),
   status: z.enum(["ACTIVE", "TRIAL", "PAST_DUE", "CANCELLED", "EXPIRED"]).optional(),
 });
 
@@ -289,7 +289,7 @@ export async function dashboardRoutes(app: any) {
         user: subscription.user,
         plan: subscription.plan,
         status: subscription.status,
-        monthlyPrice: subscription.monthlyPrice ? Number(subscription.monthlyPrice.toString()) : 0,
+        monthlyPrice: subscription.monthlyPrice != null ? Number(subscription.monthlyPrice.toString()) : null,
         startDate: subscription.startDate,
         renewalDate: subscription.renewalDate,
         createdAt: subscription.createdAt,
@@ -340,7 +340,7 @@ export async function dashboardRoutes(app: any) {
         user: subscription.user,
         plan: subscription.plan,
         status: subscription.status,
-        monthlyPrice: subscription.monthlyPrice ? Number(subscription.monthlyPrice.toString()) : 0,
+        monthlyPrice: subscription.monthlyPrice != null ? Number(subscription.monthlyPrice.toString()) : null,
         startDate: subscription.startDate,
         renewalDate: subscription.renewalDate,
         createdAt: subscription.createdAt,
@@ -454,6 +454,9 @@ export async function dashboardRoutes(app: any) {
 
       const plan = normalizeSubscriptionPlan(parsed.data.plan ?? "FREE");
       const status = parsed.data.status ?? "ACTIVE";
+      if (user.role === "OWNER" && plan !== "FREE") {
+  return reply.code(403).send({ error: "Paid subscription plans cannot be self-assigned" });
+}
       const meta = getSubscriptionMeta(plan);
       const now = new Date();
       const renewalDate = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30);

@@ -69,6 +69,7 @@ export function summarizeAdminDashboard(input: AdminDashboardInput = {}) {
     return Date.now() - date.getTime() <= 1000 * 60 * 60 * 24 * 30;
   }).length;
   const planCounts = {
+    SMART: subscriptions.filter((subscription) => String(subscription?.plan ?? "FREE").toUpperCase() === "SMART").length,
     FREE: subscriptions.filter((subscription) => String(subscription?.plan ?? "FREE").toUpperCase() === "FREE").length,
     PRO: subscriptions.filter((subscription) => String(subscription?.plan ?? "FREE").toUpperCase() === "PRO").length,
     PREMIUM: subscriptions.filter((subscription) => String(subscription?.plan ?? "FREE").toUpperCase() === "PREMIUM").length,

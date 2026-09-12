@@ -2790,7 +2790,16 @@
         white-space: normal;
       }
     }
+    /* Customer registration: fixed German country prefix. */
+    #customerRegisterModal .registration-phone { display: flex; align-items: center; gap: 8px; direction: ltr; }
+    #customerRegisterModal .registration-phone-prefix { flex: 0 0 auto; white-space: nowrap; }
+    #customerRegisterModal .registration-phone input { min-width: 0; flex: 1; width: 100%; padding-inline-start: 12px; }
+    #customerRegisterModal .verify-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    #customerRegisterModal .verify-row input { min-width: 0; flex: 1; }
   </style>
+  <link rel="stylesheet" href="./assets/customer-header.css">
+  <link rel="stylesheet" href="./assets/customer-hero.css">
+  <link rel="stylesheet" href="./assets/customer-salon-card.css">
 </head>
 <body>
   <div class="experience-gate" id="experienceGate" aria-modal="true" role="dialog" aria-labelledby="experienceGateTitle">
@@ -2825,35 +2834,11 @@
     </div>
   </div>
   <div class="container">
-    <header class="topbar">
-      <div class="brand-group">
-        <a href="index.html" class="brand">
-          <span class="brand-mark"><i class="fa-solid fa-scissors"></i></span>
-          <span data-i18n="brandName">جمال وعناية</span>
-        </a>
-        <div class="mode-switch" aria-label="Gender toggle" data-i18n-aria-label="genderToggleAria">
-          <a href="women.html" class="mode-btn active" data-i18n="womenMode">نسائي</a>
-          <a href="index.html" class="mode-btn" data-i18n="menMode">رجالي</a>
-        </div>
-      </div>
-
-      <div class="header-utility">
-        <label class="header-field">
-          <i class="fa-solid fa-location-dot"></i>
-          <select id="headerCitySelect" aria-label="City selector" data-i18n-aria-label="citySelectorAria">
-            <option value="all" data-i18n="allCities">جميع المدن</option>
-          </select>
-        </label>
-        <label class="header-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="headerSearchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن صالون أو مدينة" aria-label="Search salon or city" data-i18n-aria-label="searchSalonAria">
-        </label>
-        <button class="profile-button" id="headerProfileButton" type="button" aria-label="Profile" data-i18n-aria-label="profileAria">
-          <i class="fa-solid fa-user"></i>
-          <span data-i18n="profileLabel">الملف الشخصي</span>
-        </button>
-      </div>
-
+  <header class="salo-header" data-salo-experience="women">
+    <div class="salo-header-inner">
+      <a class="salo-brand"  href="women.html" data-salo-label="home"><span>SALO</span><small>SMART SALON</small></a>
+      <nav class="salo-experience" aria-label="Experience" data-salo-label="experience"><a href="women.html" data-salo-mode="women" aria-current="page" data-salo-text="women">Damen</a><a href="index.html" data-salo-mode="men" data-salo-text="men">Herren</a></nav>
+      <a class="salo-discover" href="#womenGrid" data-salo-text="discover">Entdecken</a>
       <div class="lang-select-shell">
         <select class="lang-select" id="languageSelect" aria-label="Language" data-i18n-aria-label="languageAria">
           <option value="ar">عربي</option>
@@ -2904,42 +2889,46 @@
           </button>
         </div>
       </div>
-    </header>
+      <div class="salo-notices"></div>
+      <div class="salo-account"><button class="profile-button" id="headerProfileButton" type="button" aria-label="Profile" data-i18n-aria-label="profileAria">
+          <i class="fa-solid fa-user"></i>
+          <span data-i18n="profileLabel">الملف الشخصي</span>
+        </button></div>
+      <div class="salo-menu-toggle"><button id="mobileMenu" type="button" aria-expanded="false" aria-controls="mobileNav" data-salo-label="menu"><span data-salo-icon="menu"></span></button></div>
+      <nav id="mobileNav" class="mobile-nav salo-menu" aria-label="Navigation"><button type="button" data-salo-register data-salo-text="register">Registrieren</button><button type="button" data-salo-account data-salo-text="account">Mein Konto</button></nav>
+      <div hidden><select id="headerCitySelect"><option value="all">All</option></select><input id="headerSearchInput" type="search"></div>
+    </div>
+  </header>
 
     <div class="app-stack">
-    <section class="hero">
-      <div class="hero-topline">
-        <div class="hero-copy">
-          <div class="eyebrow" data-i18n="womenTitle">جمال وعناية</div>
-          <h1 data-i18n="womenSubtitle">اكتشفي صالونات نسائية مختارة بعناية.</h1>
-          <p class="subtitle" data-i18n="womenDescription">ابحثي عن صالونات التجميل والشعر القريبة واحجزي بسهولة وأناقة.</p>
+    <section class="hero salo-customer-hero" data-salo-hero="women">
+      <div class="salo-hero-inner">
+        <div class="salo-hero-copy">
+          <p class="salo-hero-eyebrow" data-i18n="heroDiscoveryEyebrow">اكتشاف SALO الذكي</p>
+          <h1 data-i18n="heroDiscoveryTitle">ماذا تحتاجين اليوم؟</h1>
+          <p data-i18n="heroDiscoveryText">اعثري على الصالون أو الخدمة أو الموقع المناسب لزيارتك القادمة.</p>
         </div>
-        <aside class="hero-panel">
-          <div class="hero-badge" data-i18n="heroBadge">عناية فاخرة</div>
-          <strong>4.9/5</strong>
-          <span data-i18n="heroPanelCopy">تقييمات مرتفعة وتجربة حجز سريعة لصالونات النساء.</span>
-        </aside>
-      </div>
-
-      <div class="hero-search-panel">
+        <div class="salo-hero-intents" role="group" aria-label="Discovery intent" data-i18n-aria-label="heroIntentAria">
+          <button type="button" class="salo-hero-intent" data-hero-intent="now" aria-pressed="false"><span data-i18n="heroIntentNow">الآن</span></button>
+          <button type="button" class="salo-hero-intent" data-hero-intent="appointment" data-hero-target="#womenGrid" aria-pressed="false"><span data-i18n="heroIntentAppointment">موعد</span></button>
+          <button type="button" class="salo-hero-intent" data-hero-intent="discover" data-hero-target="#womenGrid" aria-pressed="true"><span data-i18n="heroIntentDiscover">اكتشفي</span></button>
+        </div>
+      <div class="hero-search-panel salo-hero-search">
         <div class="hero-search-grid">
-          <label class="hero-search-field">
-            <span class="search-label"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="searchLabel">Search</span></span>
-            <input id="heroSearchInput" type="search" data-i18n-placeholder="heroSearchPlaceholder" placeholder="ابحثي عن صالون أو مدينة" aria-label="Search salon by name or city" data-i18n-aria-label="searchSalonAria">
+          <label class="hero-search-field salo-hero-query">
+            <span class="search-label"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span data-i18n="searchLabel">بحث</span></span>
+            <input id="heroSearchInput" type="search" data-i18n-placeholder="heroSearchPlaceholder" placeholder="ابحثي عن صالون أو خدمة أو موقع" aria-label="Search salon, service, or location" data-i18n-aria-label="heroSearchAria">
           </label>
-          <label class="hero-search-field">
-            <span class="search-label"><i class="fa-solid fa-location-dot"></i> <span data-i18n="locationLabel">Standort</span></span>
+          <label class="hero-search-field salo-hero-city">
+            <span class="search-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span data-i18n="locationLabel">الموقع</span></span>
             <select id="heroCitySelect" aria-label="Select city" data-i18n-aria-label="citySelectorAria">
               <option value="all" data-i18n="allCities">Alle Städte</option>
             </select>
           </label>
-          <button type="button" class="btn btn-gold hero-search-btn" id="heroSearchButton" data-i18n="findNearby">In meiner Nähe</button>
+          <button type="button" class="btn btn-gold hero-search-btn" id="heroSearchButton"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span data-i18n="searchCta">ابحثي عن الصالونات</span></button>
         </div>
+        <button type="button" class="salo-hero-location" id="womenNearbyButton"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> <span data-i18n="useMyLocation">استخدمي موقعي</span></button>
       </div>
-
-      <div class="hero-actions">
-        <a href="#womenGrid" class="btn btn-gold"><i class="fa-regular fa-calendar"></i> <span data-i18n="bookNow">Jetzt buchen</span></a>
-        <button type="button" class="btn btn-light" id="womenNearbyButton"><i class="fa-solid fa-location-crosshairs"></i> <span data-i18n="useMyLocation">Meinen Standort nutzen</span></button>
       </div>
     </section>
 
@@ -3090,24 +3079,6 @@
       </div>
     </section>
 
-    <section class="trust-strip" aria-label="trusted stats" data-i18n-aria-label="trustAria">
-      <div class="trust-card">
-        <strong>120+</strong>
-        <span data-i18n="trustText1">صالونات مختارة في منطقتك</span>
-      </div>
-      <div class="trust-card">
-        <strong>4.9</strong>
-        <span data-i18n="trustText2">متوسط تقييم تجربة العملاء</span>
-      </div>
-      <div class="trust-card">
-        <strong>30m</strong>
-        <span data-i18n="trustText3">أسرع وقت متاح للموعد التالي</span>
-      </div>
-      <div class="trust-card">
-        <strong>24/7</strong>
-        <span data-i18n="trustText4">معلومات واضحة وتجربة استخدام مريحة</span>
-      </div>
-    </section>
     </div>
   </div>
 
@@ -3183,6 +3154,29 @@
     </div>
   </div>
 
+  <div class="modal customer-auth-modal" id="customerPasswordResetModal" aria-modal="true" role="dialog">
+    <div class="modal-box">
+      <button class="close" data-close="customerPasswordResetModal" type="button">×</button>
+      <div class="eyebrow">Customer account</div>
+      <h2 id="customerResetTitle">Reset password</h2>
+      <p class="admin-note" id="customerResetIntro"></p>
+      <form id="customerPasswordResetForm">
+        <div class="field full" data-reset-step="1"><label for="customerResetEmail">Email</label><input id="customerResetEmail" required type="email" autocomplete="email" placeholder="name@example.com"></div>
+        <div class="field full" data-reset-step="2"><label for="customerResetCode">Code</label><input id="customerResetCode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="------"></div>
+        <div data-reset-step="2"><button class="btn" id="customerResetResend" type="button">Resend code</button></div>
+        <div data-reset-step="3">
+          <div class="field full"><label for="customerResetPassword">New password</label><input id="customerResetPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password"></div>
+          <div class="field full"><label for="customerResetPasswordConfirm">Confirm password</label><input id="customerResetPasswordConfirm" type="password" minlength="8" maxlength="128" autocomplete="new-password"></div>
+        </div>
+        <div class="customer-actions">
+          <button class="btn" id="customerResetBack" type="button">Back</button>
+          <button class="btn btn-gold" id="customerResetSubmit" type="submit">Send code</button>
+        </div>
+      </form>
+      <div class="notice" id="customerResetNotice" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
   <div class="modal customer-auth-modal" id="customerRegisterModal" aria-modal="true" role="dialog">
     <div class="modal-box">
       <button class="close" data-close="customerRegisterModal" type="button">×</button>
@@ -3197,7 +3191,7 @@
           </div>
           <div class="field">
             <label for="customerRegisterPhone" id="customerRegisterPhoneLabel">الهاتف</label>
-            <input id="customerRegisterPhone" type="tel" autocomplete="tel" placeholder="+966 5xx xxx xxx">
+            <div class="registration-phone"><span class="registration-phone-prefix" aria-label="Germany, country code plus 49">&#x1F1E9;&#x1F1EA; +49</span><input id="customerRegisterPhone" type="tel" inputmode="tel" autocomplete="tel-national" aria-label="German national phone number" placeholder="151 23456789" required></div>
           </div>
           <div class="field full">
             <label for="customerRegisterEmail" id="customerRegisterEmailLabel">البريد الإلكتروني</label>
@@ -3206,6 +3200,13 @@
           <div class="field full">
             <label for="customerRegisterPassword" id="customerRegisterPasswordLabel">كلمة المرور</label>
             <input id="customerRegisterPassword" required type="password" minlength="8" autocomplete="new-password" placeholder="********">
+          </div>
+        </div>
+        <div class="customer-verify-box" id="customerVerifyBox" style="display:none;">
+          <label id="customerVerifyLabel" for="customerVerifyCode">Email verification code</label>
+          <div class="verify-row">
+            <input id="customerVerifyCode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="------">
+            <button class="btn btn-outline" id="customerSendVerifyCode" type="button">Resend code</button>
           </div>
         </div>
         <div class="gdpr-row">
@@ -3219,7 +3220,7 @@
           <button class="btn" id="customerOpenLoginFromRegister" type="button">لديك حساب؟ تسجيل الدخول</button>
         </div>
       </form>
-      <div class="notice" id="customerRegisterNotice"></div>
+      <div class="notice" role="status" aria-live="polite" id="customerRegisterNotice"></div>
     </div>
   </div>
 
@@ -3285,6 +3286,8 @@
     </div>
   </div>
 
+  <script src="./assets/customer-registration.js"></script>
+  <script src="./assets/customer-password-reset.js"></script>
   <script>
     const categoryDefinitions = [
       { key: "haircut", icon: "fa-scissors", tintStart: "#f6ddd6", tintEnd: "#edd0c7", iconColor: "#8d5d58", glow: "rgba(208, 152, 141, 0.24)", label: { ar: "قص شعر", en: "Haircut", de: "Haarschnitt" }, keywords: ["haircut", "haarschnitt", "friseur", "styling", "cut", "trim", "hair", "scissors", "قص", "تصفيف", "حلاقة"] },
@@ -3396,19 +3399,19 @@
       const copy = getWomenCopy(lang);
       row.innerHTML = salons.map((salon, index) => {
         const premium = isPremiumSalon(salon);
-        const rating = Number(salon.rating || 0) || 4.9;
+        const rating = Number(salon.rating || 0);
+        const reviewCount = getWomenSalonReviewCount(salon);
         const city = salon.city || "";
         const cover = getSalonCover(salon, index);
-        const status = getLocalizedStatusLabel(salon.status || "quiet", lang);
-        const statusClass = salon.status === "busy" ? "status-busy" : salon.status === "medium" ? "status-medium" : "status-quiet";
-        const label = premium ? copy.popularPremiumLabel : copy.popularStandardLabel;
-        const note = premium ? copy.popularPremiumNote : copy.popularStandardNote;
+        const operatingState = getWomenSalonOperatingState(salon);
+        const status = operatingState.isOpen ? copy.statusOpen : copy.statusClosed;
+        const statusClass = operatingState.isOpen ? "status-open" : "status-closed";
         const services = getWomenServicePreview(salon).slice(0, 2);
         return `
           <article class="popular-card" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
             <div class="popular-card-media" style="background-image:url('${escapeHtml(String(cover))}')">
               <div class="popular-card-media-top">
-                <span class="popular-rating">★ ${escapeHtml(String(rating.toFixed(1)))}</span>
+                <span class="popular-rating${reviewCount > 0 && rating > 0 ? "" : " no-reviews"}">${reviewCount > 0 && rating > 0 ? `★ ${escapeHtml(String(rating.toFixed(1)))} (${reviewCount})` : escapeHtml(copy.noReviewsYet)}</span>
                 <span class="card-status-badge ${statusClass}"><span class="status-dot"></span>${escapeHtml(status)}</span>
               </div>
             </div>
@@ -3419,10 +3422,7 @@
               </div>
               <p>${escapeHtml(salon.address || salon.city || copy.genericSalon)}</p>
               ${services.length ? `<div class="card-service-list">${services.map(service => `<span class="service-chip">${escapeHtml(service)}</span>`).join("")}</div>` : ""}
-              <div class="popular-meta">
-                <span>${escapeHtml(label)}</span>
-                <span>${escapeHtml(city || note)}</span>
-              </div>
+              ${city ? `<div class="popular-meta"><span>${escapeHtml(city)}</span></div>` : ""}
             </div>
           </article>
         `;
@@ -3548,7 +3548,17 @@
         profileLabel: "الملف الشخصي",
         searchLabel: "بحث",
         searchPlaceholder: "ابحث عن صالون أو مدينة",
-        heroSearchPlaceholder: "ابحثي عن صالون أو مدينة",
+        heroSearchPlaceholder: "ابحثي عن صالون أو خدمة أو موقع",
+        heroDiscoveryEyebrow: "اكتشاف SALO الذكي",
+        heroDiscoveryTitle: "ماذا تحتاجين اليوم؟",
+        heroDiscoveryText: "اعثري على الصالون أو الخدمة أو الموقع المناسب لزيارتك القادمة.",
+        heroIntentNow: "الآن",
+        heroIntentAppointment: "موعد",
+        heroIntentDiscover: "اكتشفي",
+        heroIntentAria: "نوع البحث",
+        heroSearchAria: "ابحثي عن صالون أو خدمة أو موقع",
+        searchCta: "ابحثي عن الصالونات",
+        noReviewsYet: "لا توجد تقييمات بعد",
         locationLabel: "الموقع",
         findNearby: "بالقرب مني",
         useMyLocation: "استخدمي موقعي",
@@ -3704,7 +3714,17 @@
         profileLabel: "Profile",
         searchLabel: "Search",
         searchPlaceholder: "Search salon or city",
-        heroSearchPlaceholder: "Hairdresser, salon or city",
+        heroSearchPlaceholder: "Search for a salon, service, or location",
+        heroDiscoveryEyebrow: "SALO Smart Discovery",
+        heroDiscoveryTitle: "What do you need today?",
+        heroDiscoveryText: "Find the right salon, service, or location for your next visit.",
+        heroIntentNow: "Now",
+        heroIntentAppointment: "Appointment",
+        heroIntentDiscover: "Discover",
+        heroIntentAria: "Discovery intent",
+        heroSearchAria: "Search for a salon, service, or location",
+        searchCta: "Find salons",
+        noReviewsYet: "No reviews yet",
         locationLabel: "Location",
         findNearby: "Near me",
         useMyLocation: "Use my location",
@@ -3860,7 +3880,17 @@
         profileLabel: "Profil",
         searchLabel: "Suche",
         searchPlaceholder: "Salon oder Stadt suchen",
-        heroSearchPlaceholder: "Friseur, Salon oder Stadt",
+        heroSearchPlaceholder: "Salon, Service oder Ort suchen",
+        heroDiscoveryEyebrow: "SALO Smart Discovery",
+        heroDiscoveryTitle: "Was brauchst du heute?",
+        heroDiscoveryText: "Finde den passenden Salon, Service oder Ort für deinen nächsten Besuch.",
+        heroIntentNow: "Jetzt",
+        heroIntentAppointment: "Termin",
+        heroIntentDiscover: "Entdecken",
+        heroIntentAria: "Art der Suche",
+        heroSearchAria: "Salon, Service oder Ort suchen",
+        searchCta: "Salons finden",
+        noReviewsYet: "Noch keine Bewertungen",
         locationLabel: "Standort",
         findNearby: "In meiner Nähe",
         useMyLocation: "Meinen Standort nutzen",
@@ -4179,10 +4209,10 @@
     let selectedWomenSalon = null;
     const womenCandidateCache = { value: null, loadedAt: 0, ttlMs: 60000 };
     const beautyBackgrounds = [
-      "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
-      "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
-      "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
-      "./assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg"
+      "/assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      "/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      "/assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      "/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg"
     ];
     const salonCards = [
       "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
@@ -4204,6 +4234,7 @@
       bridal: "./assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg"
     };
     let activeBackgroundIndex = 0;
+    document.documentElement.style.setProperty("--women-hero-image", `url("${beautyBackgrounds[activeBackgroundIndex]}")`);
 
     function buildOptimizedImageUrl(url, width = 900) {
       if (!url || typeof url !== "string") return url;
@@ -4216,10 +4247,13 @@
       return url;
     }
 
-    function getSalonCover(salon, index) {
-      const explicit = salon?.image || salon?.cover || salon?.photo || "";
+    function getSalonCover(salon) {
+      const mediaImage = Array.isArray(salon?.media)
+        ? salon.media.find(entry => String(entry?.kind || "image").toLowerCase() === "image" && isRenderableWomenSalonImageUrl(entry?.url))
+        : null;
+      const explicit = mediaImage?.url || [salon?.imageUrl, salon?.image, salon?.cover, salon?.photo, salon?.img].find(isRenderableWomenSalonImageUrl) || "";
       if (explicit) return buildOptimizedImageUrl(explicit, 900);
-      return buildOptimizedImageUrl(salonCards[index % salonCards.length], 900);
+      return "./assets/salo-salon-placeholder.svg";
     }
 
     function setupWomenCoverLazyLoad() {
@@ -4251,7 +4285,7 @@
     function updateBackground() {
       activeBackgroundIndex = (activeBackgroundIndex + 1) % beautyBackgrounds.length;
       const next = beautyBackgrounds[activeBackgroundIndex];
-      document.body.style.background = `linear-gradient(135deg, rgba(42, 28, 27, 0.24), rgba(154, 113, 104, 0.14)), url("${next}") center/cover no-repeat fixed`;
+      document.documentElement.style.setProperty("--women-hero-image", `url("${next}")`);
     }
 
     function setLanguage(lang) {
@@ -4609,7 +4643,9 @@
 
     function clearCustomerAuthState({ preserveSavedLogin = true } = {}) {
       const tokenData = readStoredAuthToken();
-      if (womenSession?.role === "customer") {
+      let storedSession = null;
+      try { storedSession = JSON.parse(localStorage.getItem("meshwarSession") || "null"); } catch {}
+      if (womenSession?.role === "customer" || storedSession?.role === "customer") {
         womenSession = null;
         localStorage.removeItem("meshwarSession");
       }
@@ -4678,7 +4714,7 @@
       });
       const placeholderMap = {
         customerRegisterName: copy.namePlaceholder,
-        customerRegisterPhone: copy.phonePlaceholder,
+        customerRegisterPhone: "151 23456789",
         customerRegisterEmail: copy.emailPlaceholder,
         customerLoginEmail: copy.emailPlaceholder
       };
@@ -4933,15 +4969,15 @@
         city: salon.city || "",
         address: salon.address || "",
         phone: salon.phone || "",
-        open: salon.open || "09:00",
-        close: salon.close || "20:00",
+        open: salon.open || salon.openingTime || "",
+        close: salon.close || salon.closingTime || "",
         status: salon.status || "quiet",
         totalChairs: Number(salon.totalChairs || 0),
         availableChairs: Number(salon.availableChairs || 0),
         isWomenOnly: womenFlag,
         forWomen: womenFlag,
         women: womenFlag,
-        workingDays: Array.isArray(salon.workingDays) && salon.workingDays.length ? salon.workingDays : ["mon", "tue", "wed", "thu", "fri", "sat"],
+        workingDays: Array.isArray(salon.workingDays) ? salon.workingDays : [],
         rating: Number(salon.rating || 0),
         ratingCount: Number(salon.ratingCount ?? salon.reviewCount ?? 0),
         reviewCount: Number(salon.reviewCount ?? salon.ratingCount ?? 0),
@@ -5049,8 +5085,8 @@
     }
 
     function getWomenSalonReviewCount(salon) {
-      if (Number.isFinite(Number(salon?.reviewCount))) return Number(salon.reviewCount);
-      if (Number.isFinite(Number(salon?.ratingCount))) return Number(salon.ratingCount);
+      if (Number.isFinite(Number(salon?.reviewCount)) && Number(salon.reviewCount) > 0) return Number(salon.reviewCount);
+      if (Number.isFinite(Number(salon?.ratingCount)) && Number(salon.ratingCount) > 0) return Number(salon.ratingCount);
       if (Array.isArray(salon?.reviews)) return salon.reviews.length;
       if (Number.isFinite(Number(salon?.votes))) return Number(salon.votes);
       return 0;
@@ -5668,15 +5704,17 @@
           : null;
         const distanceLabel = distance === null ? "—" : `${distance.toFixed(1)} km`;
         const cover = getSalonCover(salon, index);
-        const rating = Number(salon.rating || 0) || 4.9;
-        const status = getLocalizedStatusLabel(salon.status || "quiet", currentLang);
-        const statusClass = salon.status === "busy" ? "status-busy" : salon.status === "medium" ? "status-medium" : "status-quiet";
+        const rating = Number(salon.rating || 0);
+        const reviewCount = getWomenSalonReviewCount(salon);
+        const operatingState = getWomenSalonOperatingState(salon);
+        const status = operatingState.isOpen ? copy.statusOpen : copy.statusClosed;
+        const statusClass = operatingState.isOpen ? "status-open" : "status-closed";
         const services = getWomenServicePreview(salon).slice(0, 2);
         return `
           <div class="nearby-item" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
             <div class="nearby-item-media" style="background-image:url('${escapeHtml(String(cover))}')">
               <div class="nearby-media-top">
-                <span class="popular-rating">★ ${escapeHtml(String(rating.toFixed(1)))}</span>
+                <span class="popular-rating${reviewCount > 0 && rating > 0 ? "" : " no-reviews"}">${reviewCount > 0 && rating > 0 ? `★ ${escapeHtml(String(rating.toFixed(1)))} (${reviewCount})` : escapeHtml(copy.noReviewsYet)}</span>
                 <span class="card-status-badge ${statusClass}"><span class="status-dot"></span>${escapeHtml(status)}</span>
               </div>
             </div>
@@ -5812,13 +5850,53 @@
       return "unknown";
     }
 
+    function getWomenSalonOperatingState(salon, now = new Date()) {
+      if (!salon || salon.isActive === false) return { isOpen: false, reason: "inactive" };
+      const timeZone = String(salon.timeZone || salon.timezone || "").trim();
+      if (!timeZone) return { isOpen: false, reason: "missing-timezone" };
+      let parts;
+      try {
+        parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+          timeZone,
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23"
+        }).formatToParts(now).map(part => [part.type, part.value]));
+      } catch {
+        return { isOpen: false, reason: "invalid-timezone" };
+      }
+      const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      const dayKey = String(parts.weekday || "").slice(0, 3).toLowerCase();
+      const previousDayKey = dayKeys[(dayKeys.indexOf(dayKey) + 6) % 7];
+      const nowMinutes = Number(parts.hour) * 60 + Number(parts.minute);
+      const fallbackOpen = String(salon.openingTime || salon.open || "").trim();
+      const fallbackClose = String(salon.closingTime || salon.close || "").trim();
+      const weekly = salon.weeklyOpeningHours || salon.openingHours || salon.weeklyHours || salon.schedule;
+      const workingDays = Array.isArray(salon.workingDays) ? salon.workingDays : [];
+
+      function intervalsFor(targetDay) {
+        const source = weekly && typeof weekly === "object" && !Array.isArray(weekly)
+          ? weekly[targetDay]
+          : workingDays.find(entry => typeof entry === "object" && String(entry.day || entry.key || entry.name || "").slice(0, 3).toLowerCase() === targetDay)
+            || (workingDays.some(entry => typeof entry === "string" && entry.slice(0, 3).toLowerCase() === targetDay) ? { open: fallbackOpen, close: fallbackClose } : null);
+        const entries = Array.isArray(source) ? source : source?.intervals || source?.periods || (source ? [source] : []);
+        return entries.map(entry => {
+          if (!entry || entry.closed === true || entry.isClosed === true || String(entry.status || "").toLowerCase() === "closed") return null;
+          const start = timeToMinutes(entry.open || entry.start || entry.openingTime || fallbackOpen);
+          const end = timeToMinutes(entry.close || entry.end || entry.closingTime || fallbackClose);
+          return Number.isFinite(start) && Number.isFinite(end) && start !== end ? { start, end, crossesMidnight: end < start } : null;
+        }).filter(Boolean);
+      }
+
+      const openFromToday = intervalsFor(dayKey).some(interval => interval.crossesMidnight ? nowMinutes >= interval.start : nowMinutes >= interval.start && nowMinutes < interval.end);
+      const openFromPreviousDay = intervalsFor(previousDayKey).some(interval => interval.crossesMidnight && nowMinutes < interval.end);
+      const isOpen = openFromToday || openFromPreviousDay;
+      return { isOpen, reason: isOpen ? "within-hours" : "outside-hours" };
+    }
+
     function isSalonOpenNow(salon) {
-      if (!salon?.open || !salon?.close) return true;
-      const openMinutes = timeToMinutes(salon.open);
-      const closeMinutes = timeToMinutes(salon.close);
-      const nowMinutes = timeToMinutes(new Date().toLocaleTimeString("en-GB", { hour12: false }));
-      if (Number.isNaN(openMinutes) || Number.isNaN(closeMinutes) || Number.isNaN(nowMinutes)) return true;
-      return openMinutes <= nowMinutes && nowMinutes <= closeMinutes;
+      return getWomenSalonOperatingState(salon).isOpen;
     }
 
     function timeToMinutes(value) {
@@ -6092,29 +6170,30 @@
         const currentLang = document.documentElement.lang || defaultLang;
         const copy = getWomenCopy(currentLang);
         grid.innerHTML = salonList.map((salon, index) => {
-          const status = getLocalizedStatusLabel(salon.status || "quiet", currentLang);
-          const hours = `${salon.open || "09:00"} – ${salon.close || "20:00"}`;
-          const cover = getSalonCover(salon, index);
-          const rating = salon.rating && salon.ratingCount ? `${salon.rating.toFixed(1)} (${salon.ratingCount})` : "4.9 (200+)";
+          const operatingState = getWomenSalonOperatingState(salon);
+          const status = operatingState.isOpen ? copy.statusOpen : copy.statusClosed;
+          const cover = getSalonCover(salon);
+          const reviewCount = getWomenSalonReviewCount(salon);
+          const ratingValue = Number(salon.rating || 0);
+          const rating = reviewCount > 0 && Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : "";
           const favoriteSaved = JSON.parse(localStorage.getItem("womenFavorites") || "[]");
           const isFavorite = favoriteSaved.includes(String(salon.id));
           const premium = isPremiumSalon(salon);
-          const statusClass = salon.status === "busy" ? "status-busy" : salon.status === "medium" ? "status-medium" : "status-quiet";
+          const statusClass = operatingState.isOpen ? "status-open" : "status-closed";
           const premiumBadge = premium ? `<span class="premium-badge"><i class="fa-solid fa-crown"></i> ${escapeHtml(copy.premiumBadge)}</span>` : "";
-          const recommendedBadge = premium ? `<span class="recommended-pill">${escapeHtml(copy.recommendedBadge)}</span>` : "";
           const serviceLabel = getLocalizedServiceName(salon.specialty || salon.service || salon.category || copy.serviceFallbackLabel, currentLang);
           const servicePreview = getWomenServicePreview(salon);
-          const seatValue = `${salon.availableChairs || 0} / ${salon.totalChairs || 0}`;
 
           return `
             <article class="card ${premium ? "premium-card" : ""}" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${copy.profileLabel}: ${salon.name || copy.genericSalon}`)}">
-              <div class="card-cover" data-cover-src="${escapeHtml(String(cover))}" style="background-image: linear-gradient(180deg, rgba(21,17,17,0.18), rgba(21,17,17,0.54));">
+              <div class="card-cover">
+                <img src="${escapeHtml(String(cover))}" alt="${escapeHtml(salon.name || copy.genericSalon)}" loading="lazy">
                 <div class="card-badges">
                   <div class="card-badge-stack">
                     ${premiumBadge}
                     <span class="card-status-badge ${statusClass}"><span class="status-dot"></span>${escapeHtml(status)}</span>
                   </div>
-                  <span class="rating-chip">★ ${escapeHtml(rating)}</span>
+                  <span class="rating-chip${rating ? "" : " no-reviews"}">${rating ? `★ ${escapeHtml(rating)} <small>(${reviewCount})</small>` : escapeHtml(copy.noReviewsYet)}</span>
                 </div>
               </div>
               <div class="card-content">
@@ -6123,27 +6202,9 @@
                     <h3>${escapeHtml(salon.name)}</h3>
                     <p class="meta">${escapeHtml(salon.city || "—")} · ${escapeHtml(salon.address || "—")}</p>
                   </div>
-                  ${premium ? recommendedBadge : `<span class="service-tag">${escapeHtml(String(serviceLabel))}</span>`}
+                  <span class="service-tag">${escapeHtml(String(serviceLabel))}</span>
                 </div>
                 ${servicePreview.length ? `<div class="card-service-list">${servicePreview.map(service => `<span class="service-chip">${escapeHtml(service)}</span>`).join("")}</div>` : ""}
-                <div class="stats">
-                  <div class="stat stat-highlight">
-                    <span class="stat-label">${copy.seats}</span>
-                    <strong class="stat-emphasis">${escapeHtml(seatValue)}</strong>
-                  </div>
-                  <div class="stat">
-                    <span class="stat-label">${copy.openToday}</span>
-                    <strong>${escapeHtml(status)}</strong>
-                  </div>
-                  <div class="stat">
-                    <span class="stat-label">${copy.city}</span>
-                    <strong>${escapeHtml(salon.city || "—")}</strong>
-                  </div>
-                  <div class="stat">
-                    <span class="stat-label">${copy.workingHours}</span>
-                    <strong>${escapeHtml(hours)}</strong>
-                  </div>
-                </div>
                 <div class="loyalty-status" data-loyalty-salon="${salon.id}"></div>
                 <div class="actions">
                   <button class="btn btn-secondary btn-compact btn-icon" type="button" data-route-salon="${salon.id}" aria-label="${copy.route}"><i class="fa-solid fa-route"></i> ${copy.route}</button>
@@ -6322,12 +6383,13 @@
       openCustomerLoginForWomenPage();
     });
 
-    document.getElementById("customerForgotPassword")?.addEventListener("click", () => {
-      const notice = document.getElementById("customerForgotNotice");
-      if (!notice) return;
-      notice.textContent = getCustomerFlowCopy().resetUnavailable;
-      notice.classList.add("show");
+    const customerPasswordReset = createCustomerPasswordReset({
+      request: apiRequest,
+      openModal: openWomenModal,
+      closeModal: closeWomenModal,
+      clearCustomerAuth: () => clearCustomerAuthState({ preserveSavedLogin: false })
     });
+    document.getElementById("customerForgotPassword")?.addEventListener("click", customerPasswordReset.open);
 
     document.getElementById("customerLoginForm")?.addEventListener("submit", async event => {
       event.preventDefault();
@@ -6390,6 +6452,7 @@
       }
     });
 
+    const customerRegistrationVerification = createCustomerRegistrationVerification({ request: apiRequest });
     document.getElementById("customerRegisterForm")?.addEventListener("submit", async event => {
       event.preventDefault();
       const copy = getCustomerFlowCopy();
@@ -6429,6 +6492,8 @@
       }
 
       try {
+        const verificationToken = await customerRegistrationVerification.ensure(email);
+        if (!verificationToken) return;
         const response = await apiRequest("/api/v1/auth/register", {
           method: "POST",
           body: JSON.stringify({
@@ -6436,6 +6501,7 @@
             email,
             password,
             phone,
+            verificationToken,
             role: "CUSTOMER"
           })
         });
@@ -6447,7 +6513,7 @@
         womenSession = { role: "customer", customerId: response.user.id, userId: response.user.id };
         localStorage.setItem("meshwarSession", JSON.stringify(womenSession));
         storeAuthToken({ accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user.id, role: response.user.role });
-        saveCustomerLogin(email, password, remember);
+        customerRegistrationVerification.reset();
         if (errorBox) errorBox.classList.remove("show");
         noticeBox.textContent = copy.registerSuccess;
         noticeBox.classList.add("show");
@@ -6553,5 +6619,8 @@
     renderNearbySalons();
     renderWomenOffers();
   </script>
+  <script src="./assets/customer-header.js"></script>
+  <script src="./assets/customer-hero.js"></script>
+  <script src="./assets/customer-salon-card.js"></script>
 </body>
 </html>

@@ -14,8 +14,22 @@ import {
 } from "../lib/salon-vip.js";
 import { normalizeServiceInput } from "../lib/service.js";
 import { salonScheduleFields } from "../lib/salon-schedule.js";
+import { projectPublicLiveStatus, publicLiveStatusSelect } from "../lib/salon-live-status.js";
+import { normalizeSubscriptionPlan, SUBSCRIPTION_PLAN_ORDER } from "../lib/subscription-plan.js";
+import { buildSalonArchiveState } from "../lib/salon-archive.js";
+const intakeControlsPatchSchema = z.object({
+  bookingIntakeEnabled: z.boolean().optional(),
+  saloTicketIntakeEnabled: z.boolean().optional(),
+  walkInIntakeEnabled: z.boolean().optional(),
+}).strict().refine((data) => Object.values(data).some((value) => value !== undefined), {
+  message: "At least one intake control is required",
+});
 
 const salonClassificationSchema = z.enum(["REGULAR", "PREMIUM"]).optional();
+
+const salonEnforcementSchema = z.object({
+  reason: z.string().trim().min(1),
+}).strict();
 
 const salonSchema = z.object({
   name: z.string().min(2),
@@ -34,15 +48,26 @@ const salonSchema = z.object({
 });
 
 const salonPatchSchema = salonSchema.partial().extend({
+  isActive: z.boolean().optional(),
   ownerPassword: z.string().trim().min(8).max(128).optional().or(z.literal("")),
 });
+
+const servicePriceSchema = z.union([
+  z.number().finite().min(0).max(99999999.99),
+  z.string().trim().regex(/^\d+(?:\.\d{1,2})?$/).transform(Number),
+]);
 
 const serviceSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   description: z.string().trim().max(240).optional().or(z.literal("")),
-  price: z.union([z.number(), z.string()]).optional(),
+  price: servicePriceSchema.optional(),
   durationMin: z.union([z.number(), z.string()]).optional(),
   isActive: z.boolean().optional(),
+});
+
+const serviceCreateSchema = serviceSchema.extend({
+  name: z.string().trim().min(1).max(80),
+  price: servicePriceSchema,
 });
 
 const offerSchema = z.object({
@@ -181,11 +206,273 @@ async function refreshSalonRatingAggregate(db: any, salonId: string) {
 }
 
 export async function salonRoutes(app: any) {
+  app.delete("/api/v1/salons/:id", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.id },
+        select: { id: true },
+      });
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+
+      // No trusted clearance mechanism exists yet; client claims cannot authorize purge.
+      return reply.code(409).send({
+        error: "Permanent deletion is blocked pending trusted archive/retention clearance.",
+      });
+    } catch (error) {
+      if (reply.sent) return reply;
+      throw error;
+    }
+  });
+
+  app.post("/api/v1/salons/:id/enforcement", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const parsed = salonEnforcementSchema.safeParse(request.body ?? {});
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      }
+
+      const enforcement = await prisma.$transaction(async (tx) => {
+        const salon = await tx.salon.findUnique({
+          where: { id: request.params.id },
+          select: { id: true, name: true, ownerId: true, isActive: true },
+        });
+        if (!salon) return null;
+
+        const subscription = await tx.userSubscription.findUnique({
+          where: { userId: salon.ownerId },
+          select: {
+            plan: true, status: true, startDate: true, renewalDate: true,
+            monthlyPrice: true, providerReference: true,
+          },
+        });
+        const snapshot = subscription ? {
+          plan: subscription.plan,
+          status: subscription.status,
+          startDate: subscription.startDate?.toISOString() ?? null,
+          renewalDate: subscription.renewalDate?.toISOString() ?? null,
+          monthlyPrice: subscription.monthlyPrice?.toString() ?? null,
+          providerReference: subscription.providerReference,
+        } : null;
+
+        const evidence = await tx.salonEnforcement.create({
+          data: {
+            salonId: salon.id,
+            salonName: salon.name,
+            ownerUserId: salon.ownerId,
+            reason: parsed.data.reason,
+            actorUserId: user.id,
+            enforcedAt: new Date(),
+            previousIsActive: salon.isActive,
+            // Omission stores SQL NULL; this snapshot is context, not payment proof.
+            ...(snapshot === null ? {} : { subscription: snapshot }),
+          },
+        });
+        await tx.salon.update({
+          where: { id: salon.id },
+          data: { isActive: false },
+        });
+        return { ...evidence, subscription: evidence.subscription ?? null };
+      }, { isolationLevel: "Serializable" });
+
+      if (!enforcement) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+      return { enforcement };
+    } catch (error) {
+      if (reply.sent) return reply;
+      throw error;
+    }
+  });
+  app.post("/api/v1/salons/:id/archive/finalize", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const archive = await prisma.$transaction(async (tx) => {
+        const salon = await tx.salon.findUnique({
+          where: { id: request.params.id },
+          select: { id: true, name: true, ownerId: true },
+        });
+
+        if (!salon) return null;
+
+        const [bookings, serviceVisits, salonBoosts] = await Promise.all([
+          tx.booking.findMany({
+            where: { salonId: salon.id },
+            select: { id: true },
+          }),
+          tx.serviceVisit.findMany({
+            where: { salonId: salon.id },
+            select: { id: true },
+          }),
+          tx.salonBoost.findMany({
+            where: { salonId: salon.id },
+            select: { id: true },
+          }),
+        ]);
+
+        const state = buildSalonArchiveState({
+          salonId: salon.id,
+          bookingIds: bookings.map((row) => row.id),
+          serviceVisitIds: serviceVisits.map((row) => row.id),
+          salonBoostIds: salonBoosts.map((row) => row.id),
+        });
+
+        return tx.salonArchive.create({
+          data: {
+            salonId: salon.id,
+            salonName: salon.name,
+            ownerUserId: salon.ownerId,
+            archiveVersion: state.archiveVersion,
+            payloadVersion: state.payloadVersion,
+            coverage: state.coverage,
+            sourceState: state.sourceState,
+            source: `ADMIN:${user.id}`,
+            finalizedAt: new Date(),
+          },
+        });
+      }, { isolationLevel: "Serializable" });
+
+      if (!archive) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+
+      return reply.code(201).send({ archive });
+    } catch (error) {
+      if (reply.sent) return reply;
+      throw error;
+    }
+  });
+  app.get("/api/v1/salons/:salonId/intake-controls", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      requireRole(user, ["OWNER", "ADMIN"], reply);
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.salonId },
+        select: withStalePrismaTypes({
+          id: true,
+          ownerId: true,
+          bookingIntakeEnabled: true,
+          saloTicketIntakeEnabled: true,
+          walkInIntakeEnabled: true,
+        }),
+      }) as any;
+
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+if (user.role === "OWNER") {
+  const subscription = await prisma.userSubscription.findUnique({
+    where: { userId: user.id },
+    select: { plan: true, status: true },
+  });
+
+  const plan = normalizeSubscriptionPlan(subscription?.plan);
+  const hasSmartEntitlement =
+    subscription?.status === "ACTIVE" &&
+    SUBSCRIPTION_PLAN_ORDER.indexOf(plan) >= SUBSCRIPTION_PLAN_ORDER.indexOf("SMART");
+
+  if (!hasSmartEntitlement) {
+    return reply.code(403).send({ error: "Smart Salon subscription required" });
+  }
+}
+      return {
+        intakeControls: {
+          bookingIntakeEnabled: salon.bookingIntakeEnabled,
+          saloTicketIntakeEnabled: salon.saloTicketIntakeEnabled,
+          walkInIntakeEnabled: salon.walkInIntakeEnabled,
+        },
+      };
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log.error(error);
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/v1/salons/:salonId/intake-controls", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      requireRole(user, ["OWNER", "ADMIN"], reply);
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.salonId },
+        select: { id: true, ownerId: true },
+      });
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+if (user.role === "OWNER") {
+  const subscription = await prisma.userSubscription.findUnique({
+    where: { userId: user.id },
+    select: { plan: true, status: true },
+  });
+
+  const plan = normalizeSubscriptionPlan(subscription?.plan);
+  const hasSmartEntitlement =
+    subscription?.status === "ACTIVE" &&
+    SUBSCRIPTION_PLAN_ORDER.indexOf(plan) >= SUBSCRIPTION_PLAN_ORDER.indexOf("SMART");
+
+  if (!hasSmartEntitlement) {
+    return reply.code(403).send({ error: "Smart Salon subscription required" });
+  }
+}
+      const parsed = intakeControlsPatchSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      }
+
+      const updated = await prisma.salon.update({
+        where: { id: salon.id },
+        data: withStalePrismaTypes(parsed.data),
+        select: withStalePrismaTypes({
+          bookingIntakeEnabled: true,
+          saloTicketIntakeEnabled: true,
+          walkInIntakeEnabled: true,
+        }),
+      }) as any;
+
+      return {
+        intakeControls: {
+          bookingIntakeEnabled: updated.bookingIntakeEnabled,
+          saloTicketIntakeEnabled: updated.saloTicketIntakeEnabled,
+          walkInIntakeEnabled: updated.walkInIntakeEnabled,
+        },
+      };
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log.error(error);
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/v1/salons", async () => {
     const salons = await prisma.salon.findMany({
       where: { isActive: true },
       include: {
-        services: true,
+        liveStatus: { select: publicLiveStatusSelect },
+        services: { where: { isActive: true } },
         reviews: {
           include: {
             user: { select: { fullName: true } },
@@ -196,18 +483,23 @@ export async function salonRoutes(app: any) {
       orderBy: { createdAt: "desc" },
     });
 
-    return { salons: decorateSalonList(salons) };
+    const now = Date.now();
+    return { salons: decorateSalonList(salons).map((salon) => ({
+      ...salon,
+      liveStatus: projectPublicLiveStatus(salon.liveStatus, now),
+    })) };
   });
 
   app.get("/api/v1/salons/:id", async (request: any, reply: any) => {
     const salons = await prisma.salon.findMany({
       where: { isActive: true },
       include: {
+        liveStatus: { select: publicLiveStatusSelect },
         barbers: true,
         offers: {
           orderBy: { createdAt: "desc" },
         },
-        services: true,
+        services: { where: { isActive: true } },
         reviews: {
           include: {
             user: { select: { fullName: true } },
@@ -222,7 +514,10 @@ export async function salonRoutes(app: any) {
       return reply.code(404).send({ error: "Salon not found" });
     }
 
-    return { salon: decorateSalonList(salons).find((entry: any) => entry.id === request.params.id) };
+    return { salon: {
+      ...decorateSalonList(salons).find((entry: any) => entry.id === request.params.id),
+      liveStatus: projectPublicLiveStatus(salon.liveStatus),
+    } };
   });
 
   app.post("/api/v1/salons/:salonId/reviews", async (request: any, reply: any) => {
@@ -282,7 +577,7 @@ export async function salonRoutes(app: any) {
         const salons = await tx.salon.findMany({
           where: { isActive: true },
           include: {
-            services: true,
+            services: { where: { isActive: true } },
             reviews: {
               include: {
                 user: { select: { fullName: true } },
@@ -319,7 +614,7 @@ export async function salonRoutes(app: any) {
         return reply.code(404).send({ error: "Salon not found" });
       }
 
-      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+      if (user.role !== "ADMIN" && (user.role !== "OWNER" || salon.ownerId !== user.id)) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
@@ -346,11 +641,11 @@ export async function salonRoutes(app: any) {
         return reply.code(404).send({ error: "Salon not found" });
       }
 
-      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+      if (user.role !== "ADMIN" && (user.role !== "OWNER" || salon.ownerId !== user.id)) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
-      const parsed = serviceSchema.safeParse(request.body ?? {});
+      const parsed = serviceCreateSchema.safeParse(request.body ?? {});
       if (!parsed.success) {
         return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
       }
@@ -378,14 +673,26 @@ export async function salonRoutes(app: any) {
       const user = await requireUserFromAuthHeader(request, reply);
       const service = await prisma.service.findUnique({
         where: { id: request.params.serviceId },
-        select: { salonId: true, salon: { select: { ownerId: true } } },
+        select: {
+          salonId: true,
+          name: true,
+          description: true,
+          price: true,
+          durationMin: true,
+          isActive: true,
+          salon: { select: { ownerId: true } },
+        },
       });
 
       if (!service) {
         return reply.code(404).send({ error: "Service not found" });
       }
 
-      if (user.role !== "ADMIN" && service.salon.ownerId !== user.id) {
+      if (service.salonId !== request.params.salonId) {
+        return reply.code(404).send({ error: "Service not found" });
+      }
+
+      if (user.role !== "ADMIN" && (user.role !== "OWNER" || service.salon.ownerId !== user.id)) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
@@ -425,7 +732,11 @@ export async function salonRoutes(app: any) {
         return reply.code(404).send({ error: "Service not found" });
       }
 
-      if (user.role !== "ADMIN" && service.salon.ownerId !== user.id) {
+      if (service.salonId !== request.params.salonId) {
+        return reply.code(404).send({ error: "Service not found" });
+      }
+
+      if (user.role !== "ADMIN" && (user.role !== "OWNER" || service.salon.ownerId !== user.id)) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
@@ -603,6 +914,9 @@ export async function salonRoutes(app: any) {
       }
 
       const payload = parsed.data;
+      if (payload.isActive !== undefined && user.role !== "ADMIN") {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
       const ownerPassword = payload.ownerPassword?.trim() || "";
       const requestedClassification = normalizeSalonClassification(payload.classification ?? salon.classification);
       const requestedAdminVip = user.role === "ADMIN"
@@ -640,6 +954,7 @@ export async function salonRoutes(app: any) {
             email: payload.email ?? undefined,
             website: payload.website ?? undefined,
             description: payload.description ?? undefined,
+            isActive: payload.isActive,
             isVip: requestedAdminVip,
             adminVip: requestedAdminVip,
             classification: requestedClassification,

@@ -25,7 +25,7 @@
       --green: #3bbd7a;
       --shadow: 0 22px 54px rgba(0, 0, 0, .28);
       --section-shadow: 0 20px 46px rgba(0, 0, 0, .18);
-      --hero-image: url("./assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg");
+      --hero-image: url("/assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg");
       --section-one-image: url("./assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg");
       --section-two-image: url("./assets/mens/1_org.jpg");
       --section-three-image: url("./assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg");
@@ -1268,10 +1268,13 @@
     .subscription-metric span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
     .subscription-metric strong { display: block; color: var(--gold-light); margin-top: 6px; font-size: 1.3rem; letter-spacing: -.04em; }
     .plan-chip-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+    .plan-chip-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
     .plan-chip { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.02); }
     .plan-chip span { display: block; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
     .plan-chip strong { display: block; margin-top: 6px; color: var(--gold-light); font-size: 1.2rem; }
     .plan-chip[data-plan="FREE"] { border-color: rgba(160,170,180,.25); }
+    .plan-chip[data-plan="SMART"] { border-color: rgba(94,180,239,.32); }
+    .plan-chip[data-plan="PREMIUM"] { border-color: rgba(162,130,92,.4); }
     .plan-chip[data-plan="PRO"] { border-color: rgba(213,161,93,.24); }
     .plan-chip[data-plan="PREMIUM"] { border-color: rgba(162,130,92,.4); }
     .subscription-revenue-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
@@ -1284,6 +1287,8 @@
     .subscription-table th { color: var(--muted); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
     .subscription-plan-tag { display: inline-flex; align-items: center; padding: 5px 8px; border-radius: 999px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); }
     .subscription-plan-tag.free { background: rgba(255,255,255,.04); color: #dfe8ef; }
+    .subscription-plan-tag.smart { background: rgba(94,180,239,.14); color: #8cd0f8; border-color: rgba(94,180,239,.32); }
+    .subscription-plan-tag.premium { background: rgba(152,111,60,.12); color: #e7b771; border-color: rgba(152,111,60,.32); }
     .subscription-plan-tag.pro { background: rgba(213,161,93,.12); color: #e8c890; border-color: rgba(213,161,93,.28); }
     .subscription-plan-tag.premium { background: rgba(152,111,60,.12); color: #e7b771; border-color: rgba(152,111,60,.32); }
     .subscription-status-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
@@ -1354,7 +1359,7 @@
     }
     .vip-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 620px), 1fr));
       justify-items: center;
       gap: 18px;
       padding: 0;
@@ -1367,7 +1372,7 @@
     }
     .regular-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 620px), 1fr));
       justify-items: center;
       gap: 18px;
       margin-top: 0;
@@ -1691,6 +1696,7 @@
       flex-shrink: 0;
     }
     .salon-card-status.is-open {
+      color: #4dd98d;
       border-color: rgba(85, 199, 128, .22);
       background: rgba(85, 199, 128, .08);
     }
@@ -1706,10 +1712,11 @@
     }
     .salon-card-status.is-full .status-dot { background: #e75c5c; }
     .salon-card-status.is-closed {
-      border-color: rgba(255,255,255,.12);
-      background: rgba(255,255,255,.03);
+      color: #ff9292;
+      border-color: rgba(231,92,92,.22);
+      background: rgba(231,92,92,.08);
     }
-    .salon-card-status.is-closed .status-dot { background: #8d8d8d; }
+    .salon-card-status.is-closed .status-dot { background: #e75c5c; }
     .salon-card-capacity {
       display: grid;
       justify-items: end;
@@ -3387,7 +3394,7 @@
     }
     .top-barbers-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 620px), 1fr));
       justify-items: center;
       gap: 14px;
     }
@@ -6652,10 +6659,10 @@
       }
       .vip-grid,
       .regular-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: 1fr;
       }
       .salon-card { grid-template-columns: 224px minmax(0, 1fr); }
-      .top-barbers-list { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+      .top-barbers-list { grid-template-columns: 1fr; }
       .top-barber-card { grid-template-columns: 224px minmax(0, 1fr); }
     }
     @media (max-width: 520px) {
@@ -6854,7 +6861,52 @@
       .cookie-actions { width: 100%; }
       .cookie-actions button { flex: 1; }
     }
+    /* Keep card content flexible after the earlier responsive overrides. */
+    .salon-card-body, .top-barber-card-body,
+    .salon-card-body > *, .top-barber-card-body > *,
+    .salon-card-head > *, .top-barber-card-header > * {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .salon-card-head, .top-barber-card-header { flex-wrap: wrap; }
+    .salon-card h3 {
+      display: block;
+      overflow: visible;
+      -webkit-line-clamp: unset;
+    }
+    .salon-location { white-space: normal; overflow: visible; }
+    .salon-card-operating-hours { display: grid; gap: 5px; min-width: 0; }
+    .salon-card-today-hours { font-size: 11px; line-height: 1.4; }
+    .salon-card-actions,
+    .top-barber-card .directory-picker { display: flex; flex-wrap: wrap; }
+    .salon-card .btn, .top-barber-card .directory-picker .btn {
+      max-width: 100%;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      height: auto;
+    }
+    @media (max-width: 620px) {
+      .salon-card, .top-barber-card { grid-template-columns: minmax(0, 1fr); }
+      .salon-card-media, .top-barber-media {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        height: auto;
+        min-height: 0;
+        max-height: 200px;
+      }
+      .top-barber-card .directory-picker { display: grid; grid-template-columns: minmax(0, 1fr); }
+    }
+    /* Customer registration: fixed German country prefix. */
+    #customerRegisterModal .registration-phone { display: flex; align-items: center; gap: 8px; direction: ltr; }
+    #customerRegisterModal .registration-phone-prefix { flex: 0 0 auto; white-space: nowrap; }
+    #customerRegisterModal .registration-phone input { min-width: 0; flex: 1; width: 100%; padding-inline-start: 12px; }
+    #customerRegisterModal .verify-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    #customerRegisterModal .verify-row input { min-width: 0; flex: 1; }
   </style>
+  <link rel="stylesheet" href="./assets/customer-header.css">
+  <link rel="stylesheet" href="./assets/customer-hero.css">
+  <link rel="stylesheet" href="./assets/customer-salon-card.css">
 </head>
 
 <body>
@@ -6889,33 +6941,12 @@
       </div>
     </div>
   </div>
-  <header>
-    <div class="container nav">
-      <a href="#top" class="logo" id="brandNav">
-        <span class="logo-mark"><i class="fa-solid fa-scissors"></i></span>
-      </a>
-      <nav class="nav-links">
-        <a href="#services" data-i18n="navServices">Leistungen</a>
-        <a href="#booking" data-i18n="navBooking">Termin buchen</a>
-        <a href="#" data-open-city="true" data-i18n="navLocation">Standort</a>
-        <a href="women.html" data-i18n="womenPortal">Frauen</a>
-        <a href="#" data-open-partner="true" data-i18n="navJoin">Werden Sie Partner</a>
-      </nav>
-      <div class="nav-actions">
-        <div class="header-utility">
-          <label class="header-field">
-            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-            <span class="sr-only" data-i18n="cityLabel">Stadt</span>
-            <select id="headerCitySelect" aria-label="City selector">
-              <option value="all" data-i18n="allCities">Alle Städte</option>
-            </select>
-          </label>
-          <label class="header-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input id="headerSearchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Suche nach Salon oder Stadt" aria-label="Search salon or city">
-          </label>
-        </div>
-        <div class="lang-select-shell">
+  <header class="salo-header" data-salo-experience="men">
+    <div class="salo-header-inner">
+      <a class="salo-brand" id="brandNav" href="index.html" data-salo-label="home"><span>SALO</span><small>SMART SALON</small></a>
+      <nav class="salo-experience" aria-label="Experience" data-salo-label="experience"><a href="women.html" data-salo-mode="women" data-salo-text="women">Damen</a><a href="index.html" data-salo-mode="men" aria-current="page" data-salo-text="men">Herren</a></nav>
+      <a class="salo-discover" href="#salonDirectory" data-salo-text="discover">Entdecken</a>
+      <div class="lang-select-shell">
           <button class="lang-select-trigger" id="languageSelectTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageSelectMenu">
             <span class="lang-select-visual" id="languageSelectVisual" aria-hidden="true">
               <span class="lang-flag lang-flag-de" id="languageSelectFlag"></span>
@@ -6942,48 +6973,23 @@
             <option value="ar">AR</option>
           </select>
         </div>
-        <select class="portal-select header-hidden-control" id="portalSelect" aria-label="Portal role" aria-hidden="true" tabindex="-1">
-          <option value="customer" data-i18n="customerRole">Kunde</option>
-          <option value="owner" data-i18n="ownerRole">Saloninhaber</option>
-          <option value="admin" data-i18n="admin">Admin</option>
-        </select>
-        <button class="header-icon-button" id="headerNotificationsButton" type="button" aria-label="Notifications">
+      <div class="salo-notices"><button class="header-icon-button" id="headerNotificationsButton" type="button" aria-label="Notifications">
           <i class="fa-regular fa-bell"></i>
           <span class="sr-only" data-i18n="notificationsLabel">Benachrichtigungen</span>
-        </button>
-        <button class="header-icon-button" id="messageInboxButton" type="button" aria-label="Messages">
+        </button><button class="header-icon-button" id="messageInboxButton" type="button" aria-label="Messages">
           <i class="fa-regular fa-message"></i>
           <span class="sr-only" data-i18n="messagesInbox">Nachrichten</span>
-        </button>
-        <button class="profile-button" id="headerProfileButton" type="button" aria-label="Profile">
+        </button></div>
+      <div class="salo-account"><button class="admin-button header-login-button" id="portalOpen"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span data-i18n="login">Anmelden</span></button></div>
+      <div class="salo-menu-toggle"><button class="mobile-menu" id="mobileMenu" aria-label="Menu" aria-expanded="false" aria-controls="mobileNav"><i class="fa-solid fa-bars"></i></button></div>
+      <nav id="mobileNav" class="mobile-nav salo-menu" aria-label="Navigation"><div class="header-register-wrap"><button class="btn btn-gold header-register-button" id="registerMenuButton" type="button">
+            <span data-i18n="registerAction">Registrieren</span>
+          </button></div><button class="admin-button" id="customerLogoutHeader" type="button" style="display:none;"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">Abmelden</span></button><button class="admin-button" id="adminOpen" type="button" style="display:none;"><i class="fa-solid fa-lock"></i> <span data-i18n="admin">Admin</span></button><a href="#services" data-i18n="navServices">Leistungen</a><a href="#booking" data-i18n="navBooking">Termin buchen</a><a href="#" data-open-city="true" data-i18n="navLocation">Standort</a><a href="#" data-open-partner="true" data-i18n="navJoin">Partner</a></nav>
+      <div hidden><select id="headerCitySelect"><option value="all">All</option></select><input id="headerSearchInput" type="search"></div><div hidden><button class="profile-button" id="headerProfileButton" type="button" aria-label="Profile">
           <i class="fa-regular fa-user"></i>
           <span data-i18n="profileLabel">Profil</span>
-        </button>
-        <button class="admin-button" id="adminOpen" type="button" style="display:none;"><i class="fa-solid fa-lock"></i> <span data-i18n="admin">Admin</span></button>
-        <button class="admin-button header-login-button" id="portalOpen"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span data-i18n="login">Anmelden</span></button>
-        <div class="header-register-wrap">
-          <button class="btn btn-gold header-register-button" id="registerMenuButton" type="button">
-            <span data-i18n="registerAction">Registrieren</span>
-          </button>
-        </div>
-        <button class="admin-button header-hidden-control" id="customerInfoOpen" type="button"><i class="fa-solid fa-user-circle"></i> <span data-i18n="customerProfileButton">Mein Profil</span></button>
-        <button class="admin-button" id="customerLogoutHeader" type="button" style="display:none;"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">Abmelden</span></button>
-        <button class="mobile-menu" id="mobileMenu" aria-label="Menu" aria-expanded="false" aria-controls="mobileNav"><i class="fa-solid fa-bars"></i></button>
-      </div>
+        </button><button class="admin-button header-hidden-control" id="customerInfoOpen" type="button"><i class="fa-solid fa-user-circle"></i> <span data-i18n="customerProfileButton">Mein Profil</span></button><select id="portalSelect"><option value="customer">Customer</option><option value="owner">Owner</option><option value="admin">Admin</option></select></div>
     </div>
-    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
-      <a href="#services" data-i18n="navServices">Leistungen</a>
-      <a href="#booking" data-i18n="navBooking">Termin buchen</a>
-      <a href="#" data-open-city="true" data-i18n="navLocation">Standort</a>
-      <a href="women.html" data-i18n="womenPortal">Frauen</a>
-      <a href="#" data-open-partner="true" data-i18n="navJoin">Werden Sie Partner</a>
-      <div class="mobile-nav-divider"></div>
-      <div class="mobile-nav-auth">
-        <button class="btn btn-outline" type="button" data-mobile-header-action="login" data-i18n="login">Anmelden</button>
-        <button class="btn btn-outline" type="button" data-mobile-header-action="messages" data-i18n="messagesInbox">Nachrichten</button>
-        <button class="btn btn-gold" type="button" data-mobile-header-action="register-customer" data-i18n="registerCustomerShort">Als Kunde</button>
-      </div>
-    </nav>
   </header>
 
   <nav class="mobile-tabbar" aria-label="Bottom navigation">
@@ -6994,97 +7000,33 @@
   </nav>
 
   <main id="top">
-    <section class="hero">
-      <div class="container hero-content">
-        <div class="hero-layout">
-          <div class="hero-main">
-            <div class="hero-kicker" data-i18n="heroPremiumEyebrow">Premium Barber Experience</div>
-            <h1>
-              <span data-i18n="heroTitleLineOne">Dein Style.</span>
-              <span class="hero-title-emphasis" data-i18n="heroTitleLineTwo">Deine Wahl.</span>
-            </h1>
-            <p class="hero-copy" data-i18n="heroText">Finde die besten Barbers und Salons in deiner Nähe.</p>
-            <div class="hero-badges">
-              <span><i class="fa-solid fa-star"></i> <span data-i18n="heroRating">Bewertung 4.9</span></span>
-              <span><i class="fa-solid fa-clock"></i> <span data-i18n="heroOpening">Öffnung ab 9 Uhr</span></span>
-              <span><i class="fa-solid fa-shield-heart"></i> <span data-i18n="heroCare">Persönliche Pflege</span></span>
-            </div>
-
-            <div class="hero-search-panel">
-              <div class="hero-search-intro">
-                <strong class="hero-search-title" data-i18n="heroSearchTitle">Finde Salons nach Name oder Service</strong>
-                <span class="hero-search-note" data-i18n="heroSearchText">Suche starten, Stadt eingrenzen und danach direkt die passenden Salonkarten vergleichen.</span>
-              </div>
-              <div class="hero-search-grid">
-                <label class="hero-search-field">
-                  <span class="search-label"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="searchLabel">Suche</span></span>
-                  <input id="heroSearchInput" type="search" data-i18n-placeholder="heroSearchPlaceholder" placeholder="Barber, Service oder Salon suchen" aria-label="Search barber by name or service or salon">
-                </label>
-                <label class="hero-search-field">
-                  <span class="search-label"><i class="fa-solid fa-location-dot"></i> <span data-i18n="locationLabel">Standort</span></span>
-                  <select id="heroCitySelect" aria-label="Select city">
-                    <option value="all" data-i18n="allCities">Alle Städte</option>
-                  </select>
-                </label>
-                <button type="button" class="btn btn-gold hero-search-btn" id="heroSearchButton"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="searchCta">Salons finden</span></button>
-              </div>
-              <div class="hero-search-actions">
-                <button type="button" class="btn btn-outline" id="heroLocationButton"><i class="fa-solid fa-location-crosshairs"></i> <span data-i18n="useMyLocation">In meiner Nähe</span></button>
-                <span class="hero-search-helper" data-i18n="heroSearchHelper">Live nach Standort, Verfügbarkeit und Stil sortiert.</span>
-              </div>
-            </div>
-
-            <div class="hero-buttons">
-              <a href="#booking" class="btn btn-gold"><i class="fa-regular fa-calendar"></i> <span data-i18n="bookNow">Termin buchen</span></a>
-              <a href="#topBarbersSection" class="btn btn-secondary"><i class="fa-solid fa-crown"></i> <span data-i18n="discoverTopBarbers">Top Barbers entdecken</span></a>
-            </div>
-            <div class="hero-trust">
-              <div class="hero-avatar-stack" aria-hidden="true">
-                <span class="hero-avatar" style="background-image:url('./assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg');"></span>
-                <span class="hero-avatar" style="background-image:url('./assets/mens/intro_barberpole.jpg');"></span>
-                <span class="hero-avatar" style="background-image:url('./assets/mens/1_org.jpg');"></span>
-                <span class="hero-avatar" style="background-image:url('./assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg');"></span>
-              </div>
-              <div class="hero-trust-copy">
-                <strong>10K+</strong>
-                <span data-i18n="heroTrustText">Zufriedene Kunden</span>
-              </div>
-              <div class="hero-rating-note">
-                <i class="fa-solid fa-star"></i>
-                <span id="heroRatingValue" data-i18n="heroRating">Bewertung 4.9</span>
-              </div>
-              <div class="hero-rating-note">
-                <strong id="customerRatingValue">4.9</strong>
-                <span data-i18n="rating">Kundenbewertung</span>
-              </div>
-            </div>
+    <section class="hero salo-customer-hero" data-salo-hero>
+      <div class="container salo-hero-inner">
+        <div class="salo-hero-copy">
+          <p class="salo-hero-eyebrow" data-i18n="heroDiscoveryEyebrow">SALO Smart Discovery</p>
+          <h1 data-i18n="heroDiscoveryTitle">Was brauchst du heute?</h1>
+          <p data-i18n="heroDiscoveryText">Finde den passenden Salon, Service oder Ort für deinen nächsten Besuch.</p>
+        </div>
+        <div class="salo-hero-intents" role="group" aria-label="Discovery intent" data-i18n-aria-label="heroIntentAria">
+          <button type="button" class="salo-hero-intent" data-hero-intent="now" aria-pressed="false"><span data-i18n="heroIntentNow">Jetzt</span></button>
+          <button type="button" class="salo-hero-intent" data-hero-intent="appointment" data-hero-target="#salonDirectory" aria-pressed="false"><span data-i18n="heroIntentAppointment">Termin</span></button>
+          <button type="button" class="salo-hero-intent" data-hero-intent="discover" data-hero-target="#topBarbersSection" aria-pressed="true"><span data-i18n="heroIntentDiscover">Entdecken</span></button>
+        </div>
+        <div class="hero-search-panel salo-hero-search">
+          <div class="hero-search-grid">
+            <label class="hero-search-field salo-hero-query">
+              <span class="search-label"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span data-i18n="searchLabel">Suche</span></span>
+              <input id="heroSearchInput" type="search" data-i18n-placeholder="heroSearchPlaceholder" placeholder="Salon, Service oder Ort suchen" aria-label="Search salon, service, or location" data-i18n-aria-label="heroSearchAria">
+            </label>
+            <label class="hero-search-field salo-hero-city">
+              <span class="search-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span data-i18n="locationLabel">Standort</span></span>
+              <select id="heroCitySelect" aria-label="Select city">
+                <option value="all" data-i18n="allCities">Alle Städte</option>
+              </select>
+            </label>
+            <button type="button" class="btn btn-gold hero-search-btn" id="heroSearchButton"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span data-i18n="searchCta">Salons finden</span></button>
           </div>
-
-          <aside class="hero-spotlight" aria-hidden="true">
-            <div class="hero-spotlight-frame">
-              <div class="hero-spotlight-copy">
-                <span class="hero-spotlight-kicker" data-i18n="heroSpotlightKicker">Curated barbershops</span>
-                <strong data-i18n="heroSpotlightTitle">Editorial spaces. Precise craft.</strong>
-                <span data-i18n="heroSpotlightMeta">Premium lounges, sharp fades and bookings you can trust.</span>
-              </div>
-            </div>
-            <div class="hero-mini-grid">
-              <div class="hero-mini-card hero-mini-card-lounge">
-                <div class="hero-mini-card-content">
-                  <span class="hero-mini-label" data-i18n="heroMiniLoungeLabel">Lounge</span>
-                  <strong data-i18n="heroMiniLoungeTitle">Modern interiors</strong>
-                  <span data-i18n="heroMiniLoungeText">Dark finishes, warm leather, and a premium welcome.</span>
-                </div>
-              </div>
-              <div class="hero-mini-card hero-mini-card-tools">
-                <div class="hero-mini-card-content">
-                  <span class="hero-mini-label" data-i18n="heroMiniToolsLabel">Craft</span>
-                  <strong data-i18n="heroMiniToolsTitle">Tools that matter</strong>
-                  <span data-i18n="heroMiniToolsText">Cuts, shaves, and beard work with classic precision.</span>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <button type="button" class="salo-hero-location" id="heroLocationButton"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> <span data-i18n="useMyLocation">In meiner Nähe</span></button>
         </div>
       </div>
     </section>
@@ -7755,6 +7697,8 @@
               </div>
               <div class="plan-chip-grid">
                 <div class="plan-chip" data-plan="FREE"><span>FREE</span><strong id="planFreeCount">0</strong></div>
+                <div class="plan-chip" data-plan="SMART"><span>SMART</span><strong id="planSmartCount">0</strong></div>
+                <div class="plan-chip" data-plan="PREMIUM"><span>PREMIUM</span><strong id="planPremiumCount">0</strong></div>
                 <div class="plan-chip" data-plan="PRO"><span>PRO</span><strong id="planProCount">0</strong></div>
                 <div class="plan-chip" data-plan="PREMIUM"><span>PREMIUM</span><strong id="planPremiumCount">0</strong></div>
               </div>
@@ -7817,7 +7761,7 @@
             </div>
           </section>
 
-          <form id="adminForm" class="admin-editor-form">
+          <form id="adminForm" class="admin-editor-form" novalidate>
             <section class="admin-view-section" data-admin-view-section="salon-editor">
               <div class="admin-view-header">
                 <div>
@@ -7827,6 +7771,7 @@
                 <p class="admin-note">All existing salon fields are preserved and grouped into business-friendly sections.</p>
               </div>
 
+              <div id="adminIntakeControls" class="service-settings admin-editor-card" hidden></div>
               <div class="admin-editor-grid">
                 <div class="service-settings admin-editor-card">
                   <h3>Basic information</h3>
@@ -7864,7 +7809,7 @@
                   <h3>Owner access</h3>
                   <div class="admin-field-grid admin-field-grid-2">
                     <div class="field"><label data-i18n="ownerUsernameLabel">إيميل دخول صاحب الصالون</label><input id="ownerUsername" type="email" autocomplete="username"></div>
-                    <div class="field"><label data-i18n="ownerPasswordLabel">كلمة المرور المولّدة لصاحب الصالون</label><input id="ownerPassword" type="password" autocomplete="new-password" placeholder="Generated on approval"></div>
+                    <div class="field"><label data-i18n="ownerPasswordLabel">كلمة المرور المولّدة لصاحب الصالون</label><input id="ownerPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Generated on approval"></div>
                   </div>
                 </div>
 
@@ -7987,7 +7932,7 @@
                   <div class="eyebrow">Business settings</div>
                   <h3>Settings</h3>
                 </div>
-                <p class="admin-note">Legal, imprint, and price visibility settings for the selected salon.</p>
+                <p class="admin-note">Legal and imprint settings for the selected salon.</p>
               </div>
               <div class="admin-settings-layout">
                 <div class="admin-editor-grid">
@@ -8004,13 +7949,6 @@
                       <div class="field"><label>Vertretungsberechtigte Person</label><input data-imprint-field="representative" type="text"></div>
                       <div class="field"><label>Handelsregister</label><input data-imprint-field="register" type="text"></div>
                     </div>
-                  </div>
-
-                  <div class="service-settings admin-editor-card">
-                    <h3 data-i18n="managePrices">Preise verwalten / إدارة الأسعار</h3>
-                    <div class="service-setting"><label for="priceCut">Signature Cut</label><input id="priceCut" type="number" min="0" step="1"><label class="toggle-label"><input id="showPriceCut" type="checkbox"> Anzeigen</label></div>
-                    <div class="service-setting"><label for="priceShave">Classic Shave</label><input id="priceShave" type="number" min="0" step="1"><label class="toggle-label"><input id="showPriceShave" type="checkbox"> Anzeigen</label></div>
-                    <div class="service-setting"><label for="priceBeard">Beard Ritual</label><input id="priceBeard" type="number" min="0" step="1"><label class="toggle-label"><input id="showPriceBeard" type="checkbox"> Anzeigen</label></div>
                   </div>
                 </div>
               </div>
@@ -8087,6 +8025,29 @@
     </div>
   </div>
 
+  <div class="modal customer-auth-modal" id="customerPasswordResetModal" aria-modal="true" role="dialog">
+    <div class="modal-box">
+      <button class="close" data-close="customerPasswordResetModal" type="button">×</button>
+      <div class="eyebrow">Customer account</div>
+      <h2 id="customerResetTitle">Reset password</h2>
+      <p class="admin-note" id="customerResetIntro"></p>
+      <form id="customerPasswordResetForm">
+        <div class="field" data-reset-step="1"><label for="customerResetEmail">Email</label><input id="customerResetEmail" required type="email" autocomplete="email" placeholder="name@example.com"></div>
+        <div class="field" data-reset-step="2"><label for="customerResetCode">Code</label><input id="customerResetCode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="------"></div>
+        <div data-reset-step="2"><button class="btn btn-outline" id="customerResetResend" type="button">Resend code</button></div>
+        <div data-reset-step="3">
+          <div class="field"><label for="customerResetPassword">New password</label><input id="customerResetPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password"></div>
+          <div class="field"><label for="customerResetPasswordConfirm">Confirm password</label><input id="customerResetPasswordConfirm" type="password" minlength="8" maxlength="128" autocomplete="new-password"></div>
+        </div>
+        <div class="customer-actions">
+          <button class="btn btn-outline" id="customerResetBack" type="button">Back</button>
+          <button class="btn btn-gold" id="customerResetSubmit" type="submit">Send code</button>
+        </div>
+      </form>
+      <div class="notice" id="customerResetNotice" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
   <div class="modal" id="customerRegisterModal">
     <div class="modal-box">
       <button class="close" data-close="customerRegisterModal">×</button>
@@ -8096,15 +8057,15 @@
       <form id="customerRegisterForm">
         <div class="customer-form-grid">
           <div class="field"><label data-i18n="nameLabel">الاسم</label><div class="input-shell"><span class="field-icon"><i class="fa-regular fa-user"></i></span><input id="customerRegisterName" type="text" autocomplete="name" placeholder="اسمك الكامل"></div></div>
-          <div class="field"><label data-i18n="phoneLabel">الهاتف</label><div class="input-shell"><span class="field-icon"><i class="fa-solid fa-phone"></i></span><input id="customerRegisterPhone" type="tel" autocomplete="tel" placeholder="+966 5xx xxx xxx"></div></div>
+          <div class="field"><label data-i18n="phoneLabel">الهاتف</label><div class="registration-phone"><span class="registration-phone-prefix" aria-label="Germany, country code plus 49">&#x1F1E9;&#x1F1EA; +49</span><input id="customerRegisterPhone" type="tel" inputmode="tel" autocomplete="tel-national" aria-label="German national phone number" placeholder="151 23456789" required></div></div>
           <div class="field full"><label data-i18n="email">الإيميل</label><div class="input-shell"><span class="field-icon"><i class="fa-regular fa-envelope"></i></span><input id="customerRegisterEmail" required type="email" autocomplete="username" placeholder="name@example.com"></div></div>
           <div class="field full"><label data-i18n="password">كلمة المرور</label><div class="input-shell"><span class="field-icon"><i class="fa-solid fa-lock"></i></span><input id="customerRegisterPassword" required type="password" minlength="6" autocomplete="new-password" placeholder="اختر كلمة مرور"></div></div>
         </div>
         <div class="customer-verify-box" id="customerVerifyBox" style="display:none;">
-          <label id="customerVerifyLabel">تأكيد الإيميل</label>
+          <label id="customerVerifyLabel" for="customerVerifyCode">Email verification code</label>
           <div class="verify-row">
-            <input id="customerVerifyCode" type="text" maxlength="6" inputmode="numeric" placeholder="123456">
-            <button class="btn btn-outline" id="customerSendVerifyCode" type="button">إرسال الرمز</button>
+            <input id="customerVerifyCode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="------">
+            <button class="btn btn-outline" id="customerSendVerifyCode" type="button">Resend code</button>
           </div>
         </div>
         <div class="gdpr-row">
@@ -8119,7 +8080,7 @@
           <button class="btn btn-outline" id="customerOpenLoginFromRegister" type="button">لديك حساب؟ تسجيل الدخول</button>
         </div>
       </form>
-      <div class="notice" id="customerRegisterNotice">تم إنشاء حسابك بنجاح.</div>
+      <div class="notice" role="status" aria-live="polite" id="customerRegisterNotice">تم إنشاء حسابك بنجاح.</div>
     </div>
   </div>
 
@@ -8444,18 +8405,12 @@
                     <div class="service-settings owner-panel-card owner-panel-card--wide" id="ownerServiceManagementSection">
                       <h3>الخدمات والأسعار</h3>
                       <p class="admin-note">إدارة الخدمات تبقى متصلة بالباكند الحقيقي ومستقلة عن حفظ بيانات الصالون الأساسية.</p>
-                      <div class="form-grid">
-                        <div class="field"><label>اسم الخدمة</label><input id="ownerServiceEditorName" type="text" placeholder="مثال: قص شعر"></div>
-                        <div class="field"><label>السعر (€)</label><input id="ownerServiceEditorPrice" type="number" min="0" step="1" value="25"></div>
-                        <div class="field"><label>المدة (دقيقة)</label><input id="ownerServiceEditorDuration" type="number" min="5" max="240" step="5" value="30"></div>
-                        <div class="field"><label>الوصف</label><input id="ownerServiceEditorDescription" type="text" placeholder="مثال: قص كلاسيكي / تهذيب لحية"></div>
-                      </div>
-                      <label class="toggle-label"><input id="ownerServiceEditorActive" type="checkbox" checked> نشط</label>
+                      <div id="ownerServiceSlots" style="display:grid; gap:10px;"></div>
                       <div class="owner-booking-actions owner-inline-actions">
-                        <button class="btn btn-gold" id="ownerServiceSaveBtn" type="button">إضافة خدمة</button>
-                        <button class="btn btn-outline" id="ownerServiceResetBtn" type="button">مسح</button>
+                        <button class="btn btn-gold" id="ownerServiceSaveBtn" type="button">حفظ الخدمات</button>
                       </div>
-                      <div id="ownerServiceList" style="display:grid; gap:10px; margin-top:12px;"></div>
+                      <div class="admin-note" id="ownerServiceNotice" role="status" aria-live="polite"></div>
+                      <div id="ownerServiceOverflow" style="display:grid; gap:10px; margin-top:12px;"></div>
                     </div>
 
                     <div class="service-settings owner-panel-card owner-panel-card--wide">
@@ -8464,8 +8419,8 @@
                       <div class="form-grid">
                         <div class="field"><label>عنوان العرض</label><input id="ownerOfferEditorTitle" type="text" placeholder="🔥 عرض سريع"></div>
                         <div class="field"><label>الخدمة</label><input id="ownerOfferEditorService" type="text" placeholder="مثال: قص شعر"></div>
-                        <div class="field"><label>السعر (€)</label><input id="ownerOfferEditorPrice" type="number" min="0" step="1" value="39"></div>
-                        <div class="field"><label>الخصم (€)</label><input id="ownerOfferEditorDiscount" type="number" min="0" step="1" value="0"></div>
+                        <div class="field"><label>السعر (€)</label><input id="ownerOfferEditorPrice" type="number" min="0" step="1"></div>
+                        <div class="field"><label>الخصم (€)</label><input id="ownerOfferEditorDiscount" type="number" min="0" step="1"></div>
                       </div>
                       <div class="field"><label>الوصف</label><textarea id="ownerOfferEditorDescription" rows="2" placeholder="خصم 20٪ على قص الشعر · اليوم 14:00–17:00"></textarea></div>
                       <div class="form-grid">
@@ -8476,8 +8431,8 @@
                         <div class="field"><label>وقت البداية</label><input id="ownerOfferEditorStartTime" type="time"></div>
                         <div class="field"><label>وقت النهاية</label><input id="ownerOfferEditorEndTime" type="time"></div>
                       </div>
-                      <div class="field"><label>عدد الأماكن المتاحة</label><input id="ownerOfferEditorSlots" type="number" min="0" step="1" value="2"></div>
-                      <label class="toggle-label"><input id="ownerOfferEditorActive" type="checkbox" checked> نشر العرض الآن</label>
+                      <div class="field"><label>عدد الأماكن المتاحة</label><input id="ownerOfferEditorSlots" type="number" min="0" step="1"></div>
+                      <label class="toggle-label"><input id="ownerOfferEditorActive" type="checkbox"> نشر العرض الآن</label>
                       <div class="owner-booking-actions owner-inline-actions">
                         <button class="btn btn-gold" id="ownerOfferSaveBtn" type="button">إضافة عرض</button>
                         <button class="btn btn-outline" id="ownerOfferResetBtn" type="button">مسح</button>
@@ -8559,6 +8514,7 @@
                         <div class="field"><label>رابط الإحالة</label><input id="ownerReferralLink" type="text" readonly></div>
                       </div>
                     </div>
+                    <div id="ownerIntakeControls" class="service-settings owner-panel-card" hidden></div>
                   </div>
                 </section>
               </form>
@@ -8569,6 +8525,9 @@
     </div>
   </div>
 
+  <script src="./assets/salon-intake-controls.js"></script>
+  <script src="./assets/customer-registration.js"></script>
+  <script src="./assets/customer-password-reset.js"></script>
   <script>
     const categoryDefinitions = [
       { icon: "fa-scissors", image: "./assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg" },
@@ -8589,14 +8548,16 @@
 
     function getSalonConfiguredServices(salon) {
       const directServices = Array.isArray(salon?.services)
-        ? salon.services.map(service => {
+        ? salon.services.filter(service => typeof service === "string" || service?.isActive !== false).map(service => {
             if (typeof service === "string") {
-              return { name: service, label: service, description: "" };
+              return { name: service, label: service, description: "", price: null };
             }
             return {
               name: service?.name || service?.label || "",
               label: service?.label || service?.name || "",
-              description: service?.description || ""
+              description: service?.description || "",
+              price: service?.price,
+              durationMin: service?.durationMin || service?.duration
             };
           })
         : [];
@@ -8604,10 +8565,14 @@
         ? salon.customServices.map(service => ({
             name: service?.name || service?.label || "",
             label: service?.label || service?.name || "",
-            description: service?.description || ""
+            description: service?.description || "",
+            price: service?.price,
+            durationMin: service?.durationMin || service?.duration
           }))
         : [];
-      return [...directServices, ...legacyServices].filter(service => normalizeServiceDiscoveryText(service?.name || service?.label));
+      const configuredDirectServices = directServices.filter(service => normalizeServiceDiscoveryText(service?.name || service?.label));
+      if (configuredDirectServices.length) return configuredDirectServices;
+      return legacyServices.filter(service => normalizeServiceDiscoveryText(service?.name || service?.label));
     }
 
     function getServiceDiscoveryDefinitions() {
@@ -8699,8 +8664,9 @@
       if (!categoryKey) return true;
       const category = getServiceDiscoveryDefinitions().find(item => item.key === categoryKey);
       if (!category) return true;
-      const servicesText = Array.isArray(salon?.services)
-        ? salon.services.map(service => [
+      const configuredServices = getSalonConfiguredServices(salon);
+      const servicesText = configuredServices.length
+        ? configuredServices.map(service => [
             service?.name || "",
             service?.label || "",
             service?.description || ""
@@ -8713,9 +8679,7 @@
         salon?.status || "",
         salon?.offer?.title || "",
         salon?.offer?.description || "",
-        Object.keys(salon?.prices || {}).join(" "),
         servicesText,
-        Array.isArray(salon?.customServices) ? salon.customServices.map(service => service?.name || "").join(" ") : "",
         Array.isArray(salon?.barbers) ? salon.barbers.map(barber => barber?.name || "").join(" ") : ""
       ].join(" ").toLowerCase();
       return category.keywords.some(keyword => haystack.includes(keyword.toLowerCase()));
@@ -8784,15 +8748,18 @@
       if (key === "salonStatusLabel" && lang === "ar" && !normalized.includes("حال")) return "الحالة";
       return normalized;
     }
-    Object.assign(extraTranslations.de, { bookingsManagement:"Salontermine", noBookings:"Noch keine Buchungen.", deleteBooking:"Löschen", messagesInbox:"Nachrichten", allMessages:"Alle Nachrichten", deleteMessage:"Löschen", noInboxMessages:"Keine Nachrichten vorhanden.", adminMessagesTitle:"Kunden- und Admin-Nachrichten", loginTitle:"Sicherer Login", noMessages:"Keine Nachrichten.", noOwnerMessages:"Keine Nachrichten für den Salonbesitzer.", adminTarget:"Verwaltung", ownerTarget:"Salonbesitzer", customerTarget:"Kunde", generalTarget:"Allgemein", channelInApp:"In-App-Nachricht", channelWhatsApp:"Telefonbestätigung", replyHint:"Zum Antworten verwenden Sie das Kontaktfenster auf der Startseite.", confirmAction:"Bestätigen", loginOpenError:"Das Bedienfeld konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.", saved:"Gespeichert!", userLabel:"Benutzer", guestLabel:"Gast", messageLabelShort:"Nachricht", generalLabel:"Allgemein", searchLabel:"Suche", searchCta:"Salons finden", heroSearchTitle:"Salons nach Name oder Service finden", heroSearchText:"Suche starten, Stadt eingrenzen und danach direkt die passenden Salonkarten vergleichen.", directorySelectionNote:"Wählen Sie zuerst einen Standort und dann einen Salon aus dem Verzeichnis.", notificationsLabel:"Benachrichtigungen", registerAction:"Registrieren", registerCustomerOption:"Als Kunde registrieren", registerOwnerOption:"Als Saloninhaber registrieren", registerCustomerShort:"Als Kunde", registerOwnerShort:"Saloninhaber", womenPortal:"Frauen" });
-    Object.assign(extraTranslations.en, { bookingsManagement:"Salon bookings", noBookings:"No bookings yet.", deleteBooking:"Delete", messagesInbox:"Messages", allMessages:"All messages", deleteMessage:"Delete", noInboxMessages:"No messages yet.", adminMessagesTitle:"Customer and admin messages", loginTitle:"Secure login", noMessages:"No messages.", noOwnerMessages:"No messages for the salon owner.", adminTarget:"Admin", ownerTarget:"Salon owner", customerTarget:"Customer", generalTarget:"General", channelInApp:"In-app message", channelWhatsApp:"Phone confirmation", replyHint:"To reply, use the contact window on the homepage.", confirmAction:"Confirm", loginOpenError:"Unable to open the control panel. Please try again.", saved:"Saved!", userLabel:"User", guestLabel:"Guest", messageLabelShort:"Message", generalLabel:"General", searchLabel:"Search", searchCta:"Find salons", heroSearchTitle:"Find salons by name or service", heroSearchText:"Start with a search, narrow by city, then compare the matching salon cards right away.", directorySelectionNote:"Choose a location first, then pick a salon from the directory.", notificationsLabel:"Notifications", registerAction:"Register", registerCustomerOption:"Register as Customer", registerOwnerOption:"Register as Salon Owner", registerCustomerShort:"Customer", registerOwnerShort:"Salon owner", womenPortal:"Women" });
-    Object.assign(extraTranslations.ar, { bookingsManagement:"حجوزات الصالون", noBookings:"لا توجد حجوزات بعد.", deleteBooking:"حذف", messagesInbox:"الرسائل", allMessages:"كل الرسائل", deleteMessage:"حذف", noInboxMessages:"لا توجد رسائل بعد.", adminMessagesTitle:"رسائل الزبائن والإدارة", loginTitle:"دخول آمن", noMessages:"لا توجد رسائل.", noOwnerMessages:"لا توجد رسائل لصاحب الصالون.", adminTarget:"الإدارة", ownerTarget:"صاحب الصالون", customerTarget:"الزبون", generalTarget:"عام", channelInApp:"رسالة داخل الموقع", channelWhatsApp:"تأكيد هاتف", replyHint:"للرد، استخدم نافذة التواصل من الصفحة الرئيسية.", confirmAction:"تأكيد", loginOpenError:"تعذر فتح لوحة التحكم. أعد المحاولة.", saved:"تم الحفظ!", userLabel:"مستخدم", guestLabel:"زائر", messageLabelShort:"رسالة", generalLabel:"عام", searchLabel:"البحث", searchCta:"اعثر على الصالونات", heroSearchTitle:"ابحث عن الصالونات بالاسم أو الخدمة", heroSearchText:"ابدأ بالبحث، حدّد المدينة، ثم قارن بطاقات الصالونات المناسبة مباشرة.", directorySelectionNote:"اختر الموقع أولاً، ثم حدّد الصالون من الدليل.", notificationsLabel:"الإشعارات", registerAction:"تسجيل", registerCustomerOption:"التسجيل كزبون", registerOwnerOption:"التسجيل كصاحب صالون", registerCustomerShort:"كزبون", registerOwnerShort:"صاحب صالون", womenPortal:"النساء" });
+    Object.assign(extraTranslations.de, { bookingsManagement:"Salontermine", noBookings:"Noch keine Buchungen.", deleteBooking:"Löschen", messagesInbox:"Nachrichten", allMessages:"Alle Nachrichten", deleteMessage:"Löschen", noInboxMessages:"Keine Nachrichten vorhanden.", adminMessagesTitle:"Kunden- und Admin-Nachrichten", loginTitle:"Sicherer Login", noMessages:"Keine Nachrichten.", noOwnerMessages:"Keine Nachrichten für den Salonbesitzer.", adminTarget:"Verwaltung", ownerTarget:"Salonbesitzer", customerTarget:"Kunde", generalTarget:"Allgemein", channelInApp:"In-App-Nachricht", channelWhatsApp:"Telefonbestätigung", replyHint:"Zum Antworten verwenden Sie das Kontaktfenster auf der Startseite.", confirmAction:"Bestätigen", loginOpenError:"Das Bedienfeld konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.", saved:"Gespeichert!", userLabel:"Benutzer", guestLabel:"Gast", messageLabelShort:"Nachricht", generalLabel:"Allgemein", searchLabel:"Suche", searchCta:"Salons finden", heroSearchTitle:"Salons nach Name oder Service finden", heroSearchText:"Suche starten, Stadt eingrenzen und danach direkt die passenden Salonkarten vergleichen.", heroDiscoveryEyebrow:"SALO Smart Discovery", heroDiscoveryTitle:"Was brauchst du heute?", heroDiscoveryText:"Finde den passenden Salon, Service oder Ort für deinen nächsten Besuch.", heroIntentNow:"Jetzt", heroIntentAppointment:"Termin", heroIntentDiscover:"Entdecken", heroIntentAria:"Art der Suche", heroSearchAria:"Salon, Service oder Ort suchen", heroSearchPlaceholder:"Salon, Service oder Ort suchen", directorySelectionNote:"Wählen Sie zuerst einen Standort und dann einen Salon aus dem Verzeichnis.", notificationsLabel:"Benachrichtigungen", registerAction:"Registrieren", registerCustomerOption:"Als Kunde registrieren", registerOwnerOption:"Als Saloninhaber registrieren", registerCustomerShort:"Als Kunde", registerOwnerShort:"Saloninhaber", womenPortal:"Frauen" });
+    Object.assign(extraTranslations.en, { bookingsManagement:"Salon bookings", noBookings:"No bookings yet.", deleteBooking:"Delete", messagesInbox:"Messages", allMessages:"All messages", deleteMessage:"Delete", noInboxMessages:"No messages yet.", adminMessagesTitle:"Customer and admin messages", loginTitle:"Secure login", noMessages:"No messages.", noOwnerMessages:"No messages for the salon owner.", adminTarget:"Admin", ownerTarget:"Salon owner", customerTarget:"Customer", generalTarget:"General", channelInApp:"In-app message", channelWhatsApp:"Phone confirmation", replyHint:"To reply, use the contact window on the homepage.", confirmAction:"Confirm", loginOpenError:"Unable to open the control panel. Please try again.", saved:"Saved!", userLabel:"User", guestLabel:"Guest", messageLabelShort:"Message", generalLabel:"General", searchLabel:"Search", searchCta:"Find salons", heroSearchTitle:"Find salons by name or service", heroSearchText:"Start with a search, narrow by city, then compare the matching salon cards right away.", heroDiscoveryEyebrow:"SALO Smart Discovery", heroDiscoveryTitle:"What do you need today?", heroDiscoveryText:"Find the right salon, service, or location for your next visit.", heroIntentNow:"Now", heroIntentAppointment:"Appointment", heroIntentDiscover:"Discover", heroIntentAria:"Discovery intent", heroSearchAria:"Search for a salon, service, or location", heroSearchPlaceholder:"Search for a salon, service, or location", directorySelectionNote:"Choose a location first, then pick a salon from the directory.", notificationsLabel:"Notifications", registerAction:"Register", registerCustomerOption:"Register as Customer", registerOwnerOption:"Register as Salon Owner", registerCustomerShort:"Customer", registerOwnerShort:"Salon owner", womenPortal:"Women" });
+    Object.assign(extraTranslations.ar, { bookingsManagement:"حجوزات الصالون", noBookings:"لا توجد حجوزات بعد.", deleteBooking:"حذف", messagesInbox:"الرسائل", allMessages:"كل الرسائل", deleteMessage:"حذف", noInboxMessages:"لا توجد رسائل بعد.", adminMessagesTitle:"رسائل الزبائن والإدارة", loginTitle:"دخول آمن", noMessages:"لا توجد رسائل.", noOwnerMessages:"لا توجد رسائل لصاحب الصالون.", adminTarget:"الإدارة", ownerTarget:"صاحب الصالون", customerTarget:"الزبون", generalTarget:"عام", channelInApp:"رسالة داخل الموقع", channelWhatsApp:"تأكيد هاتف", replyHint:"للرد، استخدم نافذة التواصل من الصفحة الرئيسية.", confirmAction:"تأكيد", loginOpenError:"تعذر فتح لوحة التحكم. أعد المحاولة.", saved:"تم الحفظ!", userLabel:"مستخدم", guestLabel:"زائر", messageLabelShort:"رسالة", generalLabel:"عام", searchLabel:"البحث", searchCta:"اعثر على الصالونات", heroSearchTitle:"ابحث عن الصالونات بالاسم أو الخدمة", heroSearchText:"ابدأ بالبحث، حدّد المدينة، ثم قارن بطاقات الصالونات المناسبة مباشرة.", heroDiscoveryEyebrow:"اكتشاف SALO الذكي", heroDiscoveryTitle:"ماذا تحتاج اليوم؟", heroDiscoveryText:"اعثر على الصالون أو الخدمة أو الموقع المناسب لزيارتك القادمة.", heroIntentNow:"الآن", heroIntentAppointment:"موعد", heroIntentDiscover:"اكتشف", heroIntentAria:"نوع البحث", heroSearchAria:"ابحث عن صالون أو خدمة أو موقع", heroSearchPlaceholder:"ابحث عن صالون أو خدمة أو موقع", directorySelectionNote:"اختر الموقع أولاً، ثم حدّد الصالون من الدليل.", notificationsLabel:"الإشعارات", registerAction:"تسجيل", registerCustomerOption:"التسجيل كزبون", registerOwnerOption:"التسجيل كصاحب صالون", registerCustomerShort:"كزبون", registerOwnerShort:"صاحب صالون", womenPortal:"النساء" });
     Object.assign(extraTranslations.de, { heroPremiumEyebrow:"Premium Barber Experience", heroTitleLineOne:"Dein Style.", heroTitleLineTwo:"Deine Wahl.", heroTrustText:"Zufriedene Kunden", heroSearchHelper:"Live nach Standort, Verfügbarkeit und Stil sortiert.", discoverTopBarbers:"Top Barbers entdecken", heroSpotlightKicker:"Ausgewählte Barbershops", heroSpotlightTitle:"Redaktionelle Räume. Präzise Handwerkskunst.", heroSpotlightMeta:"Premium-Lounges, saubere Fades und Buchungen mit Vertrauen.", heroMiniLoungeLabel:"Lounge", heroMiniLoungeTitle:"Moderne Interiors", heroMiniLoungeText:"Dunkle Materialien, warmes Leder und ein starker erster Eindruck.", heroMiniToolsLabel:"Handwerk", heroMiniToolsTitle:"Werkzeuge mit Bedeutung", heroMiniToolsText:"Cuts, Rasuren und Bartpflege mit klassischer Präzision.", heroText:"Finde die besten Barbers und Salons in deiner Nähe.", categoryEyebrow:"Entdecken nach Service", categoryTitle:"Wähle deinen Service", categoryText:"Wähle eine Kategorie und wir filtern nur die Barbershops, die zu deinem nächsten Look passen.", topBarbersEyebrow:"Top Barbers in deiner Nähe", topBarbersTitle:"Die besten Barbers in deiner Nähe", topBarbersText:"Bewertungen, Verfügbarkeit, Distanz und echte Salondaten bringen die stärksten Barber-Adressen direkt nach vorn.", topBarberFilterAvailable:"Jetzt verfügbar", topBarberFilterDistance:"Entfernung", topBarberFilterRating:"Bewertung", topBarberFilterPrice:"Preis", topBarberFilterPremium:"Premium", topBarberAllOption:"Alle", topBarberDistance5:"< 5 km", topBarberDistance10:"< 10 km", topBarberDistance20:"< 20 km", topBarberPrice25:"bis 25€", topBarberPrice35:"bis 35€", topBarberPrice50:"bis 50€", featuredLabel:"Featured", premiumLabel:"Premium", standardLabel:"Standard", distanceUnknown:"Standort fehlt", priceOnRequest:"Preis auf Anfrage", topBarberReady:"Jetzt verfügbar", topBarberLimited:"Wenige Plätze", noTopBarbers:"Keine passenden Top-Barber fuer diese Auswahl gefunden.", statusOpenShort:"Geöffnet", statusFewShort:"Wenig frei", statusFullShort:"Voll", statusClosedShort:"Geschlossen", notifyMe:"Benachrichtige mich", notified:"Benachrichtigt", fromLabel:"ab", reviewsLabel:"Bewertungen", mobileHome:"Start", mobileServices:"Services", mobileBook:"Buchen", mobileNearby:"In der Nähe", directoryTitle:"Wähle deinen Salon", directoryEyebrow:"Salonverzeichnis", vipEyebrow:"VIP-Salons", vipTitle:"Die besten Salons in deiner Nähe", flashDealsEyebrow:"Jetzt verfügbar", flashDealsTitle:"Flash Deals in deiner Nähe", flashDealsText:"Verfügbare Zeitfenster mit freien Stühlen und kurzen Angeboten für nahegelegene Salons.", loyaltyLoading:"Stempelkarte wird geladen…", loyaltyCardLabel:"Stempelkarte", loyaltySelectSalon:"Wählen Sie zuerst einen Salon aus dem Verzeichnis.", loyaltyLoginText:"Melden Sie sich an, um Ihre Stempel und Belohnungen zu sehen.", loyaltyUnavailable:"Für diesen Salon ist derzeit keine Stempelkarte aktiv.", loyaltyStampCount:"{current} / {total} Stempel", loyaltyRewardReady:"Belohnung verfügbar!", loyaltyRewardRemaining:"Noch {count} {visits} bis zur Belohnung", loyaltyVisitSingular:"Besuch", loyaltyVisitPlural:"Besuche", loyaltyRewardLabel:"Nächster Bonus", loyaltyRewardFallback:"Gratis Haarschnitt", loyaltyStampFilled:"Gesammelter Stempel", loyaltyStampEmpty:"Freier Stempelplatz", flashDealLabel:"Flash Deal", flashDealNearby:"In der Nähe", flashDealToday:"Heute", flashDealActive:"Aktiv", flashDealUntil:"bis {date}", noFlashDeals:"Aktuell gibt es keine aktiven Flash Deals." });
     Object.assign(extraTranslations.en, { heroPremiumEyebrow:"Premium Barber Experience", heroTitleLineOne:"Your style.", heroTitleLineTwo:"Your choice.", heroTrustText:"Satisfied customers", heroSearchHelper:"Sorted live by location, availability, and style.", discoverTopBarbers:"Discover top barbers", heroSpotlightKicker:"Curated barbershops", heroSpotlightTitle:"Editorial spaces. Precise craft.", heroSpotlightMeta:"Premium lounges, sharp fades and bookings you can trust.", heroMiniLoungeLabel:"Lounge", heroMiniLoungeTitle:"Modern interiors", heroMiniLoungeText:"Dark finishes, warm leather, and a premium welcome.", heroMiniToolsLabel:"Craft", heroMiniToolsTitle:"Tools that matter", heroMiniToolsText:"Cuts, shaves, and beard work with classic precision.", heroText:"Find the best barbers and salons near you.", categoryEyebrow:"Discover by service", categoryTitle:"Choose your service", categoryText:"Choose a category and we will filter the barbershops that match your next look.", topBarbersEyebrow:"Top barbers near you", topBarbersTitle:"The best barbers near you", topBarbersText:"Ratings, availability, distance, and real salon signals surface the strongest barber options first.", topBarberFilterAvailable:"Available now", topBarberFilterDistance:"Distance", topBarberFilterRating:"Rating", topBarberFilterPrice:"Price", topBarberFilterPremium:"Premium", topBarberAllOption:"All", topBarberDistance5:"< 5 km", topBarberDistance10:"< 10 km", topBarberDistance20:"< 20 km", topBarberPrice25:"up to 25€", topBarberPrice35:"up to 35€", topBarberPrice50:"up to 50€", featuredLabel:"Featured", premiumLabel:"Premium", standardLabel:"Standard", distanceUnknown:"Location missing", priceOnRequest:"Price on request", topBarberReady:"Available now", topBarberLimited:"Limited chairs", noTopBarbers:"No matching top barbers were found for this selection.", statusOpenShort:"Open", statusFewShort:"Few chairs", statusFullShort:"Full", statusClosedShort:"Closed", notifyMe:"Notify me", notified:"Notified", fromLabel:"from", reviewsLabel:"reviews", mobileHome:"Home", mobileServices:"Services", mobileBook:"Book", mobileNearby:"Nearby", directoryTitle:"Choose your salon", directoryEyebrow:"Salon directory", vipEyebrow:"VIP salons", vipTitle:"The best salons near you", flashDealsEyebrow:"Available now", flashDealsTitle:"Flash deals near you", flashDealsText:"Open time slots with free chairs and short-notice offers from nearby salons.", loyaltyLoading:"Loyalty card is loading…", loyaltyCardLabel:"Loyalty card", loyaltySelectSalon:"Choose a salon from the directory first.", loyaltyLoginText:"Log in to view your stamps and rewards.", loyaltyUnavailable:"No loyalty card is active for this salon right now.", loyaltyStampCount:"{current} / {total} stamps", loyaltyRewardReady:"Reward available!", loyaltyRewardRemaining:"{count} {visits} left until your reward", loyaltyVisitSingular:"visit", loyaltyVisitPlural:"visits", loyaltyRewardLabel:"Next reward", loyaltyRewardFallback:"Free haircut", loyaltyStampFilled:"Collected stamp", loyaltyStampEmpty:"Empty stamp slot", flashDealLabel:"Flash deal", flashDealNearby:"Nearby", flashDealToday:"Today", flashDealActive:"Active", flashDealUntil:"until {date}", noFlashDeals:"There are no active flash deals right now." });
     Object.assign(extraTranslations.ar, { heroPremiumEyebrow:"تجربة حلاقة فاخرة", heroTitleLineOne:"أسلوبك.", heroTitleLineTwo:"اختيارك.", heroTrustText:"عملاء سعداء", heroSearchHelper:"ترتيب مباشر حسب الموقع والتوفر والأسلوب.", discoverTopBarbers:"اكتشف أفضل الحلاقين", heroSpotlightKicker:"صالونات مختارة", heroSpotlightTitle:"مساحات أنيقة. حرفة دقيقة.", heroSpotlightMeta:"صالات فاخرة، قصات متقنة، وحجوزات يمكنك الوثوق بها.", heroMiniLoungeLabel:"الصالون", heroMiniLoungeTitle:"تصميم داخلي حديث", heroMiniLoungeText:"تشطيبات داكنة وجلد دافئ واستقبال فاخر.", heroMiniToolsLabel:"الحرفة", heroMiniToolsTitle:"أدوات تصنع الفرق", heroMiniToolsText:"قصات وحلاقة وتهذيب لحية بدقة كلاسيكية.", heroText:"اعثر على أفضل الحلاقين والصالونات القريبة منك.", categoryEyebrow:"اكتشف حسب الخدمة", categoryTitle:"اختر خدمتك", categoryText:"اختر فئة وسنقوم بتصفية صالونات الحلاقة التي تناسب إطلالتك القادمة.", topBarbersEyebrow:"أفضل الحلاقين بالقرب منك", topBarbersTitle:"أفضل الحلاقين بالقرب منك", topBarbersText:"نجمع التقييمات والتوفر والمسافة وإشارات الصالونات الحقيقية لإبراز أفضل خيارات الحلاقة أولاً.", topBarberFilterAvailable:"متاح الآن", topBarberFilterDistance:"المسافة", topBarberFilterRating:"التقييم", topBarberFilterPrice:"السعر", topBarberFilterPremium:"المميز", topBarberAllOption:"الكل", topBarberDistance5:"أقل من 5 كم", topBarberDistance10:"أقل من 10 كم", topBarberDistance20:"أقل من 20 كم", topBarberPrice25:"حتى 25€", topBarberPrice35:"حتى 35€", topBarberPrice50:"حتى 50€", featuredLabel:"مميز", premiumLabel:"بريميوم", standardLabel:"عادي", distanceUnknown:"الموقع غير متوفر", priceOnRequest:"السعر عند الطلب", topBarberReady:"متاح الآن", topBarberLimited:"مقاعد محدودة", noTopBarbers:"لا توجد نتائج مناسبة لهذه التصفية حالياً.", statusOpenShort:"مفتوح", statusFewShort:"أماكن قليلة", statusFullShort:"ممتلئ", statusClosedShort:"مغلق", notifyMe:"نبّهني", notified:"تم التنبيه", fromLabel:"من", reviewsLabel:"تقييمات", mobileHome:"الرئيسية", mobileServices:"الخدمات", mobileBook:"احجز", mobileNearby:"قريب", directoryTitle:"اختر صالونك", directoryEyebrow:"دليل الصالونات", vipEyebrow:"صالونات VIP", vipTitle:"أفضل الصالونات بالقرب منك", flashDealsEyebrow:"متاح الآن", flashDealsTitle:"عروض سريعة بالقرب منك", flashDealsText:"مواعيد متاحة مع كراسٍ شاغرة وعروض قصيرة من صالونات قريبة.", loyaltyLoading:"يتم تحميل بطاقة الولاء…", loyaltyCardLabel:"بطاقة الولاء", loyaltySelectSalon:"اختر صالونًا من الدليل أولاً.", loyaltyLoginText:"سجّل الدخول لعرض الأختام والمكافآت الخاصة بك.", loyaltyUnavailable:"لا توجد بطاقة ولاء مفعلة لهذا الصالون حالياً.", loyaltyStampCount:"{current} / {total} أختام", loyaltyRewardReady:"المكافأة متاحة!", loyaltyRewardRemaining:"متبقي {count} {visits} حتى المكافأة", loyaltyVisitSingular:"زيارة", loyaltyVisitPlural:"زيارات", loyaltyRewardLabel:"المكافأة التالية", loyaltyRewardFallback:"حلاقة مجانية", loyaltyStampFilled:"ختم تم جمعه", loyaltyStampEmpty:"مكان ختم فارغ", flashDealLabel:"عرض سريع", flashDealNearby:"بالقرب منك", flashDealToday:"اليوم", flashDealActive:"نشط", flashDealUntil:"حتى {date}", noFlashDeals:"لا توجد عروض سريعة نشطة حالياً." });
     Object.assign(extraTranslations.de, { bookNow:"Termin buchen", directions:"Route planen", contactUs:"Kontakt", profileLabel:"Profil", more:"mehr" });
     Object.assign(extraTranslations.en, { bookNow:"Book appointment", directions:"Get directions", contactUs:"Contact", profileLabel:"Profile", more:"more" });
     Object.assign(extraTranslations.ar, { bookNow:"احجز موعداً", directions:"احصل على الاتجاهات", contactUs:"تواصل", profileLabel:"الملف", more:"المزيد" });
+    Object.assign(extraTranslations.de, { noReviewsYet:"Noch keine Bewertungen" });
+    Object.assign(extraTranslations.en, { noReviewsYet:"No reviews yet" });
+    Object.assign(extraTranslations.ar, { noReviewsYet:"لا توجد تقييمات بعد" });
     Object.assign(extraTranslations.de, { messageGdprText:"Ich stimme zu, dass meine personenbezogenen Daten zu Zwecken der Kommunikation und Buchung verarbeitet werden und ich weiß, dass ich jederzeit die Löschung meines Kontos oder meiner Daten beantragen kann.", customerGdprText:"Ich stimme zu, dass meine personenbezogenen Daten zu Zwecken der Buchung und Kommunikation verarbeitet werden und ich weiß, dass ich jederzeit die Löschung meines Kontos oder meiner Daten verlangen kann.", customerProfile:"Kundenprofil", customerProfileButton:"Kundenprofil", customerProfileTitle:"Daten für schnelle Buchungen speichern.", customerProfileText:"Ihre Daten werden auf diesem Gerät gespeichert und beim Buchen automatisch eingesetzt.", saveCustomer:"Daten speichern und buchen", rememberMe:"Angemeldet bleiben", customerForgotPassword:"Passwort vergessen?", customerForgotNotice:"Anweisungen für die Passwortwiederherstellung wurden an Ihre E-Mail gesendet.", customerLoginError:"E-Mail oder Passwort ist falsch.", customerLoginTitle:"Anmeldung", customerLoginSubtitle:"Für bereits registrierte Kunden", customerRegisterTitle:"Registrierung", customerRegisterSubtitle:"Für neue Kunden", customerVerifyTitle:"E-Mail-Verifizierung", customerVerifySubtitle:"Wir senden einen Bestätigungscode an Ihre E-Mail-Adresse, bevor Sie Ihr Konto aktivieren.", customerVerifyCode:"Bestätigungscode", customerVerifySend:"Code senden", customerVerifySubmit:"Verifizieren und registrieren", customerVerifyError:"Der Code ist ungültig oder abgelaufen.", customerVerifySuccess:"E-Mail erfolgreich bestätigt. Sie können jetzt mit der Registrierung fortfahren.", customerVerifyPlaceholder:"6-stelliger Code", customerVerifyHint:"Wird nach dem Speichern angezeigt", customerCity:"Stadt", customerService:"Bevorzugte Dienstleistung", customerNotes:"Ihre Notizen", customerCurrentPassword:"Aktuelles Passwort", customerNewPassword:"Neues Passwort" });
     Object.assign(extraTranslations.en, { messageGdprText:"I agree to the processing of my personal data for communication and booking purposes, and I understand that I can request deletion of my account or data at any time.", customerGdprText:"I agree to the processing of my personal data for booking and communication purposes, and I understand that I can request the deletion of my account or data at any time.", customerProfile:"Customer profile", customerProfileButton:"Customer info", customerProfileTitle:"Save your details for faster booking.", customerProfileText:"Your details are saved on this device and filled in automatically when booking.", saveCustomer:"Save details and book", rememberMe:"Remember me", customerForgotPassword:"Forgot password?", customerForgotNotice:"Recovery instructions were sent to your email.", customerLoginError:"Email or password is incorrect.", customerLoginTitle:"Login", customerLoginSubtitle:"For already registered customers", customerRegisterTitle:"Sign up", customerRegisterSubtitle:"For new customers", customerVerifyTitle:"Email verification", customerVerifySubtitle:"We will send a verification code to your email before activating your account.", customerVerifyCode:"Verification code", customerVerifySend:"Send code", customerVerifySubmit:"Verify and register", customerVerifyError:"The code is invalid or expired.", customerVerifySuccess:"Email verified successfully. You can continue registration.", customerVerifyPlaceholder:"6-digit code", customerVerifyHint:"Shown after saving", customerCity:"City", customerService:"Preferred service", customerNotes:"Your notes", customerCurrentPassword:"Current password", customerNewPassword:"New password" });
     Object.assign(extraTranslations.ar, { messageGdprText:"أوافق على معالجة بياناتي الشخصية لأغراض التواصل والحجز، وأعلم أنني أستطيع طلب حذف حسابي أو بياناتي في أي وقت.", customerGdprText:"أوافق على معالجة بياناتي الشخصية لأغراض الحجز والتواصل، وأعلم أنني أستطيع طلب حذف حسابي أو بياناتي في أي وقت.", customerProfile:"بيانات الزبون", customerProfileButton:"معلومات الزبون", customerProfileTitle:"احفظ بياناتك للحجز السريع.", customerProfileText:"ستبقى بياناتك محفوظة على هذا الجهاز لتظهر تلقائيًا عند الحجز.", saveCustomer:"حفظ الملف الشخصي", rememberMe:"تذكرني", customerForgotPassword:"نسيت كلمة المرور؟", customerForgotNotice:"تم إرسال تعليمات الاسترجاع إلى الإيميل.", customerLoginError:"الإيميل أو كلمة المرور غير صحيحة.", customerLoginTitle:"تسجيل الدخول", customerLoginSubtitle:"للزبائن المسجلين سابقًا", customerRegisterTitle:"تسجيل في الموقع", customerRegisterSubtitle:"للزبائن الجدد", customerVerifyTitle:"تأكيد الإيميل", customerVerifySubtitle:"سيرسل لك رمز تأكيد على الإيميل قبل تفعيل الحساب.", customerVerifyCode:"رمز التأكيد", customerVerifySend:"إرسال الرمز", customerVerifySubmit:"تأكيد الحساب والتسجيل", customerVerifyError:"الرمز غير صحيح أو منتهي الصلاحية.", customerVerifySuccess:"تم تأكيد الإيميل بنجاح. يمكنك إكمال التسجيل الآن.", customerVerifyPlaceholder:"رمز من 6 أرقام", customerVerifyHint:"سيظهر بعد الحفظ", customerCity:"المدينة", customerService:"الخدمة المفضلة", customerNotes:"ملاحظاتك", customerCurrentPassword:"كلمة المرور الحالية", customerNewPassword:"كلمة المرور الجديدة" });
@@ -9023,8 +8990,12 @@
         loyaltySaved: "<strong>تم الحفظ:</strong> {title} · {required} نقطة",
         subscriptionNoData: "<strong>الاشتراك:</strong> لا توجد بيانات من الباكند بعد.",
         subscriptionPlanFree: "مجاني",
+        subscriptionPlanSmart: "سمارت",
+        subscriptionPlanPremium: "بريميوم",
         subscriptionPlanPro: "برو",
         subscriptionPlanPremium: "بريميوم",
+        subscriptionPlanUnknown: "غير معروف",
+        subscriptionPriceUnresolved: "السعر قيد التحديد",
         subscriptionMonthlyFree: "€0,00 / شهريًا",
         subscriptionMonthlySuffix: "€ / شهريًا",
         subscriptionFeatureBasicProfile: "ملف أساسي",
@@ -9284,8 +9255,12 @@
         loyaltySaved: "<strong>Saved:</strong> {title} · {required} stamps",
         subscriptionNoData: "<strong>Subscription:</strong> No backend data yet.",
         subscriptionPlanFree: "Free",
+        subscriptionPlanSmart: "Smart",
+        subscriptionPlanPremium: "Premium",
         subscriptionPlanPro: "Pro",
         subscriptionPlanPremium: "Premium",
+        subscriptionPlanUnknown: "Unknown",
+        subscriptionPriceUnresolved: "Price unresolved",
         subscriptionMonthlyFree: "€0.00 / month",
         subscriptionMonthlySuffix: "€ / month",
         subscriptionFeatureBasicProfile: "Basic profile",
@@ -9545,8 +9520,12 @@
         loyaltySaved: "<strong>Gespeichert:</strong> {title} · {required} Stempel",
         subscriptionNoData: "<strong>Abonnement:</strong> Noch keine Backend-Daten.",
         subscriptionPlanFree: "Kostenlos",
+        subscriptionPlanSmart: "Smart",
+        subscriptionPlanPremium: "Premium",
         subscriptionPlanPro: "Pro",
         subscriptionPlanPremium: "Premium",
+        subscriptionPlanUnknown: "Unbekannt",
+        subscriptionPriceUnresolved: "Preis ausstehend",
         subscriptionMonthlyFree: "€0,00 / Monat",
         subscriptionMonthlySuffix: "€ / Monat",
         subscriptionFeatureBasicProfile: "Basisprofil",
@@ -9691,6 +9670,12 @@
       if (plan === "PRO") return ownerText("subscriptionPlanPro");
       if (plan === "PREMIUM") return ownerText("subscriptionPlanPremium");
       return ownerText("subscriptionPlanFree");
+      const normalized = String(plan || "").trim().toUpperCase();
+      if (normalized === "FREE") return ownerText("subscriptionPlanFree");
+      if (normalized === "SMART") return ownerText("subscriptionPlanSmart");
+      if (normalized === "PREMIUM") return ownerText("subscriptionPlanPremium");
+      if (normalized === "PRO") return ownerText("subscriptionPlanPro");
+      return ownerText("subscriptionPlanUnknown");
     }
 
     function getOwnerSubscriptionStatusLabel(status) {
@@ -9725,7 +9710,7 @@
         sat: translate("daySat")
       };
     }
-    const defaults = { name:"صالونك", city:"المدينة", address:"عنوان الصالون", phone:"+966 00 000 0000", open:"09:00", close:"20:00", crowd:28, status:"quiet", totalChairs:6, availableChairs:4, vip:false, forWomen:false, rating:0, ratingCount:0, favorite:false, barbers:[], products:[], bookings:[], workingDays:["mon","tue","wed","thu","fri","sat"], prices:{ cut:90, shave:65, beard:60 }, showPrices:{ cut:true, shave:true, beard:true }, customServices:[{ name:"", price:0 }, { name:"", price:0 }, { name:"", price:0 }, { name:"", price:0 }, { name:"", price:0 }], offer:{ title: (translations[currentLang] && translations[currentLang].defaultOfferTitle) || "عرض خاص", description: (translations[currentLang] && translations[currentLang].defaultOfferDescription) || "خصم على الحلاقة والكوت واهتمام اللحية", price:120, active:true }, flashDeal:{ title:"", description:"", price:0, discount:"", active:false, startsAt:"", endsAt:"", startTime:"", endTime:"", availableSlots:0, service:"" } };
+    const defaults = { name:"صالونك", city:"المدينة", address:"عنوان الصالون", phone:"+966 00 000 0000", open:"09:00", close:"20:00", crowd:28, status:"quiet", totalChairs:6, availableChairs:4, vip:false, forWomen:false, rating:0, ratingCount:0, favorite:false, barbers:[], products:[], bookings:[], workingDays:["mon","tue","wed","thu","fri","sat"], prices:{}, showPrices:{}, customServices:[], offer:{ title:"", description:"", price:0, active:false }, flashDeal:{ title:"", description:"", price:0, discount:"", active:false, startsAt:"", endsAt:"", startTime:"", endTime:"", availableSlots:0, service:"" } };
     function isDefaultDemoSalon(salon) {
       if (!salon || typeof salon !== "object") return false;
       const name = String(salon.name || "").trim().toLowerCase();
@@ -10507,11 +10492,12 @@
     }
 
     const heroBackgrounds = [
-      "./assets/mens/intro_barberpole.jpg",
-      "./assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg",
-      "./assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg",
-      "./assets/mens/1_org.jpg",
-      "./assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg"
+      "/assets/mens/intro_barberpole.jpg",
+      "/assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg",
+      "/assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg",
+      "/assets/mens/1_org.jpg",
+      "/assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg",
+      "/assets/mens/salo-clean-barber.png"
     ];
 
     const sectionBackgrounds = {
@@ -10677,6 +10663,7 @@
       renderSalonDirectory();
       renderBookingBarbers();
       if ($("salonList")) renderAdminLists();
+      salonIntakePanels.adminIntakeControls?.render();
     }
 
     function getMapLink() {
@@ -10819,9 +10806,7 @@
         ? Number(salonContext.rating || 0) / Math.max(1, Number(salonContext.ratingCount || salonContext.reviews || salonContext.votes || 1))
         : Number(salonContext.rating || 0);
       const formattedRating = Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : "0.0";
-      const primaryService = Array.isArray(salonContext.customServices)
-        ? salonContext.customServices.map(service => service?.name).find(Boolean)
-        : "";
+      const primaryService = getSalonConfiguredServices(salonContext)[0]?.name || "";
 
       imageEl.src = resolveSalonImageUrl(salonContext, fallbackIndex);
       imageEl.alt = salonContext.name || "Salon";
@@ -11324,7 +11309,7 @@
       const state = getSalonLiveState(salon, options).key;
       const lang = document.documentElement.lang || localStorage.getItem("meshwarLang") || "ar";
       const labels = {
-        de: { open: "Geoffnet", closed: "Geschlossen" },
+        de: { open: "Geöffnet", closed: "Geschlossen" },
         en: { open: "Open", closed: "Closed" },
         ar: { open: "مفتوح", closed: "مغلق" }
       };
@@ -11349,8 +11334,9 @@
       const activeSubscriptions = $("subActiveSubscriptions");
       const mrrValue = $("subMrrValue");
       const freeCount = $("planFreeCount");
-      const proCount = $("planProCount");
+      const smartCount = $("planSmartCount");
       const premiumCount = $("planPremiumCount");
+      const proCount = $("planProCount");
       const dailyRevenue = $("subDailyRevenue");
       const weeklyRevenue = $("subWeeklyRevenue");
       const monthlyRevenue = $("subMonthlyRevenue");
@@ -11361,8 +11347,9 @@
       if (activeSubscriptions) activeSubscriptions.textContent = Number.isFinite(summary.activeSubscriptions) ? String(summary.activeSubscriptions) : "0";
       if (mrrValue) mrrValue.textContent = Number.isFinite(summary.mrr) && summary.mrr !== null ? `€${Number(summary.mrr).toFixed(2)}` : "No data";
       if (freeCount) freeCount.textContent = Number.isFinite(planCounts.FREE) ? String(planCounts.FREE) : "0";
-      if (proCount) proCount.textContent = Number.isFinite(planCounts.PRO) ? String(planCounts.PRO) : "0";
+      if (smartCount) smartCount.textContent = Number.isFinite(planCounts.SMART) ? String(planCounts.SMART) : "0";
       if (premiumCount) premiumCount.textContent = Number.isFinite(planCounts.PREMIUM) ? String(planCounts.PREMIUM) : "0";
+      if (proCount) proCount.textContent = Number.isFinite(planCounts.PRO) ? String(planCounts.PRO) : "0";
       if (dailyRevenue) dailyRevenue.textContent = Number.isFinite(summary.dailyRevenue) && summary.dailyRevenue !== null ? `€${Number(summary.dailyRevenue).toFixed(2)}` : "No data";
       if (weeklyRevenue) weeklyRevenue.textContent = Number.isFinite(summary.weeklyRevenue) && summary.weeklyRevenue !== null ? `€${Number(summary.weeklyRevenue).toFixed(2)}` : "No data";
       if (monthlyRevenue) monthlyRevenue.textContent = Number.isFinite(summary.monthlyRevenue) && summary.monthlyRevenue !== null ? `€${Number(summary.monthlyRevenue).toFixed(2)}` : "No data";
@@ -11370,8 +11357,8 @@
 
       if (tableBody) {
         const rows = subscriptions.slice(0, 8).map((subscription) => {
-          const planKey = String(subscription?.plan || "FREE").toUpperCase();
-          const planLabel = planKey === "PRO" ? "PRO" : planKey === "PREMIUM" ? "PREMIUM" : "FREE";
+          const planKey = String(subscription?.plan || "FREE").trim().toUpperCase();
+          const planLabel = planKey === "SMART" ? "SMART" : planKey === "PREMIUM" ? "PREMIUM" : planKey === "PRO" ? "PRO" : planKey === "FREE" ? "FREE" : "UNKNOWN";
           const statusKey = String(subscription?.status || "ACTIVE").toUpperCase();
           const statusLabel = statusKey === "CANCELLED" ? "Cancelled" : statusKey === "EXPIRED" ? "Expired" : statusKey === "TRIAL" ? "Trial" : statusKey === "PAST_DUE" ? "Past due" : "Active";
           const ownerName = subscription?.user?.fullName || subscription?.user?.email || "Owner profile";
@@ -12336,15 +12323,24 @@
     function resolveSalonImageUrl(salon, index = 0) {
       const explicit = getSalonPrimaryImageUrl(salon);
       if (explicit) return explicit;
-      const safeIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
-      return fallbackSalonImages[Math.abs(safeIndex) % fallbackSalonImages.length];
+      return "./assets/salo-salon-placeholder.svg";
+    }
+
+    function renderSalonStatusHours(salon) {
+      const state = getSalonLiveState(salon);
+      return `<div class="salon-card-operating-hours">
+        <div class="salon-card-status ${state.isOpen ? "is-open" : "is-closed"}">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>${escapeHtml(getLocalizedLiveStateLabel(salon))}</span>
+        </div>
+        <div class="salon-card-today-hours">${escapeHtml(translate("flashDealToday"))} ${escapeHtml(getSalonTodayHoursText(salon))}</div>
+      </div>`;
     }
 
     function salonCard(salon) {
       const ratingValue = Number(salon.rating || 0);
-      const reviewCount = Number(salon.ratingCount || salon.reviews || salon.votes || 0);
-      const normalizedRating = reviewCount ? (ratingValue / reviewCount) : ratingValue;
-      const rating = Number.isFinite(normalizedRating) && normalizedRating > 0 ? normalizedRating.toFixed(1) : "0.0";
+      const reviewCount = getSalonReviewCount(salon);
+      const rating = Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : "";
       const roundedRating = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
       const starsMarkup = Array.from({ length: 5 }, (_, index) => `<span class="${index < roundedRating ? "filled" : ""}">★</span>`).join("");
       const isVip = !!salon.vip || isVipSalon(salon);
@@ -12360,13 +12356,11 @@
           distanceText = `${distanceKm < 1 ? "< 1" : distanceKm.toFixed(1)} km`;
         }
       }
-      const serviceValues = Array.isArray(salon.customServices) ? salon.customServices.map(service => service?.name).filter(Boolean) : [];
+      const serviceValues = getSalonConfiguredServices(salon).map(service => service.name).filter(Boolean);
       const barberNames = Array.isArray(salon.barbers) ? salon.barbers.map(barber => barber?.name).filter(Boolean).slice(0, 3) : [];
       const serviceList = serviceValues.length ? serviceValues.slice(0, 2) : barberNames.slice(0, 2);
       const hasMoreServices = serviceValues.length > 2 || barberNames.length > 2;
-      const serviceTags = serviceList.length ? serviceList.map(service => `<span class="salon-service-tag">${escapeHtml(service)}</span>`).join("") + (hasMoreServices ? `<span class="salon-service-tag more">+${translate("more") || "mehr"}</span>` : "") : `<span class="salon-service-tag">${escapeHtml(salon.offer?.title || "Haircut")}</span>`;
-      const rawStartPrice = Number(salon.offer?.price || salon.prices?.cut || salon.prices?.haircut || salon.customServices?.[0]?.price || 0);
-      const startPrice = Number.isFinite(rawStartPrice) && rawStartPrice > 0 ? rawStartPrice : null;
+      const serviceTags = serviceList.length ? serviceList.map(service => `<span class="salon-service-tag">${escapeHtml(service)}</span>`).join("") + (hasMoreServices ? `<span class="salon-service-tag more">+${translate("more") || "mehr"}</span>` : "") : "";
       const offerActive = Boolean(salon.offer?.active) && (salon.offer?.title || salon.offer?.description);
       const offerTitle = offerActive ? (salon.offer?.title || "Last Minute") : "";
       const offerDescription = offerActive ? (salon.offer?.description || "") : "";
@@ -12377,8 +12371,6 @@
       const phoneValue = String(salon.phone || "").trim();
       const phoneLink = phoneValue ? `tel:${phoneValue.replace(/[^+0-9]/g, "")}` : "";
       const vipNameMarkup = isVip ? `<span class="vip-salon-name"><span>${escapeHtml(salon.name)}</span><i class="fa-solid fa-crown" aria-label="VIP"></i></span>` : escapeHtml(salon.name);
-      const totalSeats = Number(salon.totalChairs ?? 0);
-      const availableSeats = Number(salon.availableChairs ?? 0);
       const flashDeal = normalizeFlashDeal(salon?.flashDeal || salon?.lastMinuteOffer || salon?.deal || {});
       const flashDealActive = isFlashDealActive(salon);
       const flashDealPrice = flashDeal.discount && !Number.isNaN(Number(flashDeal.discount))
@@ -12400,31 +12392,6 @@
         loyaltySummary.rewardTitle,
         loyaltySummary.description
       ].filter(Boolean) : [];
-      const seatsSummary = totalSeats > 0
-        ? localizeDynamicText("{available} of {total}", "seatsOf", { available: availableSeats, total: totalSeats })
-        : `${availableSeats}`;
-      const crowdValue = Number(salon.crowd);
-      const hasCrowdInfo = Number.isFinite(crowdValue) && crowdValue >= 0;
-      const crowdStatusKey = ["quiet", "medium", "busy"].includes(String(salon.status || "").toLowerCase())
-        ? String(salon.status || "").toLowerCase()
-        : (crowdValue >= 70 ? "busy" : crowdValue >= 40 ? "medium" : "quiet");
-      const crowdLabel = hasCrowdInfo ? (translate(crowdStatusKey) || crowdStatusKey) : "";
-      const rawWaitValue = salon.waitTime ?? salon.waitMinutes ?? salon.wait ?? salon.queueWait ?? salon.queueTime ?? salon.waitingTime;
-      const waitText = typeof rawWaitValue === "string"
-        ? rawWaitValue.trim()
-        : Number.isFinite(Number(rawWaitValue)) && Number(rawWaitValue) > 0
-          ? `${Math.round(Number(rawWaitValue))} min`
-          : "";
-      const operatingState = getSalonLiveState(salon);
-      const availabilityClosed = operatingState.key === "closed";
-      const availabilityFull = !availabilityClosed && availableSeats === 0;
-      const availabilityState = availabilityClosed ? "closed" : "open";
-      const availabilityClass = availabilityState === "closed" ? "is-closed" : "is-open";
-      const availabilityHeadline = getLocalizedLiveStateLabel(salon);
-      const watchEntry = getAvailabilityWatchEntry(salon.id);
-      const isWatched = Boolean(watchEntry && String(watchEntry.status || "ACTIVE").toUpperCase() !== "CANCELLED");
-      const availabilityWatchButton = availabilityFull ? `<button class="btn btn-secondary notify-me-button" type="button" data-availability-watch="${escapeHtml(salon.id)}">${isWatched ? `✅ ${translate("notified")}` : `🔔 ${translate("notifyMe")}`}</button>` : "";
-      const startPriceHtml = startPrice !== null ? `${startPrice.toFixed(0)}<span>€</span>` : escapeHtml(translate("priceOnRequest"));
       const routeLinkMarkup = `<a class="btn btn-secondary" href="${salonMapLink}" target="_blank" rel="noopener noreferrer" data-salon-route="${escapeHtml(salon.id)}"><i class="fa-solid fa-location-dot"></i> ${routeLabel}</a>`;
       const phoneLinkMarkup = phoneLink ? `<a class="btn btn-secondary" href="${phoneLink}" rel="noopener noreferrer" data-salon-phone="${escapeHtml(salon.id)}"><i class="fa-solid fa-phone"></i> ${phoneLabel}</a>` : "";
       return `<article class="salon-card ${isBoosted ? "vip-salon-card" : isVip ? "vip-salon-card" : "regular-salon-card"}" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${profileLabel}: ${salon.name || "Salon"}`)}">
@@ -12445,9 +12412,7 @@
               ${isBoosted ? `<span class="premium-pill"><i class="fa-solid fa-bolt"></i> ${translate("featuredLabel")}</span>` : isVip ? `<span class="premium-pill"><i class="fa-solid fa-crown"></i> ${translate("premiumLabel")}</span>` : ""}
             </div>
             <div class="salon-card-rating">
-              <span class="salon-rating-stars" aria-label="${translate("rateSalon")}">${starsMarkup}</span>
-              <strong>${rating}</strong>
-              <span>(${reviewCount} ${translate("reviewsLabel")})</span>
+              ${reviewCount > 0 && rating ? `<span class="salon-rating-stars" aria-hidden="true">${starsMarkup}</span><strong>${rating}</strong><span>(${reviewCount} ${translate("reviewsLabel")})</span>` : `<span class="salon-card-no-reviews">${translate("noReviewsYet")}</span>`}
             </div>
           </div>
           <div class="salon-card-meta">
@@ -12455,37 +12420,13 @@
             ${distanceText ? `<span class="salon-distance"><i class="fa-solid fa-route"></i> ${distanceText}</span>` : ""}
           </div>
           <div class="salon-card-summary">
-            <div class="salon-card-status ${availabilityClass}">
-              <span class="status-dot"></span>
-              <span>${availabilityHeadline}</span>
-            </div>
-            <div class="salon-card-capacity">
-              <strong>${availableSeats}</strong>
-              <span>${translate("availableChairs")}</span>
-              <small>${escapeHtml(seatsSummary)}</small>
-            </div>
-          </div>
-          <div class="salon-card-stat-grid">
-            <div class="salon-card-stat">
-              <span>${translate("totalChairs")}</span>
-              <strong>${totalSeats || availableSeats || 0}</strong>
-              <small>${escapeHtml(seatsSummary)}</small>
-            </div>
-            <div class="salon-card-stat">
-              <span>${waitText ? translate("wait") : translate("crowd")}</span>
-              <strong>${waitText ? escapeHtml(waitText) : (hasCrowdInfo ? `${crowdValue}%` : "—")}</strong>
-              <small>${waitText ? (hasCrowdInfo ? `${crowdValue}% · ${escapeHtml(crowdLabel)}` : "&nbsp;") : (hasCrowdInfo ? escapeHtml(crowdLabel) : "&nbsp;")}</small>
-            </div>
+            ${renderSalonStatusHours(salon)}
           </div>
           <div class="salon-card-row">
             <div class="salon-services">${serviceTags}</div>
-            <div class="salon-card-price">
-              <small>${translate("fromLabel")}</small>
-              <strong>${startPriceHtml}</strong>
-            </div>
           </div>
           ${(offerActive || flashDealActive || loyaltySummary) ? `<div class="salon-card-feature-stack">
-            ${offerActive ? `<div class="salon-offer-banner"><span>🔥</span><div><strong>${escapeHtml(offerTitle)}</strong><small>${escapeHtml(offerDescription)}</small></div></div>` : ""}
+            ${offerActive ? `<div class="salon-offer-banner"><i class="fa-solid fa-tag" aria-hidden="true"></i><div><strong>${escapeHtml(offerTitle)}</strong><small>${escapeHtml(offerDescription)}</small></div></div>` : ""}
             ${flashDealActive ? `<div class="salon-card-feature salon-card-feature-flash">
               <div class="salon-card-feature-head">
                 <span class="salon-card-feature-badge"><i class="fa-solid fa-bolt"></i> ${translate("flashDealLabel")}</span>
@@ -12514,7 +12455,6 @@
               <button class="btn btn-secondary" type="button" data-profile-salon="${escapeHtml(salon.id)}"><i class="fa-solid fa-user"></i> ${profileLabel}</button>
               ${routeLinkMarkup}
               ${phoneLinkMarkup}
-              ${availabilityWatchButton}
             </div>
             <button class="btn btn-primary salon-card-primary" type="button" data-choose-salon="${escapeHtml(salon.id)}">${translate("bookNow")}</button>
           </div>
@@ -12736,8 +12676,10 @@
     }
 
     function getSalonStartingPrice(salon) {
-      const rawStartPrice = Number(salon?.offer?.price ?? salon?.prices?.cut ?? salon?.prices?.haircut ?? salon?.customServices?.[0]?.price ?? 0);
-      return Number.isFinite(rawStartPrice) && rawStartPrice > 0 ? rawStartPrice : null;
+      const prices = getSalonConfiguredServices(salon)
+        .map(service => Number(service?.price))
+        .filter(price => Number.isFinite(price) && price > 0);
+      return prices.length ? Math.min(...prices) : null;
     }
 
     function getTopBarberScore(salon, userLocation) {
@@ -12827,25 +12769,18 @@
 
       listEl.innerHTML = topBarbers.map(salon => {
         const rating = Number(salon.rating || 0) || 0;
-        const reviewCount = Number(salon.ratingCount || salon.reviews || salon.votes || 0);
+        const reviewCount = getSalonReviewCount(salon);
         const distanceKm = getSalonDistanceKm(salon, userLocation);
         const distanceText = Number.isFinite(distanceKm) ? `${distanceKm < 1 ? "< 1" : distanceKm.toFixed(1)} km` : translate("distanceUnknown");
         const premiumLabel = getSalonBoostState(salon).isBoosted ? translate("featuredLabel") : isVipSalon(salon) ? translate("premiumLabel") : translate("standardLabel");
-        const price = getSalonStartingPrice(salon);
-        const priceText = price !== null ? `${price.toFixed(0)}€` : translate("priceOnRequest");
-        const seats = Number(salon.availableChairs || 0);
-        const primaryService = Array.isArray(salon.customServices)
-          ? salon.customServices.map(service => service?.name).find(Boolean)
-          : "";
+        const primaryService = getSalonConfiguredServices(salon)[0]?.name || "";
         const fallbackIndex = Number(String(salon?.id || "").match(/\d+/)?.[0] || 0);
         const imageUrl = resolveSalonImageUrl(salon, fallbackIndex);
-        const openPill = seats > 0 ? `<span class="top-barber-pill"><i class="fa-solid fa-circle-check"></i> ${translate("topBarberReady")}</span>` : `<span class="top-barber-pill"><i class="fa-solid fa-clock"></i> ${translate("topBarberLimited")}</span>`;
         return `
           <article class="top-barber-card" data-open-profile-salon="${escapeHtml(salon.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`${translate("profileLabel")}: ${salon.name || "Salon"}`)}">
             <div class="top-barber-media">
               <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(salon.name || "Salon")}" loading="lazy">
               <div class="top-barber-topline">
-                <span class="top-barber-badge">#${topBarbers.indexOf(salon) + 1}</span>
                 <span class="top-barber-pill"><i class="fa-solid fa-crown"></i> ${premiumLabel}</span>
               </div>
             </div>
@@ -12854,24 +12789,20 @@
                 <div>
                   <h3>${escapeHtml(salon.name || "Salon")}</h3>
                 </div>
-                <span class="top-barber-score"><i class="fa-solid fa-star"></i> ${rating.toFixed(1)}</span>
+                ${reviewCount > 0 && rating > 0 ? `<span class="top-barber-score"><i class="fa-solid fa-star"></i> ${rating.toFixed(1)}</span>` : `<span class="salon-card-no-reviews">${translate("noReviewsYet")}</span>`}
               </div>
               <div class="top-barber-meta">
                 <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(salon.city || "-")}</span>
                 <span><i class="fa-solid fa-route"></i> ${distanceText}</span>
               </div>
               <div class="top-barber-meta">
-                <span><i class="fa-solid fa-star"></i> ${rating.toFixed(1)} (${reviewCount} ${translate("reviewsLabel")})</span>
-                <span><i class="fa-solid fa-wallet"></i> ${priceText}</span>
+                ${reviewCount > 0 && rating > 0 ? `<span><i class="fa-solid fa-star"></i> ${rating.toFixed(1)} (${reviewCount} ${translate("reviewsLabel")})</span>` : `<span>${translate("noReviewsYet")}</span>`}
               </div>
-              ${openPill}
+              ${renderSalonStatusHours(salon)}
               ${primaryService ? `<div class="top-barber-meta"><span class="top-barber-pill"><i class="fa-solid fa-scissors"></i> ${escapeHtml(primaryService)}</span></div>` : ""}
               <div class="directory-picker">
                 <button class="btn btn-secondary" type="button" data-profile-salon="${escapeHtml(salon.id)}"><i class="fa-solid fa-user"></i> ${translate("profileLabel")}</button>
                 <button class="btn btn-primary" type="button" data-choose-salon="${escapeHtml(salon.id)}">${translate("bookNow")}</button>
-              </div>
-              <div class="top-barber-meta">
-                <span class="top-barber-pill"><i class="fa-solid fa-chair"></i> ${seats} ${translate("chairsUnit")}</span>
               </div>
             </div>
           </article>
@@ -13171,6 +13102,22 @@
       return fallback;
     }
 
+    function getAdminSalonValidationMessage(error) {
+      if (![400, 422].includes(Number(error?.status || 0))) return error?.message || "";
+      const language = normalizeLanguageCode(document.documentElement.lang || localStorage.getItem("meshwarLang") || currentLang || "de");
+      const fieldLabels = {
+        de: { ownerPassword: "Inhaberpasswort", name: "Salonname", city: "Stadt", address: "Adresse", phone: "Telefon", email: "E-Mail", openingTime: "Öffnungszeit", closingTime: "Schließzeit", workingDays: "Arbeitstage", timeZone: "Zeitzone", imageUrl: "Salonbild" },
+        en: { ownerPassword: "owner password", name: "salon name", city: "city", address: "address", phone: "phone", email: "email", openingTime: "opening time", closingTime: "closing time", workingDays: "working days", timeZone: "timezone", imageUrl: "salon image" },
+        ar: { ownerPassword: "كلمة مرور المالك", name: "اسم الصالون", city: "المدينة", address: "العنوان", phone: "الهاتف", email: "البريد الإلكتروني", openingTime: "وقت الفتح", closingTime: "وقت الإغلاق", workingDays: "أيام العمل", timeZone: "المنطقة الزمنية", imageUrl: "صورة الصالون" }
+      };
+      const fieldErrors = error?.details?.fieldErrors || {};
+      const invalidFields = Object.keys(fieldErrors).map(field => fieldLabels[language]?.[field] || field);
+      const suffix = invalidFields.length ? `: ${invalidFields.join(", ")}` : "";
+      if (language === "ar") return `بيانات الصالون غير صالحة. يرجى مراجعة الحقول${suffix}.`;
+      if (language === "en") return `The salon details are invalid. Please review the fields${suffix}.`;
+      return `Die Salondaten sind ungültig. Bitte prüfen Sie die Felder${suffix}.`;
+    }
+
     async function apiRequest(path, options = {}, retryCount = 0) {
       const maxRetries = 2;
       const hasJsonBody = Boolean(options.body && (typeof options.body === "string" ? options.body.trim().startsWith("{") : typeof options.body === "object"));
@@ -13201,6 +13148,7 @@
           const error = new Error(payload?.error || payload?.message || "Request failed");
           error.status = status;
           error.type = status >= 500 ? "server" : status === 429 ? "rate_limit" : "api";
+          error.details = payload?.details;
           throw error;
         }
 
@@ -13223,9 +13171,12 @@
           return apiRequest(path, options, retryCount + 1);
         }
 
-        const normalized = new Error(getFriendlyErrorMessage(error, "تعذر معالجة الطلب الآن."));
+        const normalized = new Error(path.startsWith("/api/v1/auth/verification/")
+          ? (error?.message || "Email verification is currently unavailable.")
+          : getFriendlyErrorMessage(error, "تعذر معالجة الطلب الآن."));
         normalized.status = Number(error?.status || 0);
         normalized.type = !navigator.onLine || error?.name === "AbortError" ? "network" : error?.type || "unexpected";
+        normalized.details = error?.details;
         logAppError("apiRequest", normalized, { path, retryCount, status: normalized.status, apiBaseUrl });
         throw normalized;
       } finally {
@@ -13505,7 +13456,7 @@
       });
       const registerFieldMap = {
         customerRegisterName: copy.registerNamePlaceholder,
-        customerRegisterPhone: copy.registerPhonePlaceholder,
+        customerRegisterPhone: "151 23456789",
         customerRegisterEmail: copy.registerEmailPlaceholder,
         customerRegisterPassword: copy.registerPasswordPlaceholder
       };
@@ -13561,7 +13512,9 @@
 
     function clearCustomerAuthState({ preserveSavedLogin = true } = {}) {
       const tokenData = readStoredAuthToken();
-      if (session?.role === "customer") {
+      let storedSession = null;
+      try { storedSession = JSON.parse(localStorage.getItem("meshwarSession") || "null"); } catch {}
+      if (session?.role === "customer" || storedSession?.role === "customer") {
         session = null;
         localStorage.removeItem("meshwarSession");
       }
@@ -13735,36 +13688,6 @@
       }
     }
 
-    function generateCustomerVerificationCode() {
-      return String(Math.floor(100000 + Math.random() * 900000));
-    }
-
-    function startCustomerVerification(email) {
-      const code = generateCustomerVerificationCode();
-      const pending = { email: email.toLowerCase(), code, createdAt: Date.now() };
-      localStorage.setItem("meshwarCustomerVerify", JSON.stringify(pending));
-      const label = $("customerVerifyLabel");
-      if (label) label.textContent = customerVerificationText("customerVerifyCode");
-      $("customerSendVerifyCode").textContent = customerVerificationText("customerVerifySend");
-      $("customerVerifyCode").placeholder = customerVerificationText("customerVerifyPlaceholder");
-      $("customerVerifyCode").value = "";
-      setCustomerVerificationState(true, `${customerVerificationText("customerVerifySubtitle")} ${code}`);
-      return code;
-    }
-
-    function startCustomerPasswordReset(email) {
-      const code = generateCustomerVerificationCode();
-      const reset = { email: email.toLowerCase(), code, createdAt: Date.now() };
-      localStorage.setItem("meshwarCustomerReset", JSON.stringify(reset));
-      const label = $("customerVerifyLabel");
-      if (label) label.textContent = "رمز استعادة كلمة المرور";
-      $("customerSendVerifyCode").textContent = "إرسال الرمز";
-      $("customerVerifyCode").placeholder = "123456";
-      $("customerVerifyCode").value = "";
-      const noticeText = `تم إرسال رمز استعادة كلمة المرور إلى ${email}. الرمز هو: ${code}. أدخله ثم اضغط حفظ كلمة المرور الجديدة.`;
-      setCustomerVerificationState(true, noticeText);
-      return code;
-    }
 
     function setCustomerAccountView(view) {
       const authPanel = $("customerAuthPanel");
@@ -13922,12 +13845,28 @@
       return normalizeSalon(mergedSalon);
     }
 
+    const salonIntakePanels = {};
+    function loadSalonIntakeControls(target, salonId) {
+      const role = String(readStoredAuthToken()?.role || "").toUpperCase();
+      for (const [name, panel] of Object.entries(salonIntakePanels)) {
+        if (name !== target) panel.load(null);
+      }
+      if (!target) return;
+      if (!salonIntakePanels[target]) {
+        salonIntakePanels[target] = createSalonIntakeControls($(target), {
+          request: (path, options = {}) => apiRequest(path, { ...options, headers: getApiHeaders() }),
+          language: () => normalizeLanguageCode(),
+          isCurrent: (id) => id === activeOwnerId && ["OWNER", "ADMIN"].includes(String(readStoredAuthToken()?.role || "").toUpperCase()),
+        });
+      }
+      return salonIntakePanels[target].load(["OWNER", "ADMIN"].includes(role) ? salonId : null);
+    }
+
     function populateAdminFormFromSalon(salon) {
       if (!salon || !salon.id) return;
       activeOwnerId = salon.id;
+      loadSalonIntakeControls("adminIntakeControls", salon.id);
       data = { ...data, ...salon };
-      const prices = salon.prices || defaults.prices;
-      const showPrices = salon.showPrices || defaults.showPrices;
       const offer = salon.offer || defaults.offer;
       $("adminName").value = salon.name || "";
       $("adminEmail").value = salon.email || "";
@@ -13950,12 +13889,6 @@
       $("adminWomen").checked = Boolean(salon.forWomen ?? salon.women ?? false);
       $("adminTotalChairs").value = salon.totalChairs ?? defaults.totalChairs;
       $("adminAvailableChairs").value = salon.availableChairs ?? defaults.availableChairs;
-      $("priceCut").value = prices.cut ?? defaults.prices.cut;
-      $("priceShave").value = prices.shave ?? defaults.prices.shave;
-      $("priceBeard").value = prices.beard ?? defaults.prices.beard;
-      $("showPriceCut").checked = Boolean(showPrices.cut);
-      $("showPriceShave").checked = Boolean(showPrices.shave);
-      $("showPriceBeard").checked = Boolean(showPrices.beard);
       $("offerTitleInput").value = offer.title || "";
       $("offerDescriptionInput").value = offer.description || "";
       $("offerPriceInput").value = offer.price ?? "";
@@ -13998,6 +13931,7 @@
       });
     }
     function resetAdminForm() {
+      loadSalonIntakeControls(null, null);
       const form = $("adminForm");
       if (form) form.reset();
       $("adminName").value = ""; $("adminEmail").value = ""; $("adminCity").value = ""; $("adminAddress").value = ""; $("adminPhone").value = "";
@@ -14008,8 +13942,7 @@
       $("adminTimeZone").value = "";
       $("adminTimeZone").setCustomValidity("");
       $("adminCrowd").value = defaults.crowd; $("adminStatus").value = defaults.status; $("adminTotalChairs").value = defaults.totalChairs; $("adminAvailableChairs").value = defaults.availableChairs;
-      $("priceCut").value = defaults.prices.cut; $("priceShave").value = defaults.prices.shave; $("priceBeard").value = defaults.prices.beard;
-      $("showPriceCut").checked = true; $("showPriceShave").checked = true; $("showPriceBeard").checked = true; $("adminVip").checked = false; $("crowdValue").textContent = `${defaults.crowd}%`;
+      $("adminVip").checked = false; $("crowdValue").textContent = `${defaults.crowd}%`;
       setAdminSalonImageValue("");
       $("offerTitleInput").value = ""; $("offerDescriptionInput").value = ""; $("offerPriceInput").value = ""; $("offerActiveInput").checked = false;
       $("flashDealTitleInput").value = ""; $("flashDealDescriptionInput").value = ""; $("flashDealPriceInput").value = ""; $("flashDealStartDate").value = ""; $("flashDealEndDate").value = ""; $("flashDealStartTime").value = ""; $("flashDealEndTime").value = ""; $("flashDealAvailableSlots").value = ""; $("flashDealServiceInput").value = ""; $("flashDealActiveInput").checked = false;
@@ -14126,67 +14059,31 @@
       }
     }
 
-    function resetOwnerServiceEditor() {
-      window.__ownerServiceEditId = null;
-      $("ownerServiceEditorName").value = "";
-      $("ownerServiceEditorPrice").value = "25";
-      $("ownerServiceEditorDuration").value = "30";
-      $("ownerServiceEditorDescription").value = "";
-      $("ownerServiceEditorActive").checked = true;
-      const saveButton = $("ownerServiceSaveBtn");
-      if (saveButton) saveButton.textContent = ownerText("serviceAdd");
-    }
+    const OWNER_SERVICE_SLOT_COUNT = 5;
 
     function renderOwnerServiceList() {
-      const serviceList = $("ownerServiceList");
-      if (!serviceList) return;
+      const serviceSlots = $("ownerServiceSlots");
+      const overflowList = $("ownerServiceOverflow");
+      if (!serviceSlots || !overflowList) return;
       const services = Array.isArray(data?.services) ? data.services : [];
-      if (!services.length) {
-        serviceList.innerHTML = `<div class="admin-note">${escapeHtml(ownerText("serviceEmpty"))}</div>`;
-        return;
-      }
+      const activeServices = services.filter((service) => service?.isActive !== false && String(service?.name || "").trim());
+      serviceSlots.innerHTML = Array.from({ length: OWNER_SERVICE_SLOT_COUNT }, (_, index) => {
+        const service = activeServices[index];
+        return `
+          <div class="form-grid owner-service-slot" data-owner-service-slot="${index}" data-owner-service-id="${escapeHtml(String(service?.id || ""))}">
+            <div class="field"><label>${escapeHtml(ownerText("serviceNameLabel"))}</label><input data-owner-service-name type="text" maxlength="80" value="${escapeHtml(service?.name || "")}"></div>
+            <div class="field"><label>${escapeHtml(ownerText("servicePriceLabel"))} (€)</label><input data-owner-service-price type="number" min="0" step="0.01" value="${service ? escapeHtml(String(Number(service.price))) : ""}"></div>
+          </div>`;
+      }).join("");
 
-      serviceList.innerHTML = services.map((service) => `
-        <div class="owner-booking-card" data-owner-service-id="${escapeHtml(String(service.id || ""))}">
+      const overflowServices = activeServices.slice(OWNER_SERVICE_SLOT_COUNT);
+      overflowList.innerHTML = overflowServices.length ? overflowServices.map((service) => `
+        <div class="owner-booking-card">
           <div class="owner-booking-card-head">
-            <div class="owner-booking-name">${escapeHtml(service.name || "Service")}</div>
-            <span class="owner-booking-status ${service.isActive === false ? "cancelled" : "confirmed"}">${service.isActive === false ? ownerText("serviceStatusInactive") : ownerText("serviceStatusActive")}</span>
+            <div class="owner-booking-name">${escapeHtml(service.name)}</div>
+            <strong>${escapeHtml(String(Number(service.price)))} €</strong>
           </div>
-          <div class="owner-booking-meta">
-            <div><strong>${escapeHtml(ownerText("servicePriceLabel"))}</strong> ${escapeHtml(Number(service.price ?? 0))} €</div>
-            <div><strong>${escapeHtml(ownerText("serviceDurationLabel"))}</strong> ${escapeHtml(Number(service.durationMin ?? 30))}</div>
-            ${service.description ? `<div><strong>${escapeHtml(ownerText("serviceDescriptionLabel"))}</strong> ${escapeHtml(service.description)}</div>` : ""}
-          </div>
-          <div class="owner-booking-actions">
-            <button class="secondary" type="button" data-owner-service-action="edit" data-owner-service-id="${escapeHtml(String(service.id || ""))}">${escapeHtml(translate("edit"))}</button>
-            <button class="warning" type="button" data-owner-service-action="delete" data-owner-service-id="${escapeHtml(String(service.id || ""))}">${escapeHtml(ownerText("serviceDelete"))}</button>
-          </div>
-        </div>
-      `).join("");
-
-      serviceList.querySelectorAll("[data-owner-service-action]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const serviceId = button.getAttribute("data-owner-service-id");
-          const action = button.getAttribute("data-owner-service-action");
-          if (!serviceId) return;
-          const service = (Array.isArray(data?.services) ? data.services : []).find((entry) => String(entry.id) === String(serviceId));
-          if (!service) return;
-          if (action === "edit") {
-            window.__ownerServiceEditId = service.id;
-            $("ownerServiceEditorName").value = service.name || "";
-            $("ownerServiceEditorPrice").value = Number(service.price ?? 0);
-            $("ownerServiceEditorDuration").value = Number(service.durationMin ?? 30);
-            $("ownerServiceEditorDescription").value = service.description || "";
-            $("ownerServiceEditorActive").checked = service.isActive !== false;
-            const saveButton = $("ownerServiceSaveBtn");
-            if (saveButton) saveButton.textContent = ownerText("serviceUpdate");
-            return;
-          }
-          if (action === "delete") {
-            await deleteOwnerService(serviceId);
-          }
-        });
-      });
+        </div>`).join("") : "";
     }
 
     function resetOwnerOfferEditor() {
@@ -14204,15 +14101,15 @@
       const activeCheckbox = $("ownerOfferEditorActive");
       if (titleInput) titleInput.value = "";
       if (serviceInput) serviceInput.value = "";
-      if (priceInput) priceInput.value = "39";
-      if (discountInput) discountInput.value = "0";
+      if (priceInput) priceInput.value = "";
+      if (discountInput) discountInput.value = "";
       if (descriptionInput) descriptionInput.value = "";
       if (startDateInput) startDateInput.value = "";
       if (endDateInput) endDateInput.value = "";
       if (startTimeInput) startTimeInput.value = "";
       if (endTimeInput) endTimeInput.value = "";
-      if (slotsInput) slotsInput.value = "2";
-      if (activeCheckbox) activeCheckbox.checked = true;
+      if (slotsInput) slotsInput.value = "";
+      if (activeCheckbox) activeCheckbox.checked = false;
       const saveButton = $("ownerOfferSaveBtn");
       if (saveButton) saveButton.textContent = ownerText("offerAdd");
     }
@@ -14397,79 +14294,53 @@
 
     async function saveOwnerService() {
       if (!activeOwnerId) return;
-      const name = $("ownerServiceEditorName")?.value.trim();
-      const price = Number($("ownerServiceEditorPrice")?.value || 0);
-      const durationMin = Number($("ownerServiceEditorDuration")?.value || 30);
-      const description = $("ownerServiceEditorDescription")?.value.trim();
-      const isActive = $("ownerServiceEditorActive")?.checked !== false;
+      const rows = Array.from(document.querySelectorAll("#ownerServiceSlots [data-owner-service-slot]"));
+      const notice = $("ownerServiceNotice");
+      let hasInvalidRow = false;
 
-      if (!name) {
-        $("ownerServiceEditorName")?.reportValidity();
+      rows.forEach((row) => {
+        const nameInput = row.querySelector("[data-owner-service-name]");
+        const priceInput = row.querySelector("[data-owner-service-price]");
+        const name = nameInput.value.trim();
+        const priceText = priceInput.value.trim();
+        const isPartial = Boolean(name) !== Boolean(priceText);
+        nameInput.setCustomValidity(isPartial && !name ? ownerText("serviceNameLabel") : "");
+        priceInput.setCustomValidity(isPartial && !priceText ? ownerText("servicePriceLabel") : "");
+        if (isPartial || (priceText && (!priceInput.checkValidity() || !Number.isFinite(Number(priceText))))) hasInvalidRow = true;
+      });
+
+      if (hasInvalidRow) {
+        const invalidInput = document.querySelector("#ownerServiceSlots :invalid");
+        invalidInput?.reportValidity();
+        if (notice) notice.textContent = `${ownerText("serviceNameLabel")} / ${ownerText("servicePriceLabel")}`;
         return;
       }
 
-      const payload = {
-        name,
-        price,
-        durationMin,
-        description: description || null,
-        isActive,
-      };
-
       try {
-        const url = window.__ownerServiceEditId ? `/api/v1/salons/${activeOwnerId}/services/${window.__ownerServiceEditId}` : `/api/v1/salons/${activeOwnerId}/services`;
-        const method = window.__ownerServiceEditId ? "PATCH" : "POST";
-        const response = await apiRequest(url, {
-          method,
-          headers: getApiHeaders(),
-          body: JSON.stringify(payload),
-        });
-
-        if (response?.service) {
-          const nextServices = Array.isArray(data?.services) ? [...data.services] : [];
-          if (window.__ownerServiceEditId) {
-            const index = nextServices.findIndex((service) => String(service.id) === String(window.__ownerServiceEditId));
-            if (index >= 0) nextServices[index] = response.service;
-            else nextServices.push(response.service);
-          } else {
-            nextServices.push(response.service);
-          }
-          data = { ...data, services: nextServices };
-          const salonIndex = salons.findIndex((salon) => String(salon.id) === String(activeOwnerId));
-          if (salonIndex >= 0) {
-            salons[salonIndex] = normalizeSalon({ ...salons[salonIndex], services: nextServices });
-            persistSalons();
-          }
-          renderOwnerServiceList();
-          renderSalonDirectory();
-          resetOwnerServiceEditor();
-          return;
+        for (const row of rows) {
+          const serviceId = row.getAttribute("data-owner-service-id");
+          const name = row.querySelector("[data-owner-service-name]").value.trim();
+          const priceText = row.querySelector("[data-owner-service-price]").value.trim();
+          if (!name && !priceText && !serviceId) continue;
+          const url = serviceId
+            ? `/api/v1/salons/${activeOwnerId}/services/${serviceId}`
+            : `/api/v1/salons/${activeOwnerId}/services`;
+          const payload = !name && !priceText
+            ? { isActive: false }
+            : { name, price: Number(priceText), durationMin: 30, isActive: true };
+          await apiRequest(url, {
+            method: serviceId ? "PATCH" : "POST",
+            headers: getApiHeaders(),
+            body: JSON.stringify(payload),
+          });
         }
+        await loadOwnerServicesForActiveSalon();
+        renderSalonDirectory();
+        if (notice) notice.textContent = translate("saved");
       } catch (error) {
         console.warn("Service save failed.", error);
-      }
-      resetOwnerServiceEditor();
-    }
-
-    async function deleteOwnerService(serviceId) {
-      if (!activeOwnerId || !serviceId) return;
-      try {
-        await apiRequest(`/api/v1/salons/${activeOwnerId}/services/${serviceId}`, {
-          method: "DELETE",
-          headers: getApiHeaders(),
-        });
-        const nextServices = (Array.isArray(data?.services) ? data.services : []).filter((service) => String(service.id) !== String(serviceId));
-        data = { ...data, services: nextServices };
-        const salonIndex = salons.findIndex((salon) => String(salon.id) === String(activeOwnerId));
-        if (salonIndex >= 0) {
-          salons[salonIndex] = normalizeSalon({ ...salons[salonIndex], services: nextServices });
-          persistSalons();
-        }
-        renderOwnerServiceList();
-        renderSalonDirectory();
-        if (window.__ownerServiceEditId === serviceId) resetOwnerServiceEditor();
-      } catch (error) {
-        console.warn("Service delete failed.", error);
+        await loadOwnerServicesForActiveSalon();
+        if (notice) notice.textContent = error?.message || "Unable to save services.";
       }
     }
 
@@ -14661,20 +14532,8 @@
       setText('#ownerModal .owner-edit-grid .service-settings.owner-panel-card:nth-of-type(3) .admin-note', ownerText("identityIntro"));
       setText("#ownerServiceManagementSection h3", ownerText("servicesTitle"));
       setText("#ownerServiceManagementSection .admin-note", ownerText("servicesIntro"));
-      setLabelForInput("ownerServiceEditorName", ownerText("serviceNameLabel"));
-      setPlaceholder("ownerServiceEditorName", ownerText("serviceNamePlaceholder"));
-      setLabelForInput("ownerServiceEditorPrice", ownerText("servicePriceLabel"));
-      setLabelForInput("ownerServiceEditorDuration", ownerText("serviceDurationLabel"));
-      setLabelForInput("ownerServiceEditorDescription", ownerText("serviceDescriptionLabel"));
-      setPlaceholder("ownerServiceEditorDescription", ownerText("serviceDescriptionPlaceholder"));
-      const serviceToggleLabel = $("ownerServiceEditorActive")?.closest(".toggle-label");
-      if (serviceToggleLabel) {
-        const span = serviceToggleLabel.querySelector("span");
-        if (span) span.textContent = ownerText("serviceActiveLabel");
-        else serviceToggleLabel.append(` ${ownerText("serviceActiveLabel")}`);
-      }
-      setText("#ownerServiceSaveBtn", window.__ownerServiceEditId ? ownerText("serviceUpdate") : ownerText("serviceAdd"));
-      setText("#ownerServiceResetBtn", ownerText("resetAction"));
+      setText("#ownerServiceSaveBtn", translate("save"));
+      renderOwnerServiceList();
 
       const offerCard = $('#ownerModal [data-owner-panel-section="edit"] .owner-panel-card--wide:not(#ownerServiceManagementSection)');
       const offerHeading = offerCard?.querySelector("h3");
@@ -14847,6 +14706,21 @@
         return;
       }
       activeOwnerId = owner.id;
+     if (tokenRole === "OWNER") {
+  const subscription = await loadOwnerSubscriptionData();
+  const planOrder = ["FREE", "SMART", "PREMIUM", "PRO"];
+  const plan = String(subscription?.plan || "FREE").toUpperCase();
+  const hasSmartEntitlement =
+    subscription?.status === "ACTIVE" &&
+    planOrder.indexOf(plan) >= planOrder.indexOf("SMART");
+
+  loadSalonIntakeControls(
+    "ownerIntakeControls",
+    hasSmartEntitlement ? owner.id : null
+  );
+} else {
+  loadSalonIntakeControls("ownerIntakeControls", owner.id);
+}
       data = { ...data, ...owner };
       $("ownerName").value = data.name || "";
       $("ownerCity").value = data.city || "";
@@ -14867,7 +14741,7 @@
       $("ownerWomen").checked = Boolean(data.forWomen || data.women || data.isWomenOnly);
       renderOwnerSettingsPanel(data);
       $("ownerNotice").classList.remove("show");
-      resetOwnerServiceEditor();
+      if ($("ownerServiceNotice")) $("ownerServiceNotice").textContent = "";
       resetOwnerOfferEditor();
       await Promise.all([
         loadOwnerServicesForActiveSalon(),
@@ -14883,7 +14757,6 @@
       renderOwnerBoostSection();
       renderOwnerPriorityDashboard();
       loadOwnerLoyaltyCard();
-      loadOwnerSubscriptionData();
       loadOwnerAnalyticsSummary();
     }
 
@@ -15011,10 +14884,12 @@
         const tokenData = readStoredAuthToken();
         if (!tokenData?.accessToken || !session || !["owner", "admin"].includes(session.role)) return;
         const response = await apiRequest("/api/v1/subscriptions/me", { headers: getApiHeaders() });
-        if (response?.subscription) {
-          globalThis.ownerSubscription = response.subscription;
-          renderOwnerSubscriptionPanel(response.subscription);
-        }
+         if (response?.subscription) {
+  globalThis.ownerSubscription = response.subscription;
+  renderOwnerSubscriptionPanel(response.subscription);
+  return response.subscription;
+}
+return null;
       } catch (error) {
         console.warn("Owner subscription sync failed.", error);
         globalThis.ownerSubscription = null;
@@ -15030,10 +14905,12 @@
           headers: getApiHeaders(),
           body: JSON.stringify({ plan, status })
         });
-        if (response?.subscription) {
-          globalThis.ownerSubscription = response.subscription;
-          renderOwnerSubscriptionPanel(response.subscription);
-        }
+      if (response?.subscription) {
+  globalThis.ownerSubscription = response.subscription;
+  renderOwnerSubscriptionPanel(response.subscription);
+  return response.subscription;
+}
+return null;
       } catch (error) {
         console.warn("Subscription update failed.", error);
       }
@@ -15048,10 +14925,10 @@
           features: [ownerText("subscriptionFeatureBasicProfile"), ownerText("subscriptionFeatureStandardVisibility"), ownerText("subscriptionFeatureManualUpdates")],
         },
         {
-          key: "PRO",
-          label: ownerText("subscriptionPlanPro"),
-          price: formatPlanPrice(19),
-          features: [ownerText("subscriptionFeatureLoyalty"), ownerText("subscriptionFeatureOffers"), ownerText("subscriptionFeatureAnalytics"), ownerText("subscriptionFeatureBetterVisibility")],
+          key: "SMART",
+          label: ownerText("subscriptionPlanSmart"),
+          price: formatPlanPrice(null),
+          features: [ownerText("subscriptionFeatureLiveStatus"), ownerText("subscriptionFeatureStaffPresence"), ownerText("subscriptionFeatureWalkIns"), ownerText("subscriptionFeatureLiveWait"), ownerText("subscriptionFeatureSmartStatus")],
         },
         {
           key: "PREMIUM",
@@ -15059,12 +14936,20 @@
           price: formatPlanPrice(49),
           features: [ownerText("subscriptionFeatureAllPro"), ownerText("subscriptionFeaturePremiumBadge"), ownerText("subscriptionFeatureFeaturedVisibility"), ownerText("subscriptionFeatureAdvancedAnalytics")],
         },
+        {
+          key: "PRO",
+          label: ownerText("subscriptionPlanPro"),
+          price: formatPlanPrice(19),
+          features: [ownerText("subscriptionFeatureLoyalty"), ownerText("subscriptionFeatureOffers"), ownerText("subscriptionFeatureAnalytics"), ownerText("subscriptionFeatureBetterVisibility")],
+        },
       ];
     }
 
     function formatPlanPrice(priceValue) {
-      const price = Number(priceValue ?? 0);
-      if (!Number.isFinite(price) || price <= 0) return ownerText("subscriptionMonthlyFree");
+      if (priceValue === null || priceValue === undefined || priceValue === "") return ownerText("subscriptionPriceUnresolved");
+      const price = Number(priceValue);
+      if (!Number.isFinite(price)) return ownerText("subscriptionPriceUnresolved");
+      if (price <= 0) return ownerText("subscriptionMonthlyFree");
       return `${formatCurrencyAmount(price)} / ${ownerText("subscriptionMonthlySuffix").replace(/^€\s*\/\s*/, "")}`;
     }
 
@@ -15077,9 +14962,11 @@
         const isCancelled = status === "CANCELLED";
         const dynamicPrice = plan.key === "FREE"
           ? ownerText("subscriptionMonthlyFree")
-          : plan.key === "PRO"
-            ? formatPlanPrice(planMeta.monthlyPrice || 19)
-            : formatPlanPrice(planMeta.monthlyPrice || 49);
+          : plan.key === "SMART"
+            ? formatPlanPrice(planMeta.monthlyPrice ?? subscription?.monthlyPrice ?? null)
+            : plan.key === "PRO"
+              ? formatPlanPrice(planMeta.monthlyPrice || 19)
+              : formatPlanPrice(planMeta.monthlyPrice || 49);
         const planButtonLabel = isActive ? (isCancelled ? ownerText("subscriptionStatusCancelled") : ownerText("subscriptionCurrentPlanButton")) : ownerText("subscriptionUpgradeTo", { plan: plan.label });
         const buttonClass = isActive ? "btn btn-gold" : "btn btn-outline";
         return `
@@ -15123,7 +15010,7 @@
       const showPaidState = hasPaymentProvider && activePlan !== "FREE";
       const startDate = hasPaymentProvider ? formatSubscriptionDate(subscription?.startDate || subscription?.renewalDate || new Date()) : "—";
       const renewalDate = hasPaymentProvider ? formatSubscriptionDate(subscription?.renewalDate || subscription?.startDate || new Date()) : "—";
-      const monthlyPrice = formatPlanPrice(subscription?.monthlyPrice ?? (activePlan === "PRO" ? 19 : activePlan === "PREMIUM" ? 49 : 0));
+      const monthlyPrice = formatPlanPrice(subscription?.monthlyPrice != null ? subscription.monthlyPrice : (activePlan === "PRO" ? 19 : activePlan === "PREMIUM" ? 49 : activePlan === "SMART" ? null : 0));
       const currentLabel = getOwnerSubscriptionPlanLabel(activePlan);
       const backendNotes = subscription?.notes || ownerText("subscriptionNoProvider");
       summary.innerHTML = `
@@ -15141,7 +15028,7 @@
 
       const planCards = getSubscriptionPlanOptions().map((plan) => {
         const isCurrent = showPaidState && activePlan === plan.key;
-        const tagClass = plan.key === "FREE" ? "free" : plan.key === "PRO" ? "pro" : "premium";
+        const tagClass = plan.key === "FREE" ? "free" : plan.key === "SMART" ? "smart" : plan.key === "PRO" ? "pro" : "premium";
         const buttonLabel = isCurrent ? ownerText("subscriptionCurrentPlanButton") : hasPaymentProvider ? ownerText("subscriptionBillingManaged") : ownerText("subscriptionUnavailableButton");
         return `
           <div class="subscription-plan ${isCurrent ? "active" : ""}">
@@ -15254,7 +15141,9 @@
       const activePlan = subscription?.plan || "FREE";
       const status = subscription?.status || "ACTIVE";
       const metaLabel = getOwnerSubscriptionPlanLabel(activePlan);
-      const monthlyPrice = Number(subscription?.monthlyPrice ?? (activePlan === "PRO" ? 19 : activePlan === "PREMIUM" ? 49 : 0));
+      const monthlyPrice = subscription?.monthlyPrice != null
+        ? Number(subscription.monthlyPrice)
+        : (activePlan === "PRO" ? 19 : activePlan === "PREMIUM" ? 49 : activePlan === "SMART" ? null : 0);
       const startDate = formatSubscriptionDate(subscription?.startDate || new Date());
       const renewalDate = formatSubscriptionDate(subscription?.renewalDate || subscription?.startDate || new Date());
       const priceText = formatPlanPrice(monthlyPrice);
@@ -16121,21 +16010,7 @@
     }
 
     function getSalonProfileServices(salon) {
-      const services = Array.isArray(salon?.services) ? salon.services : [];
-      const mappedServices = services
-        .map((service) => ({
-          name: String(service?.name || service?.label || "").trim(),
-          price: formatSalonProfilePrice(service?.price),
-          duration: formatSalonProfileDuration(service?.durationMin || service?.duration),
-          description: String(service?.description || "").trim(),
-          category: String(service?.category || "").trim()
-        }))
-        .filter((service) => service.name);
-
-      if (mappedServices.length) return mappedServices;
-
-      const customServices = Array.isArray(salon?.customServices) ? salon.customServices : [];
-      return customServices
+      return getSalonConfiguredServices(salon)
         .map((service) => ({
           name: String(service?.name || service?.label || "").trim(),
           price: formatSalonProfilePrice(service?.price),
@@ -16707,8 +16582,8 @@
     });
     const brandNav = $("brandNav");
     if (brandNav) {
-      brandNav.addEventListener("click", e => {
-        e.preventDefault();
+      brandNav.addEventListener("click", event => {
+        event.preventDefault();
         adminTapCount += 1;
         clearTimeout(adminTapTimer);
         adminTapTimer = setTimeout(() => { adminTapCount = 0; }, 1400);
@@ -17055,6 +16930,13 @@
         $("customerError").classList.add("show");
       }
     });
+    const customerRegistrationVerification = createCustomerRegistrationVerification({ request: apiRequest });
+    const customerPasswordReset = createCustomerPasswordReset({
+      request: apiRequest,
+      openModal,
+      closeModal,
+      clearCustomerAuth: () => clearCustomerAuthState({ preserveSavedLogin: false })
+    });
     const customerRegisterForm = $("customerRegisterForm");
     if (customerRegisterForm) customerRegisterForm.addEventListener("submit", async e => {
       e.preventDefault();
@@ -17067,49 +16949,38 @@
       const copy = getCustomerFlowCopy();
 
       if (!name || name.length < 2) {
-        $("customerError").textContent = copy.registerNameError;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerNameError;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
       if (!validateEmail(email)) {
-        $("customerError").textContent = copy.registerEmailError;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerEmailError;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
       if (!validatePhone(phone)) {
-        $("customerError").textContent = copy.registerPhoneError;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerPhoneError;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
       if (!validatePassword(password)) {
-        $("customerError").textContent = copy.registerPasswordError;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerPasswordError;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
       if (!name || !phone || !email || !password) {
-        $("customerError").textContent = copy.registerMissingFields;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerMissingFields;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
       if (!gdprAccepted) {
-        $("customerError").textContent = copy.registerGdprError;
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = copy.registerGdprError;
+        $("customerRegisterNotice").classList.add("show");
         return;
       }
-      const pendingVerify = JSON.parse(localStorage.getItem("meshwarCustomerVerify") || "null");
-      const code = $("customerVerifyCode").value.trim();
-      const isVerificationRequired = !pendingVerify || pendingVerify.email !== email || pendingVerify.code !== code;
-      if (isVerificationRequired) {
-        const generatedCode = startCustomerVerification(email);
-        $("customerError").textContent = customerVerificationText("customerVerifyError");
-        $("customerError").classList.add("show");
-        $("customerVerifyCode").value = "";
-        $("customerVerifyCode").focus();
-        console.log("Customer verification code:", generatedCode);
-        return;
-      }
-
       try {
+        const verificationToken = await customerRegistrationVerification.ensure(email);
+        if (!verificationToken) return;
         const response = await apiRequest("/api/v1/auth/register", {
           method: "POST",
           body: JSON.stringify({
@@ -17117,6 +16988,7 @@
             email,
             password,
             phone,
+            verificationToken,
             role: "CUSTOMER"
           })
         });
@@ -17127,45 +16999,26 @@
         customerProfile = normalizeCustomerProfile(response.user, { gdprConsent: true, gdprAcceptedAt: new Date().toISOString() });
         localStorage.setItem("meshwarCustomer", JSON.stringify(customerProfile));
         localStorage.removeItem("meshwarCustomerVerify");
-        saveCustomerLogin(email, password, remember);
+        customerRegistrationVerification.reset();
         session = { role: "customer", customerId: response.user.id, userId: response.user.id };
         localStorage.setItem("meshwarSession", JSON.stringify(session));
         storeAuthToken({ accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user.id, role: response.user.role });
         updatePortalButtonState();
         fillCustomerProfile();
-        $("customerError").classList.remove("show");
+        $("customerRegisterNotice").classList.remove("show");
         $("customerRegisterNotice").textContent = getCustomerFlowCopy().registerSuccess;
         $("customerRegisterNotice").classList.add("show");
         closeModal("customerRegisterModal");
       } catch (error) {
-        $("customerError").textContent = Number(error?.status || 0) === 409 ? copy.registerExists : (error.message || getFriendlyErrorMessage(error, copy.registerUnexpectedError));
-        $("customerError").classList.add("show");
+        $("customerRegisterNotice").textContent = Number(error?.status || 0) === 409 ? copy.registerExists : (error.message || getFriendlyErrorMessage(error, copy.registerUnexpectedError));
+        $("customerRegisterNotice").classList.add("show");
       }
-    });
-    const customerSendVerifyCode = $("customerSendVerifyCode");
-    if (customerSendVerifyCode) customerSendVerifyCode.addEventListener("click", () => {
-      const email = ($("customerRegisterEmail")?.value || $("customerEmail")?.value || "").trim().toLowerCase();
-      if (!email) {
-        const customerError = $("customerError");
-        if (customerError) {
-          customerError.textContent = getCustomerFlowCopy().registerEmailFirst;
-          customerError.classList.add("show");
-        }
-        return;
-      }
-      startCustomerVerification(email);
-      const customerError = $("customerError");
-      if (customerError) customerError.classList.remove("show");
     });
     const customerForgotPassword = $("customerForgotPassword");
     if (customerForgotPassword) customerForgotPassword.addEventListener("click", () => {
       const customerError = $("customerError");
       if (customerError) customerError.classList.remove("show");
-      const customerForgotNotice = $("customerForgotNotice");
-      if (customerForgotNotice) {
-        customerForgotNotice.textContent = getCustomerFlowCopy().resetUnavailable;
-        customerForgotNotice.classList.add("show");
-      }
+      customerPasswordReset.open();
     });
     const customerForm = $("customerForm");
     if (customerForm) customerForm.addEventListener("submit", e => {
@@ -17179,38 +17032,6 @@
       const remember = $("customerRemember").checked;
       const existingCustomer = JSON.parse(localStorage.getItem("meshwarCustomer") || "null");
       const savedByEmail = existingCustomer && existingCustomer.email && existingCustomer.email.toLowerCase() === email ? existingCustomer : null;
-      const pendingVerify = JSON.parse(localStorage.getItem("meshwarCustomerVerify") || "null");
-      const resetInfo = JSON.parse(localStorage.getItem("meshwarCustomerReset") || "null");
-      const resetCode = $("customerVerifyCode").value.trim();
-
-      if (resetInfo && resetInfo.email === email.toLowerCase()) {
-        const finalPassword = newPassword || password;
-        if (!resetCode || resetCode !== resetInfo.code) {
-          $("customerError").textContent = "رمز استرجاع كلمة المرور غير صحيح أو منتهي الصلاحية.";
-          $("customerError").classList.add("show");
-          return;
-        }
-        if (!finalPassword || finalPassword.length < 6) {
-          $("customerError").textContent = "اكتب كلمة مرور جديدة من 6 أحرف على الأقل.";
-          $("customerError").classList.add("show");
-          return;
-        }
-        const updatedCustomer = { ...savedByEmail, ...existingCustomer, name: name || savedByEmail?.name || existingCustomer?.name || "", phone: phone || savedByEmail?.phone || existingCustomer?.phone || "", email, password: finalPassword, id: existingCustomer?.id || savedByEmail?.id || email };
-        localStorage.setItem("meshwarCustomer", JSON.stringify(updatedCustomer));
-        localStorage.removeItem("meshwarCustomerReset");
-        saveCustomerLogin(email, finalPassword, remember);
-        session = { role:"customer", customerId: updatedCustomer.id };
-        localStorage.setItem("meshwarSession", JSON.stringify(session));
-        updatePortalButtonState();
-        fillCustomerProfile();
-        $("customerForgotNotice").textContent = `تم تحديث كلمة المرور بنجاح، وتم إرسال تأكيد إلى الإيميل: ${email}.`;
-        $("customerForgotNotice").classList.add("show");
-        $("customerError").classList.remove("show");
-        $("customerVerifyCode").value = "";
-        setCustomerVerificationState(false);
-        return;
-      }
-
       if (savedByEmail) {
         const validCurrentPassword = currentPassword || password || savedByEmail.password;
         if (!validCurrentPassword || savedByEmail.password !== validCurrentPassword) {
@@ -17258,43 +17079,13 @@
         return;
       }
 
-      const validName = name || (savedByEmail && savedByEmail.name) || "";
-      const validPhone = phone || (savedByEmail && savedByEmail.phone) || "";
-      if (!validName || !validPhone || !email || !password) {
-        $("customerError").textContent = "للتسجيل الجديد، املأ الاسم، الهاتف، الإيميل، وكلمة المرور.";
-        $("customerError").classList.add("show");
-        return;
-      }
+      closeModal("customerProfileModal");
+      openModal("customerRegisterModal");
+      $("customerRegisterName").value = name;
+      $("customerRegisterPhone").value = phone;
+      $("customerRegisterEmail").value = email;
+      customerRegistrationVerification.reset();
 
-      const trimmedCode = $("customerVerifyCode").value.trim();
-      const isVerificationRequired = !savedByEmail && (!pendingVerify || pendingVerify.email !== email || pendingVerify.code !== trimmedCode);
-      if (isVerificationRequired) {
-        const generatedCode = startCustomerVerification(email);
-        $("customerError").textContent = customerVerificationText("customerVerifyError");
-        $("customerError").classList.add("show");
-        $("customerVerifyCode").value = "";
-        $("customerVerifyCode").focus();
-        console.log("Customer verification code:", generatedCode);
-        return;
-      }
-
-      customerProfile = {
-        name: validName,
-        phone: validPhone,
-        email,
-        password,
-        id: email || validPhone
-      };
-      $("customerError").classList.remove("show");
-      localStorage.setItem("meshwarCustomer", JSON.stringify(customerProfile));
-      localStorage.removeItem("meshwarCustomerVerify");
-      saveCustomerLogin(email, password, remember);
-      session = { role:"customer", customerId:customerProfile.id };
-      localStorage.setItem("meshwarSession", JSON.stringify(session));
-      updatePortalButtonState();
-      fillCustomerProfile();
-      $("customerForgotNotice").textContent = "تم حفظ بيانات حسابك بنجاح. يمكنك الآن الضغط على زر الاستمرار إلى الحجز.";
-      $("customerForgotNotice").classList.add("show");
     });
 
     if ($("customerRouteLogin")) {
@@ -17494,6 +17285,18 @@
     if (adminForm) adminForm.addEventListener("submit", async e => {
       e.preventDefault();
       const form = e.currentTarget;
+      const ownerPasswordInput = $("ownerPassword");
+      const ownerPassword = ownerPasswordInput.value.trim();
+      ownerPasswordInput.value = ownerPassword;
+      ownerPasswordInput.setCustomValidity("");
+      if (activeOwnerId && ownerPassword && (ownerPassword.length < 8 || ownerPassword.length > 128)) {
+        const language = normalizeLanguageCode(document.documentElement.lang || localStorage.getItem("meshwarLang") || currentLang || "de");
+        ownerPasswordInput.setCustomValidity(language === "ar"
+          ? "يجب أن تتكون كلمة مرور المالك من 8 إلى 128 حرفًا."
+          : language === "en"
+            ? "The owner password must contain 8 to 128 characters."
+            : "Das Inhaberpasswort muss 8 bis 128 Zeichen enthalten.");
+      }
       if (!validateSalonTimeZoneInput("adminTimeZone")) return;
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -17518,7 +17321,6 @@
       const forWomen = $("adminWomen").checked;
       const workingDays = normalizeWorkingDays([...document.querySelectorAll("input[name='adminWorkingDay']:checked")].map(checkbox => checkbox.value));
       const ownerLoginEmail = $("ownerUsername").value.trim().toLowerCase();
-      const ownerPassword = $("ownerPassword").value;
       const imageUrl = readAdminSalonImageValue();
 
       const name = $("adminName").value.trim();
@@ -17548,16 +17350,6 @@
         barbers: Array.isArray(data?.barbers) ? data.barbers : [],
         products: Array.isArray(data?.products) ? data.products : [],
         bookings: Array.isArray(data?.bookings) ? data.bookings : [],
-        prices: {
-          cut: Number($("priceCut").value || defaults.prices.cut),
-          shave: Number($("priceShave").value || defaults.prices.shave),
-          beard: Number($("priceBeard").value || defaults.prices.beard)
-        },
-        showPrices: {
-          cut: $("showPriceCut").checked,
-          shave: $("showPriceShave").checked,
-          beard: $("showPriceBeard").checked
-        },
         offer: {
           title: $("offerTitleInput").value.trim(),
           description: $("offerDescriptionInput").value.trim(),
@@ -17655,7 +17447,7 @@
           }
           return;
         } catch (error) {
-          $("adminNotice").textContent = error.message || "Secure owner provisioning failed.";
+          $("adminNotice").textContent = getAdminSalonValidationMessage(error) || error.message || "Secure owner provisioning failed.";
           $("adminNotice").classList.add("show");
           return;
         }
@@ -17730,7 +17522,7 @@
           }
           return;
         } catch (error) {
-          $("adminNotice").textContent = error.message || "Secure owner provisioning failed.";
+          $("adminNotice").textContent = getAdminSalonValidationMessage(error) || error.message || "Secure owner provisioning failed.";
           $("adminNotice").classList.add("show");
           return;
         }
@@ -17809,7 +17601,7 @@
             return;
           }
         } catch (error) {
-          $("adminNotice").textContent = error.message || "تعذر حفظ الصالون في الخادم.";
+          $("adminNotice").textContent = getAdminSalonValidationMessage(error) || error.message || "تعذر حفظ الصالون في الخادم.";
           $("adminNotice").classList.add("show");
           return;
         }
@@ -17976,7 +17768,6 @@
     });
 
     $("ownerServiceSaveBtn")?.addEventListener("click", saveOwnerService);
-    $("ownerServiceResetBtn")?.addEventListener("click", resetOwnerServiceEditor);
     $("ownerOfferSaveBtn")?.addEventListener("click", saveOwnerOffer);
     $("ownerOfferResetBtn")?.addEventListener("click", resetOwnerOfferEditor);
 
@@ -18073,5 +17864,8 @@
     refreshVisibleSalonOperatingStatus();
     scheduleSalonOperatingStatusRefresh();
   </script>
+  <script src="./assets/customer-header.js"></script>
+  <script src="./assets/customer-hero.js"></script>
+  <script src="./assets/customer-salon-card.js"></script>
 </body>
 </html>

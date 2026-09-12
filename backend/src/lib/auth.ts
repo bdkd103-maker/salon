@@ -16,11 +16,11 @@ export function sanitizeUser<T extends { passwordHash?: string | null; deletedAt
   return safeUser;
 }
 
-export async function createSessionForUser(user: { id: string; role: string }, request: { headers: Record<string, string | string[] | undefined>; ip: string }) {
+export async function createSessionForUser(user: { id: string; role: string }, request: { headers: Record<string, string | string[] | undefined>; ip: string }, db: Pick<typeof prisma, "session"> = prisma) {
   const accessToken = signAccessToken({ sub: user.id, role: user.role });
   const refreshToken = signRefreshToken({ sub: user.id });
 
-  await prisma.session.create({
+  await db.session.create({
     data: {
       userId: user.id,
       tokenHash: await argon2.hash(refreshToken),

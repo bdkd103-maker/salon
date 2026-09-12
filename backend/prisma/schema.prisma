@@ -33,9 +33,15 @@ model User {
   passwordResets            PasswordReset[]
   reviews                   Review[]
   ownedSalons               Salon[]
+  serviceVisitsStarted      ServiceVisit[]                 @relation("ServiceVisitStartedBy")
+  serviceVisitsCompleted    ServiceVisit[]                 @relation("ServiceVisitCompletedBy")
+  serviceVisitsCancelled    ServiceVisit[]                 @relation("ServiceVisitCancelledBy")
+  staffMemberships          StaffMembership[]
+  staffPresenceChanges      StaffPresence[]                 @relation("StaffPresenceChangedBy")
   availabilitySubscriptions SalonAvailabilitySubscription[]
   sessions                  Session[]
   subscriptions             UserSubscription?
+queueEntries QueueEntry[]
 }
 
 model UserSubscription {
@@ -52,6 +58,38 @@ model UserSubscription {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Intentional scalar snapshots: evidence must survive deletion of Salon/User.
+model SalonEnforcement {
+  id               String   @id @default(uuid()) @db.Uuid
+  salonId          String
+  salonName        String
+  ownerUserId      String
+  reason           String
+  actorUserId      String
+  enforcedAt       DateTime @default(now())
+  previousIsActive Boolean
+  subscription     Json?
+
+  @@index([salonId, enforcedAt])
+}
+// Intentional scalar snapshot: archive evidence must survive deletion of Salon/User.
+model SalonArchive {
+  archiveId      String    @id @default(uuid()) @db.Uuid
+  salonId        String
+  salonName      String
+  ownerUserId    String
+  archiveVersion Int       @default(1)
+  payloadVersion Int       @default(1)
+  coverage       Json
+  sourceState    Json
+  evidence       Json?
+  source         String
+  finalizedAt    DateTime
+  createdAt      DateTime  @default(now())
+
+  @@index([salonId, finalizedAt])
 }
 
 model DeviceToken {
@@ -88,6 +126,9 @@ model Salon {
   isWomenOnly               Boolean                         @default(false)
   isActive                  Boolean                         @default(true)
   status                    SalonStatus                     @default(OPEN)
+  bookingIntakeEnabled    Boolean @default(true)
+  saloTicketIntakeEnabled Boolean @default(true)
+  walkInIntakeEnabled     Boolean @default(true)
   rating                    Float                           @default(0)
   reviewCount               Int                             @default(0)
   openingTime               String?
@@ -109,6 +150,21 @@ model Salon {
   boostPlacement            SalonBoost?
   media                     SalonMedia[]
   services                  Service[]
+  liveStatus                SalonLiveStatus?
+  staffMemberships          StaffMembership[]
+  serviceVisits             ServiceVisit[]
+queueEntries QueueEntry[]
+}
+
+model SalonLiveStatus {
+  salonId          String    @id
+  operationalState String?
+  observedAt       DateTime?
+  expiresAt        DateTime?
+  source           String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  salon            Salon     @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
 
 model SalonBoost {
@@ -180,16 +236,73 @@ model LoyaltyStamp {
 }
 
 model Barber {
-  id        String             @id @default(uuid())
+  id              String           @id @default(uuid())
+  salonId         String
+  name            String
+  specialty       String?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  slots           AvailabilitySlot[]
+  salon           Salon            @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+  staffMembership StaffMembership?
+
+  @@unique([id, salonId])
+}
+
+model StaffMembership {
+  id        String                @id @default(uuid())
+  userId    String
   salonId   String
-  name      String
-  specialty String?
-  isActive  Boolean            @default(true)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  slots     AvailabilitySlot[]
-  salon     Salon              @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  bookings  Booking[]
+  barberId  String                @unique
+  status    StaffMembershipStatus @default(ACTIVE)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  revokedAt DateTime?
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  salon     Salon                 @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  barber    Barber                @relation(fields: [barberId, salonId], references: [id, salonId], onDelete: Cascade)
+  presence  StaffPresence?
+  serviceVisits ServiceVisit[]
+
+  @@unique([userId, salonId])
+  @@unique([id, salonId])
+  @@unique([barberId, salonId])
+  @@index([salonId, status])
+}
+
+model StaffPresence {
+  staffMembershipId String                    @id
+  dutyState         StaffDutyState
+  generation        Int
+  changedAt         DateTime
+  changedByUserId   String?
+  changeSource      StaffPresenceChangeSource
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  staffMembership   StaffMembership           @relation(fields: [staffMembershipId], references: [id], onDelete: Cascade)
+  changedBy         User?                     @relation("StaffPresenceChangedBy", fields: [changedByUserId], references: [id], onDelete: SetNull)
+  leases            StaffPresenceLease[]
+
+  @@index([changedByUserId])
+}
+
+model StaffPresenceLease {
+  id                String                      @id @default(uuid())
+  staffMembershipId String
+  generation        Int
+  evidenceSource    StaffPresenceEvidenceSource
+  producerKey       String
+  observedAt        DateTime
+  validUntil        DateTime
+  revokedAt         DateTime?
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+  presence          StaffPresence               @relation(fields: [staffMembershipId], references: [staffMembershipId], onDelete: Cascade)
+
+  @@unique([staffMembershipId, evidenceSource, producerKey], map: "StaffPresenceLease_source_key")
+  @@index([staffMembershipId, generation, validUntil])
 }
 
 model Service {
@@ -241,11 +354,79 @@ model Booking {
   salon              Salon         @relation(fields: [salonId], references: [id], onDelete: Cascade)
   service            Service?      @relation(fields: [serviceId], references: [id])
   user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceVisit       ServiceVisit?
 
+  @@unique([id, salonId])
   @@index([salonId, startAt])
   @@index([userId, createdAt])
 }
 
+model ServiceVisit {
+  id                String             @id @default(uuid())
+  salonId           String
+  bookingId         String?            @unique
+  staffMembershipId String
+  source            ServiceVisitSource
+  status            ServiceVisitStatus
+  startedAt         DateTime
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  version           Int                @default(1)
+  startedByUserId   String?
+  completedByUserId String?
+  cancelledByUserId String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  salon             Salon              @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  booking           Booking?           @relation(fields: [bookingId, salonId], references: [id, salonId], onDelete: Restrict)
+  staffMembership   StaffMembership    @relation(fields: [staffMembershipId, salonId], references: [id, salonId], onDelete: Restrict)
+  startedBy         User?              @relation("ServiceVisitStartedBy", fields: [startedByUserId], references: [id], onDelete: SetNull)
+  completedBy       User?              @relation("ServiceVisitCompletedBy", fields: [completedByUserId], references: [id], onDelete: SetNull)
+  cancelledBy       User?              @relation("ServiceVisitCancelledBy", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
+queueEntry QueueEntry?
+  @@unique([bookingId, salonId])
+  @@index([salonId, status, startedAt])
+  @@index([staffMembershipId, status])
+  @@index([startedByUserId])
+  @@index([completedByUserId])
+  @@index([cancelledByUserId])
+}
+enum QueueEntrySource {
+  SALO_TICKET
+  MANUAL_WALK_IN
+}
+
+enum QueueEntryStatus {
+  WAITING
+  CALLED
+  STARTED
+  CANCELLED
+  EXPIRED
+  NO_SHOW
+}
+
+model QueueEntry {
+  id             String           @id @default(uuid())
+  salonId        String
+  customerId     String?
+  serviceVisitId String?          @unique
+  source         QueueEntrySource
+  status         QueueEntryStatus @default(WAITING)
+  joinedAt       DateTime
+  calledAt       DateTime?
+  startedAt      DateTime?
+  cancelledAt    DateTime?
+  expiredAt      DateTime?
+  noShowAt       DateTime?
+  version        Int              @default(1)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+salon        Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
+customer     User?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+serviceVisit ServiceVisit? @relation(fields: [serviceVisitId], references: [id], onDelete: Restrict)
+  @@index([salonId, status, joinedAt])
+  @@index([customerId, status])
+}
 model Offer {
   id             String    @id @default(uuid())
   salonId        String?
@@ -315,13 +496,26 @@ model Session {
 }
 
 model PasswordReset {
-  id        String    @id @default(uuid())
-  userId    String
-  tokenHash String
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(uuid())
+  userId            String
+  tokenHash         String
+  codeDigest        String?
+  generation        Int       @default(1)
+  deliveryState     String    @default("PENDING")
+  providerMessageId String?
+  attemptCount      Int       @default(0)
+  sendCount         Int       @default(0)
+  lastSendAt        DateTime?
+  verifiedAt        DateTime?
+  invalidatedAt     DateTime?
+  expiresAt         DateTime
+  usedAt            DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
 }
 
 model Notification {
@@ -382,6 +576,41 @@ enum UserStatus {
   DELETED
 }
 
+enum StaffMembershipStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum StaffDutyState {
+  ON_DUTY
+  OFF_DUTY
+}
+
+enum StaffPresenceChangeSource {
+  STAFF
+  OWNER
+  SYSTEM
+}
+
+enum StaffPresenceEvidenceSource {
+  STAFF_APP
+  OWNER
+  SALO_STATION
+  SERVICE_EVENT
+}
+
+enum ServiceVisitSource {
+  BOOKING
+  WALK_IN
+}
+
+enum ServiceVisitStatus {
+  IN_SERVICE
+  COMPLETED
+  CANCELLED
+}
+
 enum SalonStatus {
   OPEN
   BUSY
@@ -415,8 +644,9 @@ enum DevicePlatform {
 
 enum SubscriptionPlan {
   FREE
-  PRO
+  SMART
   PREMIUM
+  PRO
 }
 
 enum LoyaltyRewardType {
@@ -443,4 +673,38 @@ enum AvailabilityWatchStatus {
   ACTIVE
   FIRED
   CANCELLED
+}
+
+// Registration proofs do not require a User until consumption.
+model RegistrationVerificationChallenge {
+  id                         String    @id
+  channel                    String
+  purpose                    String
+  destination                String
+  codeDigest                 String?
+  generation                 Int
+  deliveryState              String
+  providerMessageId          String?
+  expiresAt                  DateTime
+  attemptCount               Int       @default(0)
+  sendCount                  Int       @default(0)
+  lastSendAt                 DateTime
+  verifiedAt                 DateTime?
+  registrationTokenHash      String?
+  registrationTokenExpiresAt DateTime?
+  consumedAt                 DateTime?
+  invalidatedAt              DateTime?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([destination, purpose])
+  @@index([expiresAt])
+}
+
+model VerificationRateLimitBucket {
+  id        String   @id
+  count     Int
+  expiresAt DateTime
+
+  @@index([expiresAt])
 }
