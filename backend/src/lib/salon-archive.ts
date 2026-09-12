@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export const SALON_ARCHIVE_VERSION = 1;
 export const SALON_ARCHIVE_PAYLOAD_VERSION = 1;
 
@@ -12,6 +14,10 @@ export type SalonArchiveSourceState = {
   barberContent?: string[];
   reviewContent?: string[];
   salonMediaContent?: string[];
+  serviceContent?: string[];
+  availabilityContent?: string[];
+  staffMembershipContent?: string[];
+  staffPresenceContent?: string[];
 };
 
 export type SalonArchiveCoverage = {
@@ -24,10 +30,18 @@ export type SalonArchiveCoverage = {
     barbers?: number;
     reviews?: number;
     salonMedia?: number;
+    services?: number;
+    availability?: number;
+    staffMemberships?: number;
+    staffPresence?: number;
   };
 };
 
 type BuildSalonArchiveInput = {
+  services?: Array<{ id: string; salonId: string; name: string; description: string | null; durationMin: number; price: string | Prisma.Decimal; isActive: boolean }>;
+  availability?: Array<{ id: string; salonId: string; barberId: string | null; startAt: Date | string; endAt: Date | string; status: string }>;
+  staffMemberships?: Array<{ id: string; salonId: string; userId: string; barberId: string; status: string; revokedAt: Date | string | null }>;
+  staffPresence?: Array<{ staffMembershipId: string; dutyState: string; generation: number; changedAt: Date | string; changedByUserId: string | null; changeSource: string }>;
   salonId: string;
   bookingIds: string[];
   serviceVisitIds: string[];
@@ -107,6 +121,34 @@ if (input.salonMedia !== undefined) {
   ));
   coverage.categories.push("SALON_MEDIA");
   coverage.counts.salonMedia = sortedUnique(input.salonMedia.map(row => row.id)).length;
+}
+if (input.services !== undefined) {
+  sourceState.serviceContent = sortedUnique(input.services.map(row =>
+    JSON.stringify([row.id, row.salonId, row.name, row.description, row.durationMin, new Prisma.Decimal(row.price).toString(), row.isActive]),
+  ));
+  coverage.categories.push("SERVICE");
+  coverage.counts.services = sortedUnique(input.services.map(row => row.id)).length;
+}
+if (input.availability !== undefined) {
+  sourceState.availabilityContent = sortedUnique(input.availability.map(row =>
+    JSON.stringify([row.id, row.salonId, row.barberId, new Date(row.startAt).toISOString(), new Date(row.endAt).toISOString(), row.status]),
+  ));
+  coverage.categories.push("AVAILABILITY");
+  coverage.counts.availability = sortedUnique(input.availability.map(row => row.id)).length;
+}
+if (input.staffMemberships !== undefined) {
+  sourceState.staffMembershipContent = sortedUnique(input.staffMemberships.map(row =>
+    JSON.stringify([row.id, row.salonId, row.userId, row.barberId, row.status, row.revokedAt === null ? null : new Date(row.revokedAt).toISOString()]),
+  ));
+  coverage.categories.push("STAFF_MEMBERSHIP");
+  coverage.counts.staffMemberships = sortedUnique(input.staffMemberships.map(row => row.id)).length;
+}
+if (input.staffPresence !== undefined) {
+  sourceState.staffPresenceContent = sortedUnique(input.staffPresence.map(row =>
+    JSON.stringify([row.staffMembershipId, row.dutyState, row.generation, new Date(row.changedAt).toISOString(), row.changedByUserId, row.changeSource]),
+  ));
+  coverage.categories.push("STAFF_PRESENCE");
+  coverage.counts.staffPresence = sortedUnique(input.staffPresence.map(row => row.staffMembershipId)).length;
 }
 coverage.emptyHistory = Object.values(coverage.counts).every(count => count === 0);
 

@@ -1,4 +1,47 @@
 import assert from "node:assert/strict";
+const workforceCategories = [["services","SERVICE","serviceContent","id",{"id":"a","salonId":"target","name":"Cut","description":null,"durationMin":30,"price":"12.30","isActive":true},{"name":"Color","description":"New","durationMin":45,"price":"12.31","isActive":false}],["availability","AVAILABILITY","availabilityContent","id",{"id":"a","salonId":"target","barberId":null,"startAt":"2026-01-01T10:00:00Z","endAt":"2026-01-01T11:00:00Z","status":"AVAILABLE"},{"barberId":"b","startAt":"2026-01-01T10:30:00Z","endAt":"2026-01-01T11:30:00Z","status":"BOOKED"}],["staffMemberships","STAFF_MEMBERSHIP","staffMembershipContent","id",{"id":"a","salonId":"target","userId":"u","barberId":"b","status":"ACTIVE","revokedAt":null},{"userId":"v","barberId":"c","status":"REVOKED","revokedAt":"2026-01-01T10:00:00Z"}],["staffPresence","STAFF_PRESENCE","staffPresenceContent","staffMembershipId",{"staffMembershipId":"a","dutyState":"ON_DUTY","generation":1,"changedAt":"2026-01-01T10:00:00Z","changedByUserId":null,"changeSource":"STAFF"},{"dutyState":"OFF_DUTY","generation":2,"changedAt":"2026-01-01T11:00:00Z","changedByUserId":"u","changeSource":"OWNER"}]] as const;
+for (const [key, category, contentKey, identity, row, changes] of workforceCategories) {
+  const base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+  const build = (rows: Array<Record<string, unknown>>) => buildSalonArchiveState({ ...base, [key]: rows });
+  test(`${category} detects each meaningful field change`, () => {
+    for (const [field, value] of Object.entries(changes)) {
+      assert.notDeepEqual(build([{ ...row, [field]: value }]).sourceState, build([row]).sourceState, field);
+    }
+  });
+  test(`${category} canonicalizes order, duplicates and retains conflicts`, () => {
+    const second = { ...row, [identity]: "b" };
+    const expected = build([row, second]);
+    assert.deepEqual(build([second, Object.fromEntries(Object.entries(row).reverse()), row]), expected);
+    assert.equal(Reflect.get(expected.sourceState, contentKey).length, 2);
+    assert.equal(Reflect.get(expected.coverage.counts, key), 2);
+    assert.equal(expected.coverage.emptyHistory, false);
+    const conflict = { ...row, ...changes };
+    const mixed = build([row, conflict]);
+    assert.equal(Reflect.get(mixed.sourceState, contentKey).length, 2);
+    assert.equal(Reflect.get(mixed.coverage.counts, key), 1);
+    assert.deepEqual(build([conflict, row, conflict]), mixed);
+  });
+  test(`${category} distinguishes omitted and evaluated-empty coverage`, () => {
+    const omitted = buildSalonArchiveState(base);
+    const empty = build([]);
+    assert.equal(omitted.coverage.categories.includes(category), false);
+    assert.equal(Reflect.has(omitted.coverage.counts, key), false);
+    assert.equal(Reflect.has(omitted.sourceState, contentKey), false);
+    assert.ok(empty.coverage.categories.includes(category));
+    assert.equal(Reflect.get(empty.coverage.counts, key), 0);
+    assert.deepEqual(Reflect.get(empty.sourceState, contentKey), []);
+    assert.equal(empty.coverage.emptyHistory, true);
+  });
+  if (key !== "services") {
+    test(`${category} canonicalizes Date and equivalent ISO timestamps`, () => {
+      const dates = Object.fromEntries(Object.entries({ ...row, ...changes }).map(([field, value]) =>
+        [field, field.endsWith("At") && typeof value === "string" ? new Date(value) : value]));
+      assert.deepEqual(build([dates]), build([{ ...row, ...changes }]));
+      const content = Reflect.get(build([dates]).sourceState, contentKey);
+      assert.ok(content[0].includes(".000Z"));
+    });
+  }
+}
 const additionalCategories = [
   [
     "barbers",
