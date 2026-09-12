@@ -5,6 +5,68 @@
 // or positive purge-clearance policy is prescribed here. Fixtures have NO trusted
 // purge clearance. These are route contracts, not real-DB foreign-key tests.
 import assert from "node:assert/strict";
+const finalize = (app: ReturnType<typeof Fastify>, id = "target", role = "ADMIN") =>
+  app.inject({ method: "POST", url: `/api/v1/salons/${id}/archive/finalize`, headers: headers(role) });
+const supportedCounts = ["bookings", "serviceVisits", "salonBoosts", "barbers", "reviews", "salonMedia", "services",
+  "availability", "staffMemberships", "staffPresence", "queueEntries", "loyalty", "offers", "analyticsEvents", "liveStatus", "availabilitySubscriptions"];
+
+test("finalization persists Booking content and detects a same-ID status change", async () => withApp(async app => {
+  const first = await finalize(app);
+  assert.equal(first.statusCode, 201);
+  assert.deepEqual(first.json().archive.sourceState.bookingContent, [JSON.stringify(["booking-history", "target", "COMPLETED"])]);
+  tables.booking[0].status = "CANCELLED";
+  const second = await finalize(app);
+  assert.equal(second.statusCode, 201);
+  assert.notDeepEqual(first.json().archive.sourceState, second.json().archive.sourceState);
+  assert.deepEqual(tables.salonArchive[0].sourceState, first.json().archive.sourceState);
+}));
+
+test("finalization queries every supported category even when empty", async () => withApp(async app => {
+  const result = await finalize(app, "no-history");
+  assert.equal(result.statusCode, 201);
+  assert.deepEqual(Object.keys(result.json().archive.coverage.counts).sort(), [...supportedCounts].sort());
+  for (const count of Object.values(result.json().archive.coverage.counts)) assert.equal(count, 0);
+  assert.equal(result.json().archive.coverage.emptyHistory, true);
+}));
+
+test("finalization loads direct content and scopes presence and loyalty through target parents", async () => withApp(async app => {
+  const date = new Date("2026-01-01T00:00:00Z");
+  tables.barber = ["target", "sibling"].map(salonId => ({ id: salonId + "-barber", salonId, name: salonId, specialty: null, isActive: true }));
+  tables.staffMembership = ["target", "sibling"].map(salonId => ({ id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
+  tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER" }));
+  tables.loyaltyCard = ["target", "sibling"].map(salonId => ({ id: salonId + "-card", salonId, isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: date }));
+  tables.loyaltyCustomer = ["target", "sibling"].map(id => ({ id: id + "-customer", cardId: id + "-card", customerId: "customer", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null }));
+  tables.loyaltyStamp = ["target", "sibling"].map(id => ({ id: id + "-stamp", cardId: id + "-card", customerId: "customer", barberId: null, transactionId: id + "-transaction", stampAt: date, isValid: true }));
+  tables.booking.push({ id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
+  const before = structuredClone(tables);
+  const result = await finalize(app);
+  assert.equal(result.statusCode, 201);
+  const state = result.json().archive.sourceState;
+  assert.ok(state.barberContent?.[0].includes("target-barber"));
+  assert.ok(state.staffPresenceContent?.[0].includes("target-staff"));
+  assert.ok(state.loyaltyContent?.[0].includes("target-customer"));
+  assert.ok(state.loyaltyContent?.[0].includes("target-stamp"));
+  assert.equal(JSON.stringify(state).includes("sibling"), false);
+  for (const [key, rows] of Object.entries(before)) assert.deepEqual(tables[key], rows);
+  assert.deepEqual(writes, [{ model: "salonArchive", operation: "create" }]);
+}));
+
+for (const role of ["OWNER", "CUSTOMER"]) {
+  test(`${role} cannot finalize an archive`, async () => withApp(async app => {
+    assert.equal((await finalize(app, "target", role)).statusCode, 403);
+    assert.equal(writes.length, 0);
+  }));
+}
+test("unauthenticated finalization is rejected without writes", async () => withApp(async app => {
+  assert.equal((await app.inject({ method: "POST", url: "/api/v1/salons/target/archive/finalize" })).statusCode, 401);
+  assert.equal(writes.length, 0);
+}));
+test("finalization does not authorize DELETE", async () => withApp(async app => {
+  assert.equal((await finalize(app)).statusCode, 201);
+  const before = structuredClone(tables);
+  assert.equal((await purge(app)).statusCode, 409);
+  assert.deepEqual(tables, before);
+}));
 import { beforeEach, afterEach, test } from "node:test";
 import Fastify from "fastify";
 import { prisma } from "../lib/prisma.js";
@@ -38,7 +100,8 @@ function delegate(model: string): any {
   return {
     findUnique: async ({ where }: any) => structuredClone(read().find(row => matches(row, where)) ?? null),
     findFirst: async ({ where }: any = {}) => structuredClone(read().find(row => matches(row, where)) ?? null),
-    findMany: async ({ where }: any = {}) => structuredClone(read().filter(row => matches(row, where))),
+    findMany: async ({ where, select }: any = {}) => structuredClone(read().filter(row => matches(row, where)).map(row =>
+      select ? Object.fromEntries(Object.keys(select).filter(key => select[key] === true).map(key => [key, row[key]])) : row)),
     count: async ({ where }: any = {}) => read().filter(row => matches(row, where)).length,
   create: async ({ data }: any) => {
   note("create");
@@ -378,5 +441,3 @@ test("finalized archive is bound to a deterministic source state", async () => w
     "source-state binding cannot be an empty marker or boolean"
   );
 }));
-
-
