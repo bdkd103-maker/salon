@@ -1,4 +1,94 @@
 import assert from "node:assert/strict";
+const additionalCategories = [
+  [
+    "barbers",
+    "BARBER",
+    "barberContent",
+    {
+      "id": "row-a",
+      "salonId": "target",
+      "name": "Original",
+      "specialty": "Cut",
+      "isActive": true
+    },
+    {
+      "name": "Changed",
+      "specialty": "Color",
+      "isActive": false
+    }
+  ],
+  [
+    "reviews",
+    "REVIEW",
+    "reviewContent",
+    {
+      "id": "row-a",
+      "salonId": "target",
+      "userId": "customer-a",
+      "rating": 4,
+      "comment": "Original",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "userId": "customer-b",
+      "rating": 2,
+      "comment": "Changed",
+      "createdAt": "2026-02-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "salonMedia",
+    "SALON_MEDIA",
+    "salonMediaContent",
+    {
+      "id": "row-a",
+      "salonId": "target",
+      "kind": "image",
+      "url": "/original.jpg",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "kind": "video",
+      "url": "/changed.jpg",
+      "createdAt": "2026-02-01T00:00:00.000Z"
+    }
+  ]
+] as const;
+
+for (const [inputKey, category, contentKey, row, changes] of additionalCategories) {
+  const base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+  const build = (rows: Array<Record<string, unknown>>) =>
+    buildSalonArchiveState({ ...base, [inputKey]: rows });
+  test(`${category} detects meaningful content changes with unchanged IDs`, () => {
+    const before = build([row]);
+    for (const [field, value] of Object.entries(changes)) {
+      const after = build([{ ...row, [field]: value }]);
+      assert.notDeepEqual(after.sourceState, before.sourceState, `${category} must detect changed ${field}`);
+      assert.deepEqual(after.coverage, before.coverage);
+    }
+  });
+  test(`${category} canonicalizes ordering and duplicates and reports coverage`, () => {
+    const second = { ...row, id: "row-b" };
+    const reordered = Object.fromEntries(Object.entries(row).reverse());
+    const expected = build([row, second]);
+    assert.deepEqual(build([second, reordered, row, second]), expected);
+    assert.ok(expected.coverage.categories.includes(category));
+    assert.equal(Reflect.get(expected.coverage.counts, inputKey), 2);
+    assert.equal(expected.coverage.emptyHistory, false);
+    assert.equal(Reflect.get(expected.sourceState, contentKey).length, 2);
+    assert.notDeepEqual(build([row, { ...row, ...changes }]).sourceState, build([row]).sourceState,
+      "conflicting same-ID content must not be silently discarded");
+  });
+  test(`${category} distinguishes evaluated empty records from omitted coverage`, () => {
+    const empty = build([]);
+    const omitted = buildSalonArchiveState(base);
+    assert.ok(empty.coverage.categories.includes(category));
+    assert.equal(omitted.coverage.categories.includes(category), false);
+    assert.equal(Reflect.get(empty.coverage.counts, inputKey), 0);
+    assert.deepEqual(Reflect.get(empty.sourceState, contentKey), []);
+    assert.equal(empty.coverage.emptyHistory, true);
+  });
+}
 import { test } from "node:test";
 import {
   SALON_ARCHIVE_PAYLOAD_VERSION,
