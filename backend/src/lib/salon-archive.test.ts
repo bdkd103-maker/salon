@@ -6,6 +6,31 @@ import {
   buildSalonArchiveState,
 } from "./salon-archive.js";
 
+test("salon archive source state changes when Booking content changes with the same ID", () => {
+  // Specify the required content-aware public contract alongside the current ID inputs.
+  const input = {
+    salonId: "target",
+    bookingIds: ["booking-a"],
+    serviceVisitIds: [],
+    salonBoostIds: [],
+    bookings: [{ id: "booking-a", salonId: "target", status: "CONFIRMED" }],
+  };
+  const changedInput = {
+    ...input,
+    bookings: [{ ...input.bookings[0], status: "COMPLETED" }],
+  };
+
+  const before = buildSalonArchiveState(input);
+  const after = buildSalonArchiveState(changedInput);
+
+  assert.deepEqual(after.coverage, before.coverage, "record counts and coverage must remain unchanged");
+  assert.notDeepEqual(
+    after.sourceState,
+    before.sourceState,
+    "Booking status changed with identical salon/record IDs; integrity source state must change",
+  );
+});
+
 test("salon archive state is deterministic and versioned", () => {
   const state = buildSalonArchiveState({
     salonId: "target",
@@ -61,4 +86,66 @@ test("salon archive explicitly records empty evaluated history", () => {
     serviceVisitIds: [],
     salonBoostIds: [],
   });
+});
+test("salon archive source state changes when ServiceVisit content changes with the same ID", () => {
+  const first = buildSalonArchiveState({
+    salonId: "salon-1",
+    bookingIds: [],
+    serviceVisitIds: ["visit-1"],
+    salonBoostIds: [],
+    serviceVisits: [
+      {
+        id: "visit-1",
+        salonId: "salon-1",
+        status: "IN_SERVICE",
+      },
+    ],
+  });
+
+  const second = buildSalonArchiveState({
+    salonId: "salon-1",
+    bookingIds: [],
+    serviceVisitIds: ["visit-1"],
+    salonBoostIds: [],
+    serviceVisits: [
+      {
+        id: "visit-1",
+        salonId: "salon-1",
+        status: "COMPLETED",
+      },
+    ],
+  });
+
+  assert.notDeepEqual(first.sourceState, second.sourceState);
+});
+test("salon archive source state changes when SalonBoost content changes with the same ID", () => {
+  const first = buildSalonArchiveState({
+    salonId: "salon-1",
+    bookingIds: [],
+    serviceVisitIds: [],
+    salonBoostIds: ["boost-1"],
+    salonBoosts: [
+      {
+        id: "boost-1",
+        salonId: "salon-1",
+        status: "ACTIVE",
+      },
+    ],
+  });
+
+  const second = buildSalonArchiveState({
+    salonId: "salon-1",
+    bookingIds: [],
+    serviceVisitIds: [],
+    salonBoostIds: ["boost-1"],
+    salonBoosts: [
+      {
+        id: "boost-1",
+        salonId: "salon-1",
+        status: "EXPIRED",
+      },
+    ],
+  });
+
+  assert.notDeepEqual(first.sourceState, second.sourceState);
 });

@@ -6,6 +6,9 @@ export type SalonArchiveSourceState = {
   bookingIds: string[];
   serviceVisitIds: string[];
   salonBoostIds: string[];
+  bookingContent?: string[];
+  serviceVisitContent?: string[];
+  salonBoostContent?: string[];
 };
 
 export type SalonArchiveCoverage = {
@@ -23,6 +26,9 @@ type BuildSalonArchiveInput = {
   bookingIds: string[];
   serviceVisitIds: string[];
   salonBoostIds: string[];
+  bookings?: Array<{ id: string; salonId: string; status: string }>;
+  serviceVisits?: Array<{ id: string; salonId: string; status: string }>;
+  salonBoosts?: Array<{ id: string; salonId: string; status: string }>;
 };
 
 function sortedUnique(values: string[]) {
@@ -52,12 +58,29 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput) {
     bookingIds,
     serviceVisitIds,
     salonBoostIds,
-  };
+    ...(input.bookings === undefined ? {} : {
+      // Fixed field order ignores object-key order; sorting/deduplication ignores row noise.
+      // Conflicting content for the same ID is retained rather than chosen by input order.
+      bookingContent: sortedUnique(input.bookings.map((booking) =>
+        JSON.stringify([booking.id, booking.salonId, booking.status]),
+      )),
+    }),
+    ...(input.serviceVisits === undefined ? {} : {
+  serviceVisitContent: sortedUnique(input.serviceVisits.map((visit) =>
+    JSON.stringify([visit.id, visit.salonId, visit.status]),
+  )),
+}),
+...(input.salonBoosts === undefined ? {} : {
+  salonBoostContent: sortedUnique(input.salonBoosts.map((boost) =>
+    JSON.stringify([boost.id, boost.salonId, boost.status]),
+  )),
+}),
+};
 
-  return {
-    archiveVersion: SALON_ARCHIVE_VERSION,
-    payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION,
-    coverage,
-    sourceState,
-  };
+return {
+  archiveVersion: SALON_ARCHIVE_VERSION,
+  payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION,
+  coverage,
+  sourceState,
+};
 }
