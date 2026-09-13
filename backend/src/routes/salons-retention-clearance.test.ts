@@ -504,3 +504,46 @@ test("V3 QueueEntry finalization is target-scoped and leaves historical V2 evide
   assert.equal(result.ready, false);
   assert.ok(result.blockingModels.includes("QueueEntry"));
 }));
+
+test("cross-salon Direction A: target QueueEntry → sibling ServiceVisit must block purge readiness", async () => withApp(async app => {
+  // A QueueEntry owned by the target salon references a ServiceVisit owned by a sibling salon.
+  // The archive will include this QueueEntry. Readiness must refuse specifically because the
+  // serviceVisitId crosses salon boundaries — the DB has no composite FK to enforce same-salon.
+  tables.queueEntry = [{
+    ...v3QueueEntry,
+    salonId: "target",
+    serviceVisitId: "sibling-service-visit",
+  }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const result = await readiness();
+  assert.equal(result.ready, false,
+    "readiness must refuse when a target-salon QueueEntry references a sibling-salon ServiceVisit");
+  // The refusal must be specifically about the cross-salon QueueEntry→ServiceVisit dependency,
+  // not just generic "Deletion policy incomplete". Production code currently lacks this check.
+  assert.notEqual(result.error, "Deletion policy incomplete",
+    "refusal reason must be cross-salon QueueEntry→ServiceVisit, not generic policy incompleteness");
+  assert.deepEqual(tables.salon, before);
+}));
+
+test("cross-salon Direction B: sibling QueueEntry → target ServiceVisit must block purge readiness", async () => withApp(async app => {
+  // A QueueEntry owned by a sibling salon references a ServiceVisit owned by the target salon.
+  // The archive only loads target-salon QueueEntries, so this sibling record is invisible to
+  // archive evidence. Readiness must still refuse: deleting the target salon would cascade-delete
+  // the ServiceVisit, but the sibling QueueEntry's Restrict FK would block it at the DB level.
+  tables.queueEntry = [{
+    ...v3QueueEntry,
+    salonId: "sibling",
+    serviceVisitId: "target-service-visit",
+  }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const result = await readiness();
+  assert.equal(result.ready, false,
+    "readiness must refuse when a sibling-salon QueueEntry references a target-salon ServiceVisit");
+  // The refusal must be specifically about the cross-salon QueueEntry→ServiceVisit dependency,
+  // not just generic "Deletion policy incomplete". Production code currently lacks this check.
+  assert.notEqual(result.error, "Deletion policy incomplete",
+    "refusal reason must be cross-salon QueueEntry→ServiceVisit, not generic policy incompleteness");
+  assert.deepEqual(tables.salon, before);
+}));

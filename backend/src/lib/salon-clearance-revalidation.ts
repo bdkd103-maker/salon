@@ -23,6 +23,30 @@ export function hasCurrentSalonArchiveCoverage(evidence: { archiveVersion: numbe
   return isCurrentSalonArchiveContract(evidence) && completeCoverage(evidence.coverage);
 }
 
+// Detect cross-salon QueueEntry → ServiceVisit references that the single-column
+// serviceVisitId FK cannot enforce. Both directions are unsafe:
+//   A) target-salon QueueEntry → sibling-salon ServiceVisit
+//   B) sibling-salon QueueEntry → target-salon ServiceVisit
+// Returns a refusal string when a violation exists, null when safe.
+async function detectCrossSalonQueueEntryServiceVisit(tx: Prisma.TransactionClient, salonId: string) {
+  const allQueueEntries = await tx.queueEntry.findMany({
+    select: { id: true, salonId: true, serviceVisitId: true },
+  });
+  const withVisit = allQueueEntries.filter(qe => qe.serviceVisitId != null);
+  if (withVisit.length === 0) return null;
+  const allServiceVisits = await tx.serviceVisit.findMany({
+    select: { id: true, salonId: true },
+  });
+  const visitOwner = new Map(allServiceVisits.map(sv => [sv.id, sv.salonId]));
+  for (const qe of withVisit) {
+    const visitSalonId = visitOwner.get(qe.serviceVisitId!);
+    if (visitSalonId === undefined || visitSalonId !== qe.salonId) {
+      return "Cross-salon QueueEntry→ServiceVisit dependency blocks purge";
+    }
+  }
+  return null;
+}
+
 // Internal boundary for an authenticated ADMIN/server caller. The caller must
 // open a Serializable transaction and keep any future deletion in that SAME
 // transaction. This result must never be reused as a later preflight token.
@@ -38,6 +62,10 @@ export async function evaluateSalonDeletionReadiness(
   if (!clearance) return { ready: false, status: 409, error: "Purge clearance required" } as const;
   const result = await revalidateSalonPurgeClearance(tx, salonId, clearance.id, actorUserId);
   if (result.valid) {
+    const crossSalon = await detectCrossSalonQueueEntryServiceVisit(tx, salonId);
+    if (crossSalon) {
+      return { ready: false, status: 409, error: crossSalon } as const;
+    }
     const policy = evaluateSalonDeletionPolicy();
     if (!policy.complete) {
       return { ...result, ready: false, status: 409, error: "Deletion policy incomplete", blockingModels: policy.blockingModels } as const;
