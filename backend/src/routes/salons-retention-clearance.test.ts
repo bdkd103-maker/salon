@@ -1,4 +1,85 @@
 import assert from "node:assert/strict";
+import * as clearanceValidation from "../lib/salon-clearance-revalidation.js";
+
+async function readiness() {
+  const evaluate = Reflect.get(clearanceValidation, "evaluateSalonDeletionReadiness");
+  assert.equal(typeof evaluate, "function", "transaction-local deletion-readiness helper must exist");
+  return db.$transaction((tx: any) => evaluate(tx, "target", "admin"), { isolationLevel: "Serializable" });
+}
+test("readiness accepts unchanged nonempty evidence using only the supplied transaction", async () => withApp(async app => {
+  tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const globalSalon = db.salon;
+  const globalClearance = db.salonPurgeClearance;
+  const forbidden = new Proxy({}, { get() { throw new Error("global database access is forbidden"); } });
+  writes = [];
+  try {
+    db.salon = forbidden;
+    db.salonPurgeClearance = forbidden;
+    const result = await readiness();
+    assert.equal(result.ready, true);
+    assert.equal(result.clearanceId, id);
+    assert.deepEqual(tables.salon, before);
+    assert.deepEqual(writes, []);
+  } finally {
+    db.salon = globalSalon;
+    db.salonPurgeClearance = globalClearance;
+  }
+}));
+test("readiness accepts still-empty evaluated categories and ignores sibling source changes", async () => withApp(async app => {
+  await finalizedClearance(app);
+  tables.booking.push({ id: "sibling-b", salonId: "sibling", status: "COMPLETED" });
+  assert.equal((await readiness()).ready, true);
+}));
+for (const mode of ["revoked", "hold", "sibling clearance", "missing salon", "partial", "old version", "archive identity", "archive evidence", "missing clearance"]) {
+  test(`readiness refuses ${mode}`, async () => withApp(async app => {
+    await finalizedClearance(app);
+    const clearance = tables.salonPurgeClearance[0];
+    if (mode === "revoked") clearance.revokedAt = new Date();
+    if (mode === "hold") tables.salonRetentionHold.push({ id: "h", salonId: "target", releasedAt: null });
+    if (mode === "sibling clearance") clearance.salonId = "sibling";
+    if (mode === "missing salon") tables.salon = [];
+    if (mode === "partial") clearance.coverage.categories = ["BOOKING"];
+    if (mode === "old version") clearance.payloadVersion = 999;
+    if (mode === "archive identity") clearance.archiveId = "missing";
+    if (mode === "archive evidence") tables.salonArchive[0].sourceState.bookingIds = ["changed"];
+    if (mode === "missing clearance") tables.salonPurgeClearance = [];
+    const before = structuredClone(tables.salon);
+    assert.equal((await readiness()).ready, false);
+    assert.deepEqual(tables.salon, before);
+  }));
+}
+for (const mutation of ["status", "insert", "remove"]) {
+  test(`readiness reruns validation after successful preflight then ${mutation}`, async () => withApp(async app => {
+    tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+    const id = await finalizedClearance(app);
+    assert.equal((await revalidate(app, id)).statusCode, 200);
+    if (mutation === "status") tables.booking[0].status = "CANCELLED";
+    if (mutation === "insert") tables.booking.push({ id: "new", salonId: "target", status: "COMPLETED" });
+    if (mutation === "remove") tables.booking = [];
+    assert.equal((await readiness()).ready, false);
+    assert.ok(tables.salonPurgeClearance[0].revokedAt);
+  }));
+}
+test("readiness does not fall back to older clearance after the latest was revoked", async () => withApp(async app => {
+  await finalizedClearance(app);
+  assert.equal((await request(app, "purge-clearance")).statusCode, 201);
+  tables.salonPurgeClearance[1].revokedAt = new Date();
+  assert.equal((await readiness()).ready, false);
+}));
+for (const flag of ["clearanceId", "archiveId", "sourceState", "coverage", "force", "retentionSafe", "archiveSafe", "confirmed"]) {
+  test(`readiness cannot enable DELETE through client ${flag}`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    assert.equal((await readiness()).ready, true);
+    const before = structuredClone(tables.salon);
+    const result = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
+      headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` },
+      payload: { [flag]: flag === "clearanceId" ? id : true } });
+    assert.equal(result.statusCode, 409);
+    assert.deepEqual(tables.salon, before);
+  }));
+}
 async function finalizedClearance(app: ReturnType<typeof Fastify>) {
   const result = await request(app, "archive/finalize");
   assert.equal(result.statusCode, 201);

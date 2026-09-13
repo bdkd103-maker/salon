@@ -15,6 +15,23 @@ function completeCoverage(coverage: Prisma.JsonValue) {
   return isDeepStrictEqual(coverage.categories, [...REQUIRED_ARCHIVE_CATEGORIES]);
 }
 
+// Internal boundary for an authenticated ADMIN/server caller. The caller must
+// open a Serializable transaction and keep any future deletion in that SAME
+// transaction. This result must never be reused as a later preflight token.
+// No deletion is performed here. No client-selected clearance/evidence is accepted.
+export async function evaluateSalonDeletionReadiness(
+  tx: Prisma.TransactionClient, salonId: string, actorUserId: string,
+) {
+  const clearance = await tx.salonPurgeClearance.findFirst({
+    where: { salonId },
+    orderBy: [{ issuedAt: "desc" }, { id: "desc" }],
+  });
+  // Do not fall back to an older clearance when the latest one is revoked/stale.
+  if (!clearance) return { ready: false, status: 409, error: "Purge clearance required" } as const;
+  const result = await revalidateSalonPurgeClearance(tx, salonId, clearance.id, actorUserId);
+  return { ...result, ready: result.valid };
+}
+
 // Caller must use a serializable transaction: observation and any revocation commit together.
 export async function revalidateSalonPurgeClearance(
   tx: Prisma.TransactionClient, salonId: string, clearanceId: string, actorUserId: string,
