@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { isDeepStrictEqual } from "node:util";
-import { SALON_ARCHIVE_VERSION, SALON_ARCHIVE_PAYLOAD_VERSION } from "./salon-archive.js";
+import { isCurrentSalonArchiveContract } from "./salon-archive.js";
 import { loadSalonArchiveState } from "./salon-archive-source.js";
 import { evaluateSalonDeletionPolicy } from "./salon-deletion-policy.js";
 export { evaluateSalonDeletionPolicy, classifySalonDeletionModel, isTargetSalonOwnedOperationalRecord } from "./salon-deletion-policy.js";
@@ -15,6 +15,12 @@ export const REQUIRED_ARCHIVE_CATEGORIES = [
 function completeCoverage(coverage: Prisma.JsonValue) {
   if (!coverage || typeof coverage !== "object" || Array.isArray(coverage)) return false;
   return isDeepStrictEqual(coverage.categories, [...REQUIRED_ARCHIVE_CATEGORIES]);
+}
+
+// This is a deletion-clearance contract gate, not a historical evidence reader.
+// Reject legacy/future versions before any current-source interpretation.
+export function hasCurrentSalonArchiveCoverage(evidence: { archiveVersion: number; payloadVersion: number; coverage: Prisma.JsonValue }) {
+  return isCurrentSalonArchiveContract(evidence) && completeCoverage(evidence.coverage);
 }
 
 // Internal boundary for an authenticated ADMIN/server caller. The caller must
@@ -65,9 +71,7 @@ export async function revalidateSalonPurgeClearance(
   }
   const archive = await tx.salonArchive.findUnique({ where: { archiveId: clearance.archiveId } });
   if (!archive || archive.salonId !== salonId) return refuse("Archive evidence unavailable");
-  if (archive.archiveVersion !== SALON_ARCHIVE_VERSION || clearance.archiveVersion !== SALON_ARCHIVE_VERSION
-    || archive.payloadVersion !== SALON_ARCHIVE_PAYLOAD_VERSION || clearance.payloadVersion !== SALON_ARCHIVE_PAYLOAD_VERSION
-    || !completeCoverage(archive.coverage) || !completeCoverage(clearance.coverage)) {
+  if (!hasCurrentSalonArchiveCoverage(archive) || !hasCurrentSalonArchiveCoverage(clearance)) {
     return refuse("Unsupported or incomplete archive coverage");
   }
   if (archive.finalizedAt.getTime() !== clearance.archiveFinalizedAt.getTime()

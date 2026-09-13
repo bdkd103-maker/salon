@@ -13,7 +13,7 @@ const supportedCounts = ["bookings", "serviceVisits", "salonBoosts", "barbers", 
 test("finalization persists Booking content and detects a same-ID status change", async () => withApp(async app => {
   const first = await finalize(app);
   assert.equal(first.statusCode, 201);
-  assert.deepEqual(first.json().archive.sourceState.bookingContent, [JSON.stringify(["booking-history", "target", "COMPLETED"])]);
+  assert.deepEqual(first.json().archive.sourceState.bookingContent, [JSON.stringify(Object.values({ ...v2Booking, id: "booking-history" }))]);
   tables.booking[0].status = "CANCELLED";
   const second = await finalize(app);
   assert.equal(second.statusCode, 201);
@@ -32,12 +32,12 @@ test("finalization queries every supported category even when empty", async () =
 test("finalization loads direct content and scopes presence and loyalty through target parents", async () => withApp(async app => {
   const date = new Date("2026-01-01T00:00:00Z");
   tables.barber = ["target", "sibling"].map(salonId => ({ id: salonId + "-barber", salonId, name: salonId, specialty: null, isActive: true }));
-  tables.staffMembership = ["target", "sibling"].map(salonId => ({ id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
+  tables.staffMembership = ["target", "sibling"].map(salonId => ({ ...v2Membership, id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
   tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER" }));
   tables.loyaltyCard = ["target", "sibling"].map(salonId => ({ id: salonId + "-card", salonId, isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: date }));
   tables.loyaltyCustomer = ["target", "sibling"].map(id => ({ id: id + "-customer", cardId: id + "-card", customerId: "customer", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null }));
   tables.loyaltyStamp = ["target", "sibling"].map(id => ({ id: id + "-stamp", cardId: id + "-card", customerId: "customer", barberId: null, transactionId: id + "-transaction", stampAt: date, isValid: true }));
-  tables.booking.push({ id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
+  tables.booking.push({ ...v2Booking, id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
   const before = structuredClone(tables);
   const result = await finalize(app);
   assert.equal(result.statusCode, 201);
@@ -152,8 +152,8 @@ beforeEach(() => {
       startDate: new Date("2026-01-01T00:00:00Z"), renewalDate: new Date("2026-02-01T00:00:00Z"),
       monthlyPrice: "12.34", providerReference: "fixture-reference-not-payment-evidence" }],
     // These are history/evidence fixtures, not assertions that bookings are vouchers.
-    booking: [{ id: "booking-history", salonId: "target", userId: "customer", status: "COMPLETED" }],
-    serviceVisit: [{ id: "visit-history", salonId: "target", status: "COMPLETED" }],
+    booking: [{ ...v2Booking, id: "booking-history", salonId: "target", userId: "customer", status: "COMPLETED" }],
+    serviceVisit: [{ ...v2Visit, id: "visit-history", salonId: "target", status: "COMPLETED" }],
     salonBoost: [{ id: "boost-history", salonId: "target", status: "EXPIRED" }],
   };
   for (const name of names) mock[name] = delegate(name);
@@ -441,3 +441,8 @@ test("finalized archive is bound to a deterministic source state", async () => w
     "source-state binding cannot be an empty marker or boolean"
   );
 }));
+
+// Complete current V2 source fixtures; historical V1 fixtures remain explicit.
+const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
+const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};

@@ -18,7 +18,7 @@ import { salonScheduleFields } from "../lib/salon-schedule.js";
 import { projectPublicLiveStatus, publicLiveStatusSelect } from "../lib/salon-live-status.js";
 import { normalizeSubscriptionPlan, SUBSCRIPTION_PLAN_ORDER } from "../lib/subscription-plan.js";
 import { loadSalonArchiveState } from "../lib/salon-archive-source.js";
-import { revalidateSalonPurgeClearance } from "../lib/salon-clearance-revalidation.js";
+import { hasCurrentSalonArchiveCoverage, revalidateSalonPurgeClearance } from "../lib/salon-clearance-revalidation.js";
 const intakeControlsPatchSchema = z.object({
   bookingIntakeEnabled: z.boolean().optional(),
   saloTicketIntakeEnabled: z.boolean().optional(),
@@ -295,6 +295,9 @@ export async function salonRoutes(app: any) {
           orderBy: [{ finalizedAt: "desc" }, { archiveId: "desc" }],
         });
         if (!archive) return { status: 409, error: "Finalized archive required" } as const;
+        if (!hasCurrentSalonArchiveCoverage(archive)) {
+          return { status: 409, error: "Current archive contract with complete coverage required" } as const;
+        }
         const holds = await tx.salonRetentionHold.count({ where: { salonId: salon.id, releasedAt: null } });
         if (holds > 0) return { status: 409, error: "Active retention hold blocks clearance" } as const;
         const clearance = await tx.salonPurgeClearance.create({
@@ -414,6 +417,9 @@ export async function salonRoutes(app: any) {
       const user = await requireUserFromAuthHeader(request, reply);
       if (user.role !== "ADMIN") {
         return reply.code(403).send({ error: "Forbidden" });
+      }
+      if (!z.object({}).strict().safeParse(request.body ?? {}).success) {
+        return reply.code(400).send({ error: "Invalid payload" });
       }
 
       const archive = await prisma.$transaction(async (tx) => {

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { buildSalonArchiveState } from "../lib/salon-archive.js";
 import * as clearanceValidation from "../lib/salon-clearance-revalidation.js";
 
 async function readiness() {
@@ -7,7 +8,7 @@ async function readiness() {
   return db.$transaction((tx: any) => evaluate(tx, "target", "admin"), { isolationLevel: "Serializable" });
 }
 test("readiness accepts unchanged nonempty evidence using only the supplied transaction", async () => withApp(async app => {
-  tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+  tables.booking = [{ ...v2Booking, id: "b", salonId: "target", status: "COMPLETED" }];
   const id = await finalizedClearance(app);
   const before = structuredClone(tables.salon);
   const globalSalon = db.salon;
@@ -31,7 +32,7 @@ test("readiness accepts unchanged nonempty evidence using only the supplied tran
 }));
 test("readiness accepts still-empty evaluated categories and ignores sibling source changes", async () => withApp(async app => {
   await finalizedClearance(app);
-  tables.booking.push({ id: "sibling-b", salonId: "sibling", status: "COMPLETED" });
+  tables.booking.push({ ...v2Booking, id: "sibling-b", salonId: "sibling", status: "COMPLETED" });
   const result = await readiness();
   assert.equal(result.valid, true);
   assert.equal(result.ready, false);
@@ -57,11 +58,11 @@ for (const mode of ["revoked", "hold", "sibling clearance", "missing salon", "pa
 }
 for (const mutation of ["status", "insert", "remove"]) {
   test(`readiness reruns validation after successful preflight then ${mutation}`, async () => withApp(async app => {
-    tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+    tables.booking = [{ ...v2Booking, id: "b", salonId: "target", status: "COMPLETED" }];
     const id = await finalizedClearance(app);
     assert.equal((await revalidate(app, id)).statusCode, 200);
     if (mutation === "status") tables.booking[0].status = "CANCELLED";
-    if (mutation === "insert") tables.booking.push({ id: "new", salonId: "target", status: "COMPLETED" });
+    if (mutation === "insert") tables.booking.push({ ...v2Booking, id: "new", salonId: "target", status: "COMPLETED" });
     if (mutation === "remove") tables.booking = [];
     assert.equal((await readiness()).ready, false);
     assert.ok(tables.salonPurgeClearance[0].revokedAt);
@@ -112,11 +113,11 @@ test("revalidation accepts evaluated-empty current evidence without changing Sal
 }));
 for (const change of ["status", "addition", "removal"]) {
   test(`revalidation revokes clearance after Booking ${change}`, async () => withApp(async app => {
-    tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+    tables.booking = [{ ...v2Booking, id: "b", salonId: "target", status: "COMPLETED" }];
     const id = await finalizedClearance(app);
     assert.equal((await revalidate(app, id)).statusCode, 200, "unchanged nonempty evidence must validate");
     if (change === "status") tables.booking[0].status = "CANCELLED";
-    if (change === "addition") tables.booking.push({ id: "c", salonId: "target", status: "COMPLETED" });
+    if (change === "addition") tables.booking.push({ ...v2Booking, id: "c", salonId: "target", status: "COMPLETED" });
     if (change === "removal") tables.booking = [];
     writes = [];
     const before = structuredClone(tables.salon);
@@ -129,7 +130,7 @@ for (const change of ["status", "addition", "removal"]) {
   }));
 }
 test("revalidation detects StaffPresence content change", async () => withApp(async app => {
-  tables.staffMembership = [{ id: "m", salonId: "target", userId: "owner", barberId: "b", status: "ACTIVE", revokedAt: null }];
+  tables.staffMembership = [{ ...v2Membership, id: "m", salonId: "target", userId: "owner", barberId: "b", status: "ACTIVE", revokedAt: null }];
   tables.staffPresence = [{ staffMembershipId: "m", dutyState: "ON_DUTY", generation: 1, changedAt: new Date(), changedByUserId: null, changeSource: "STAFF" }];
   const id = await finalizedClearance(app);
   tables.staffPresence[0].dutyState = "OFF_DUTY";
@@ -151,7 +152,7 @@ test("revalidation detects Analytics metadata change", async () => withApp(async
 }));
 test("revalidation ignores sibling records and JSON object-key order", async () => withApp(async app => {
   const id = await finalizedClearance(app);
-  tables.booking.push({ id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
+  tables.booking.push({ ...v2Booking, id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
   tables.staffMembership.push({ id: "sibling-member", salonId: "sibling" });
   (tables.staffPresence ||= []).push({ staffMembershipId: "sibling-member", dutyState: "OFF_DUTY" });
   tables.loyaltyCard.push({ id: "sibling-card", salonId: "sibling" });
@@ -286,10 +287,14 @@ function request(app: ReturnType<typeof Fastify>, path: string, payload: any = {
   return app.inject({ method: "POST", url: "/api/v1/salons/target/" + path,
     headers: { authorization: `Bearer ${signAccessToken({ sub: role.toLowerCase(), role })}` }, payload });
 }
+// Current V2 fixture for issuance and hold tests.
 function archive(salonId = "target") {
-  tables.salonArchive.push({ archiveId: "archive-1", salonId, archiveVersion: 1, payloadVersion: 1,
-    finalizedAt: new Date("2026-01-01T00:00:00Z"), coverage: { categories: ["BOOKING"], emptyHistory: false },
-    sourceState: { salonId, bookingIds: ["booking-1"], bookingContent: ['["booking-1","target","COMPLETED"]'] } });
+  tables.salonArchive.push({ archiveId: "archive-1", salonId,
+    finalizedAt: new Date("2026-01-01T00:00:00Z"), ...buildSalonArchiveState({
+      salonId, bookingIds: [], serviceVisitIds: [], salonBoostIds: [], bookings: [], serviceVisits: [], salonBoosts: [],
+      barbers: [], reviews: [], salonMedia: [], services: [], availability: [], staffMemberships: [], staffPresence: [],
+      queueEntries: [], loyalty: [], offers: [], analyticsEvents: [], liveStatus: [], availabilitySubscriptions: [],
+    }) });
 }
 test("ADMIN creates a persisted hold independent of salon active state", async () => withApp(async app => {
   const before = structuredClone(tables.salon);
@@ -356,8 +361,8 @@ test("clearance records independent archive evidence without mutating salon or a
   assert.ok(Number.isFinite(Date.parse(clearance.issuedAt)));
   assert.deepEqual(clearance.sourceState, tables.salonArchive[0].sourceState);
   assert.deepEqual(clearance.coverage, tables.salonArchive[0].coverage);
-  assert.equal(clearance.archiveVersion, 1);
-  assert.equal(clearance.payloadVersion, 1);
+  assert.equal(clearance.archiveVersion, 2);
+  assert.equal(clearance.payloadVersion, 2);
   assert.equal(clearance.archiveFinalizedAt, tables.salonArchive[0].finalizedAt.toISOString());
   tables.salonArchive[0].sourceState.bookingContent = ["changed"];
   assert.notDeepEqual(tables.salonPurgeClearance[0].sourceState, tables.salonArchive[0].sourceState);
@@ -396,3 +401,70 @@ test("missing salon cannot receive a hold or clearance", async () => withApp(asy
   assert.equal((await request(app, "purge-clearance")).statusCode, 404);
   assert.deepEqual(writes, []);
 }));
+
+// Complete current V2 source fixtures; historical V1 fixtures remain explicit.
+const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
+const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+
+for (const [model, fixture, field, changed] of [
+  ["booking", v2Booking, "customerName", "Changed name"],
+  ["serviceVisit", v2Visit, "startedByUserId", "another-actor"],
+  ["staffMembership", v2Membership, "updatedAt", "2026-02-01T00:00:00.000Z"],
+] as const) {
+  test(`V2 ${model} loaded persisted history change invalidates clearance`, async () => withApp(async app => {
+    tables[model] = [structuredClone(fixture)];
+    const before = structuredClone(tables.salon);
+    const id = await finalizedClearance(app);
+    assert.equal((await revalidate(app, id)).statusCode, 200);
+    tables[model][0][field] = changed;
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.equal(tables.salonPurgeClearance[0].revocationReason, "Source state changed");
+    assert.deepEqual(tables.salon, before);
+  }));
+}
+for (const [av, pv] of [[1, 1], [999, 2], [2, 999], [1, 2], [2, 1]]) {
+  test(`clearance rejects historical/unsupported contract ${av}/${pv} without changing evidence`, async () => withApp(async app => {
+    await request(app, "archive/finalize");
+    const old = tables.salonArchive[0];
+    old.archiveVersion = av; old.payloadVersion = pv;
+    if (av === 1 && pv === 1) old.sourceState.bookingContent = ['["old","target","COMPLETED"]'];
+    const before = structuredClone(tables);
+    writes = [];
+    assert.equal((await request(app, "purge-clearance")).statusCode, 409);
+    assert.deepEqual(tables, before);
+    assert.deepEqual(writes, []);
+  }));
+  test(`readiness and revalidation refuse contract ${av}/${pv} without backfilling archive`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    tables.salonArchive[0].archiveVersion = tables.salonPurgeClearance[0].archiveVersion = av;
+    tables.salonArchive[0].payloadVersion = tables.salonPurgeClearance[0].payloadVersion = pv;
+    const old = structuredClone(tables.salonArchive);
+    const result = await readiness();
+    assert.equal(result.valid, false);
+    assert.equal(result.ready, false);
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.deepEqual(tables.salonArchive, old);
+  }));
+}
+test("V2 finalization creates distinct evidence and never upgrades historical V1 rows", async () => withApp(async app => {
+  const historical = { archiveId: "historical", salonId: "target", archiveVersion: 1, payloadVersion: 1,
+    sourceState: { bookingContent: ['["b","target","COMPLETED"]'], serviceVisitContent: ['["v","target","COMPLETED"]'], staffMembershipContent: ['["m","target","owner","barber","ACTIVE",null]'] } };
+  tables.salonArchive.push(structuredClone(historical));
+  tables.booking = [structuredClone(v2Booking)];
+  const response = await request(app, "archive/finalize");
+  assert.equal(response.statusCode, 201);
+  assert.equal(response.json().archive.archiveVersion, 2);
+  assert.equal(response.json().archive.payloadVersion, 2);
+  assert.notEqual(response.json().archive.archiveId, historical.archiveId);
+  assert.deepEqual(tables.salonArchive[0], historical);
+}));
+for (const path of ["archive/finalize", "purge-clearance"]) {
+  for (const field of ["archiveVersion", "payloadVersion", "archiveId", "sourceState", "coverage", "force", "archiveSafe", "retentionSafe"]) {
+    test(`${path} rejects client trust field ${field}`, async () => withApp(async app => {
+      writes = [];
+      assert.equal((await request(app, path, { [field]: 2 })).statusCode, 400);
+      assert.deepEqual(writes, []);
+    }));
+  }
+}

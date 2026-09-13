@@ -382,8 +382,12 @@ import { test } from "node:test";
 import {
   SALON_ARCHIVE_PAYLOAD_VERSION,
   SALON_ARCHIVE_VERSION,
-  buildSalonArchiveState,
+  buildSalonArchiveState as buildCurrentSalonArchiveState,
 } from "./salon-archive.js";
+
+// Existing tuple fixtures explicitly exercise the historical V1 contract.
+const buildSalonArchiveState = (input: Parameters<typeof buildCurrentSalonArchiveState>[0]) =>
+  buildCurrentSalonArchiveState(input, { archiveVersion: 1, payloadVersion: 1 });
 
 test("salon archive source state changes when Booking content changes with the same ID", () => {
   // Specify the required content-aware public contract alongside the current ID inputs.
@@ -418,8 +422,8 @@ test("salon archive state is deterministic and versioned", () => {
     salonBoostIds: ["boost-a"],
   });
 
-  assert.equal(state.archiveVersion, SALON_ARCHIVE_VERSION);
-  assert.equal(state.payloadVersion, SALON_ARCHIVE_PAYLOAD_VERSION);
+  assert.equal(state.archiveVersion, 1);
+  assert.equal(state.payloadVersion, 1);
 
   assert.deepEqual(state.sourceState, {
     salonId: "target",
@@ -527,4 +531,64 @@ test("salon archive source state changes when SalonBoost content changes with th
   });
 
   assert.notDeepEqual(first.sourceState, second.sourceState);
+});
+
+// Complete current V2 source fixtures; historical V1 fixtures remain explicit.
+const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
+const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+
+const v2Cases = [
+  ["bookings", "bookingContent", v2Booking, ["id", "salonId", "status"]],
+  ["serviceVisits", "serviceVisitContent", v2Visit, ["id", "salonId", "status"]],
+  ["staffMemberships", "staffMembershipContent", v2Membership, ["id", "salonId", "userId", "barberId", "status", "revokedAt"]],
+] as const;
+for (const [key, content, row, legacyFields] of v2Cases) {
+  const input = (rows: object[]) => ({ salonId: "target", bookingIds: key === "bookings" && rows.length ? ["b"] : [], serviceVisitIds: key === "serviceVisits" && rows.length ? ["v"] : [], salonBoostIds: [], [key]: rows });
+  test(`V2 ${key} exact persisted field order, nulls and every field's integrity`, () => {
+    const before = buildCurrentSalonArchiveState(input([row]));
+    assert.equal(before.archiveVersion, 2);
+    assert.equal(before.payloadVersion, 2);
+    assert.equal(SALON_ARCHIVE_VERSION, 2);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 2);
+    assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
+    for (const [field, value] of Object.entries(row)) {
+      if (field === "salonId") continue;
+      const changed = field.endsWith("At") ? "2026-02-01T00:00:00.000Z" : typeof value === "number" ? 2 : "changed";
+      assert.notDeepEqual(buildCurrentSalonArchiveState(input([{ ...row, [field]: changed }])).sourceState, before.sourceState, field);
+    }
+  });
+  test(`V2 ${key} canonical dates, ordering, duplicates and conflicting identity`, () => {
+    const before = buildCurrentSalonArchiveState(input([row]));
+    const dates = Object.fromEntries(Object.entries(row).map(([k, v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
+    assert.deepEqual(buildCurrentSalonArchiveState(input([dates, row])), before);
+    const conflict = { ...row, status: "CANCELLED" };
+    const state = buildCurrentSalonArchiveState(input([row, conflict]));
+    assert.deepEqual(state, buildCurrentSalonArchiveState(input([conflict, row, conflict])));
+    assert.equal(state.sourceState[content]!.length, 2);
+    assert.equal(Object.values(state.coverage.counts).reduce((a, b) => a + b, 0), 1);
+  });
+  test(`V1 ${key} stays historical and is never expanded or mutated`, () => {
+    const oldRow = Object.fromEntries(legacyFields.map(field => [field, row[field]]));
+    const source = input([oldRow]);
+    const copy = structuredClone(source);
+    const old = buildCurrentSalonArchiveState(source, { archiveVersion: 1, payloadVersion: 1 });
+    assert.equal(old.archiveVersion, 1);
+    assert.equal(old.payloadVersion, 1);
+    assert.deepEqual(JSON.parse(old.sourceState[content]![0]), Object.values(oldRow));
+    assert.deepEqual(source, copy);
+    assert.throws(() => buildCurrentSalonArchiveState(source), /missing.*V2|V2.*missing/i);
+  });
+  test(`V2 ${key} evaluated-empty semantics and target scoping`, () => {
+    const empty = buildCurrentSalonArchiveState(input([]));
+    assert.equal(empty.coverage.emptyHistory, true);
+    assert.deepEqual(empty.sourceState[content], []);
+    assert.equal(buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] }).sourceState[content], undefined);
+    assert.throws(() => buildCurrentSalonArchiveState(input([{ ...row, salonId: "sibling" }])), /another salon/i);
+  });
+}
+test("archive contract rejects mixed and unsupported versions", () => {
+  for (const contract of [{ archiveVersion: 1, payloadVersion: 2 }, { archiveVersion: 2, payloadVersion: 1 }, { archiveVersion: 999, payloadVersion: 2 }, { archiveVersion: 2, payloadVersion: 999 }]) {
+    assert.throws(() => buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] }, contract), /unsupported/i);
+  }
 });

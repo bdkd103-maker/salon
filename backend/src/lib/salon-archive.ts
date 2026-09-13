@@ -1,7 +1,33 @@
 import { Prisma } from "@prisma/client";
 
-export const SALON_ARCHIVE_VERSION = 1;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 1;
+// Current server-written contract. V1 remains an explicit historical format only.
+export const SALON_ARCHIVE_VERSION = 2;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 2;
+export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
+const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
+type ArchiveContract = { archiveVersion: number; payloadVersion: number };
+export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
+  return contract.archiveVersion === SALON_ARCHIVE_VERSION && contract.payloadVersion === SALON_ARCHIVE_PAYLOAD_VERSION;
+}
+
+// V2 positional field order is a persisted contract; changing it requires a new version.
+const V2_FIELDS = {
+  booking: ["id", "salonId", "userId", "barberId", "serviceId", "startAt", "endAt", "status", "notes", "customerName", "customerPhone", "createdAt", "updatedAt", "cancelledAt", "cancellationReason"],
+  serviceVisit: ["id", "salonId", "bookingId", "staffMembershipId", "source", "status", "startedAt", "completedAt", "cancelledAt", "version", "startedByUserId", "completedByUserId", "cancelledByUserId", "createdAt", "updatedAt"],
+  staffMembership: ["id", "salonId", "userId", "barberId", "status", "revokedAt", "createdAt", "updatedAt"],
+} as const;
+const V2_NULLABLE_FIELDS = new Set(["barberId", "serviceId", "notes", "customerName", "customerPhone", "cancelledAt", "cancellationReason", "bookingId", "completedAt", "startedByUserId", "completedByUserId", "cancelledByUserId", "revokedAt"]);
+function v2Content(row: object, fields: readonly string[], salonId: string) {
+  if (Reflect.get(row, "salonId") !== salonId) throw new Error("Archive record belongs to another salon");
+  return JSON.stringify(fields.map(field => {
+    const value = Reflect.get(row, field);
+    if (value === undefined || (value === null && !V2_NULLABLE_FIELDS.has(field))) {
+      throw new Error(`Missing V2 archive field: ${field}`);
+    }
+    return field.endsWith("At") ? archiveDate(value) : value;
+  }));
+}
+type HistoricalDates = { createdAt?: Date | string; updatedAt?: Date | string };
 
 export type SalonArchiveSourceState = {
   salonId: string;
@@ -58,14 +84,15 @@ type BuildSalonArchiveInput = {
   availabilitySubscriptions?: Array<{ id: string; salonId: string; userId: string; status: string; lastKnownAvailableChairs: number; lastNotifiedAt: Date | string | null; createdAt: Date | string }>;
   services?: Array<{ id: string; salonId: string; name: string; description: string | null; durationMin: number; price: string | Prisma.Decimal; isActive: boolean }>;
   availability?: Array<{ id: string; salonId: string; barberId: string | null; startAt: Date | string; endAt: Date | string; status: string }>;
-  staffMemberships?: Array<{ id: string; salonId: string; userId: string; barberId: string; status: string; revokedAt: Date | string | null }>;
+  staffMemberships?: Array<HistoricalDates & { id: string; salonId: string; userId: string; barberId: string; status: string; revokedAt: Date | string | null }>;
   staffPresence?: Array<{ staffMembershipId: string; dutyState: string; generation: number; changedAt: Date | string; changedByUserId: string | null; changeSource: string }>;
   salonId: string;
   bookingIds: string[];
   serviceVisitIds: string[];
   salonBoostIds: string[];
-  bookings?: Array<{ id: string; salonId: string; status: string }>;
-  serviceVisits?: Array<{ id: string; salonId: string; status: string }>;
+  // Optional expanded fields permit explicit historical V1 input; V2 rejects missing fields.
+  bookings?: Array<HistoricalDates & { id: string; salonId: string; status: string; userId?: string; barberId?: string | null; serviceId?: string | null; startAt?: Date | string; endAt?: Date | string; notes?: string | null; customerName?: string | null; customerPhone?: string | null; cancelledAt?: Date | string | null; cancellationReason?: string | null }>;
+  serviceVisits?: Array<HistoricalDates & { id: string; salonId: string; status: string; bookingId?: string | null; staffMembershipId?: string; source?: string; startedAt?: Date | string; completedAt?: Date | string | null; cancelledAt?: Date | string | null; version?: number; startedByUserId?: string | null; completedByUserId?: string | null; cancelledByUserId?: string | null }>;
   salonBoosts?: Array<{ id: string; salonId: string; status: string }>;
   barbers?: Array<{ id: string; salonId: string; name: string; specialty: string | null; isActive: boolean }>;
   reviews?: Array<{ id: string; salonId: string; userId: string; rating: number; comment: string | null; createdAt: Date | string }>;
@@ -110,7 +137,12 @@ function sortedUnique(values: string[]) {
   return [...new Set(values)].sort();
 }
 
-export function buildSalonArchiveState(input: BuildSalonArchiveInput) {
+export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: ArchiveContract = CURRENT_CONTRACT) {
+  const current = isCurrentSalonArchiveContract(contract);
+  if (!current && (contract.archiveVersion !== LEGACY_SALON_ARCHIVE_CONTRACT.archiveVersion
+    || contract.payloadVersion !== LEGACY_SALON_ARCHIVE_CONTRACT.payloadVersion)) {
+    throw new Error("Unsupported salon archive contract");
+  }
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -137,12 +169,12 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput) {
       // Fixed field order ignores object-key order; sorting/deduplication ignores row noise.
       // Conflicting content for the same ID is retained rather than chosen by input order.
       bookingContent: sortedUnique(input.bookings.map((booking) =>
-        JSON.stringify([booking.id, booking.salonId, booking.status]),
+        current ? v2Content(booking, V2_FIELDS.booking, input.salonId) : JSON.stringify([booking.id, booking.salonId, booking.status]),
       )),
     }),
     ...(input.serviceVisits === undefined ? {} : {
   serviceVisitContent: sortedUnique(input.serviceVisits.map((visit) =>
-    JSON.stringify([visit.id, visit.salonId, visit.status]),
+    current ? v2Content(visit, V2_FIELDS.serviceVisit, input.salonId) : JSON.stringify([visit.id, visit.salonId, visit.status]),
   )),
 }),
 ...(input.salonBoosts === undefined ? {} : {
@@ -190,7 +222,7 @@ if (input.availability !== undefined) {
 }
 if (input.staffMemberships !== undefined) {
   sourceState.staffMembershipContent = sortedUnique(input.staffMemberships.map(row =>
-    JSON.stringify([row.id, row.salonId, row.userId, row.barberId, row.status, row.revokedAt === null ? null : new Date(row.revokedAt).toISOString()]),
+    current ? v2Content(row, V2_FIELDS.staffMembership, input.salonId) : JSON.stringify([row.id, row.salonId, row.userId, row.barberId, row.status, row.revokedAt === null ? null : new Date(row.revokedAt).toISOString()]),
   ));
   coverage.categories.push("STAFF_MEMBERSHIP");
   coverage.counts.staffMemberships = sortedUnique(input.staffMemberships.map(row => row.id)).length;
@@ -253,8 +285,8 @@ if (input.availabilitySubscriptions !== undefined) {
 coverage.emptyHistory = Object.values(coverage.counts).every(count => count === 0);
 
 return {
-  archiveVersion: SALON_ARCHIVE_VERSION,
-  payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION,
+  archiveVersion: contract.archiveVersion,
+  payloadVersion: contract.payloadVersion,
   coverage,
   sourceState,
 };
