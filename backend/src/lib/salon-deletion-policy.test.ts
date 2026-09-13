@@ -1,4 +1,36 @@
 import assert from "node:assert/strict";
+test("group1 Review qualifies only with complete persisted content and no inbound row dependencies", async () => {
+  const { buildSalonArchiveState } = await import("./salon-archive.js");
+  const model = Prisma.dmmf.datamodel.models.find(model => model.name === "Review")!;
+  const fields = ["id", "salonId", "userId", "rating", "comment", "createdAt"];
+  assert.deepEqual(model.fields.filter(field => field.kind !== "object").map(field => field.name).sort(),
+    [...fields].sort(), "new persisted fields require archive/policy review");
+  const incoming = Prisma.dmmf.datamodel.models.flatMap(model => model.fields
+    .filter(field => field.kind === "object" && field.type === "Review" && (field.relationFromFields?.length ?? 0) > 0));
+  assert.deepEqual(incoming, [], "new inbound FK requires policy review");
+  const row = { id: "review", salonId: "target", userId: "customer", rating: 4, comment: "Original", createdAt: new Date("2026-01-01T00:00:00Z") };
+  const build = (record: typeof row) => buildSalonArchiveState({
+    salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [], reviews: [record],
+  });
+  const before = build(row);
+  assert.deepEqual(JSON.parse(before.sourceState.reviewContent![0]),
+    ["review", "target", "customer", 4, "Original", "2026-01-01T00:00:00.000Z"]);
+  const changes = { id: "review-b", salonId: "other", userId: "other-user", rating: 2, comment: "Changed", createdAt: new Date("2026-02-01T00:00:00Z") };
+  for (const field of fields)
+    assert.notDeepEqual(build({ ...row, [field]: changes[field as keyof typeof changes] }).sourceState, before.sourceState, field);
+  assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
+  assert.equal(policyApi().owned("Review", { salonId: "sibling" }, "target"), false);
+});
+test("group1 incomplete evidence and unresolved references remain blocking despite salonId", () => {
+  const { evaluate, classify, owned } = policyApi();
+  for (const model of ["Barber", "Service", "AvailabilitySlot", "SalonMedia"]) {
+    assert.equal(classify(model), "BLOCKING_UNCLASSIFIED", model);
+    assert.equal(owned(model, { salonId: "target" }, "target"), false, model);
+    assert.ok(Object.hasOwn(evaluate().classifications, model));
+  }
+  for (const model of ["Booking", "ServiceVisit", "Message"]) assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
+  assert.equal(evaluate().complete, false);
+});
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { Prisma } from "@prisma/client";
@@ -55,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["SalonAvailabilitySubscription", "SalonLiveStatus"]);
+  assert.deepEqual(allowed, ["Review", "SalonAvailabilitySubscription", "SalonLiveStatus"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
