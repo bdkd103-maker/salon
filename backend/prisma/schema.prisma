@@ -75,6 +75,39 @@ model SalonEnforcement {
   @@index([salonId, enforcedAt])
 }
 // Intentional scalar snapshot: archive evidence must survive deletion of Salon/User.
+// Scalar snapshots deliberately survive Salon/User removal.
+model SalonRetentionHold {
+  id                   String    @id @default(uuid()) @db.Uuid
+  salonId              String
+  reason               String
+  actorUserId          String
+  createdAt            DateTime  @default(now())
+  releasedAt           DateTime?
+  releasedByUserId     String?
+  releaseReason        String?
+
+  @@index([salonId, releasedAt])
+}
+
+model SalonPurgeClearance {
+  id                   String    @id @default(uuid()) @db.Uuid
+  salonId              String
+  archiveId            String    @db.Uuid
+  archiveVersion       Int
+  payloadVersion       Int
+  archiveFinalizedAt   DateTime
+  sourceState          Json
+  coverage             Json
+  actorUserId          String
+  issuedAt             DateTime  @default(now())
+  revokedAt            DateTime?
+  revokedByUserId      String?
+  revocationReason     String?
+
+  @@index([salonId, revokedAt])
+  @@index([archiveId])
+}
+
 model SalonArchive {
   archiveId      String    @id @default(uuid()) @db.Uuid
   salonId        String

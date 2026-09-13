@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "../lib/prisma.js";
 import { hashPassword, requireRole, requireUserFromAuthHeader } from "../lib/auth.js";
@@ -206,6 +207,100 @@ async function refreshSalonRatingAggregate(db: any, salonId: string) {
 }
 
 export async function salonRoutes(app: any) {
+  app.post("/api/v1/salons/:id/retention-holds", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") return reply.code(403).send({ error: "Forbidden" });
+      const parsed = salonEnforcementSchema.safeParse(request.body ?? {});
+      if (!parsed.success) return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+
+      const hold = await prisma.$transaction(async tx => {
+        const salon = await tx.salon.findUnique({ where: { id: request.params.id }, select: { id: true } });
+        if (!salon) return null;
+        const createdAt = new Date();
+        const created = await tx.salonRetentionHold.create({
+          data: { salonId: salon.id, reason: parsed.data.reason, actorUserId: user.id, createdAt },
+        });
+        await tx.salonPurgeClearance.updateMany({
+          where: { salonId: salon.id, revokedAt: null },
+          data: { revokedAt: createdAt, revokedByUserId: user.id, revocationReason: "Retention hold created" },
+        });
+        return created;
+      }, { isolationLevel: "Serializable" });
+      if (!hold) return reply.code(404).send({ error: "Salon not found" });
+      return reply.code(201).send({ hold });
+    } catch (error) {
+      if (reply.sent) return reply;
+      if ((error as any)?.code === "P2034") return reply.code(409).send({ error: "Concurrent lifecycle change; retry the request" });
+      throw error;
+    }
+  });
+
+  app.post("/api/v1/salons/:id/retention-holds/:holdId/release", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") return reply.code(403).send({ error: "Forbidden" });
+      const parsed = salonEnforcementSchema.safeParse(request.body ?? {});
+      if (!parsed.success) return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      const hold = await prisma.$transaction(async tx => {
+        const existing = await tx.salonRetentionHold.findUnique({ where: { id: request.params.holdId } });
+        if (!existing || existing.salonId !== request.params.id) return null;
+        // Repeated release preserves the original actor, time and reason.
+        if (existing.releasedAt !== null) return existing;
+        return tx.salonRetentionHold.update({
+          where: { id: existing.id },
+          data: { releasedAt: new Date(), releasedByUserId: user.id, releaseReason: parsed.data.reason },
+        });
+      }, { isolationLevel: "Serializable" });
+      if (!hold) return reply.code(404).send({ error: "Retention hold not found" });
+      return { hold };
+    } catch (error) {
+      if (reply.sent) return reply;
+      if ((error as any)?.code === "P2034") return reply.code(409).send({ error: "Concurrent lifecycle change; retry the request" });
+      throw error;
+    }
+  });
+
+  app.post("/api/v1/salons/:id/purge-clearance", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      if (user.role !== "ADMIN") return reply.code(403).send({ error: "Forbidden" });
+      if (!z.object({}).strict().safeParse(request.body ?? {}).success) {
+        return reply.code(400).send({ error: "Invalid payload" });
+      }
+      const result = await prisma.$transaction(async tx => {
+        const salon = await tx.salon.findUnique({ where: { id: request.params.id }, select: { id: true } });
+        if (!salon) return { status: 404, error: "Salon not found" } as const;
+        const archive = await tx.salonArchive.findFirst({
+          where: { salonId: salon.id },
+          orderBy: [{ finalizedAt: "desc" }, { archiveId: "desc" }],
+        });
+        if (!archive) return { status: 409, error: "Finalized archive required" } as const;
+        const holds = await tx.salonRetentionHold.count({ where: { salonId: salon.id, releasedAt: null } });
+        if (holds > 0) return { status: 409, error: "Active retention hold blocks clearance" } as const;
+        const clearance = await tx.salonPurgeClearance.create({
+          data: {
+            salonId: salon.id,
+            archiveId: archive.archiveId,
+            archiveVersion: archive.archiveVersion,
+            payloadVersion: archive.payloadVersion,
+            archiveFinalizedAt: archive.finalizedAt,
+            sourceState: archive.sourceState as Prisma.InputJsonValue,
+            coverage: archive.coverage as Prisma.InputJsonValue,
+            actorUserId: user.id,
+            issuedAt: new Date(),
+          },
+        });
+        return { clearance } as const;
+      }, { isolationLevel: "Serializable" });
+      if ("error" in result) return reply.code(result.status).send({ error: result.error });
+      return reply.code(201).send({ clearance: result.clearance });
+    } catch (error) {
+      if (reply.sent) return reply;
+      if ((error as any)?.code === "P2034") return reply.code(409).send({ error: "Concurrent lifecycle change; retry the request" });
+      throw error;
+    }
+  });
   app.delete("/api/v1/salons/:id", async (request: any, reply: any) => {
     try {
       const user = await requireUserFromAuthHeader(request, reply);
