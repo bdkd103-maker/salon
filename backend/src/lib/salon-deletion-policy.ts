@@ -29,7 +29,7 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   StaffPresenceLease: "BLOCKING_UNCLASSIFIED",
   Service: "BLOCKING_UNCLASSIFIED",
   AvailabilitySlot: "BLOCKING_UNCLASSIFIED",
-  Booking: "BLOCKING_UNCLASSIFIED",
+  Booking: "DELETE_WITH_SALON",
   ServiceVisit: "DELETE_WITH_SALON",
   QueueEntry: "DELETE_WITH_SALON",
   Offer: "BLOCKING_UNCLASSIFIED",
