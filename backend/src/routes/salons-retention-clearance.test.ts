@@ -1,4 +1,127 @@
 import assert from "node:assert/strict";
+async function finalizedClearance(app: ReturnType<typeof Fastify>) {
+  const result = await request(app, "archive/finalize");
+  assert.equal(result.statusCode, 201);
+  const issued = await request(app, "purge-clearance");
+  assert.equal(issued.statusCode, 201);
+  return issued.json().clearance.id as string;
+}
+const revalidate = (app: ReturnType<typeof Fastify>, id: string, payload: any = {}, role = "ADMIN") =>
+  request(app, `purge-clearance/${id}/revalidate`, payload, role);
+
+test("revalidation accepts evaluated-empty current evidence without changing Salon or enabling DELETE", async () => withApp(async app => {
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  writes = [];
+  const result = await revalidate(app, id);
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.json().valid, true);
+  assert.deepEqual(writes, []);
+  assert.deepEqual(tables.salon, before);
+  const deleted = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
+    headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` } });
+  assert.equal(deleted.statusCode, 409);
+}));
+for (const change of ["status", "addition", "removal"]) {
+  test(`revalidation revokes clearance after Booking ${change}`, async () => withApp(async app => {
+    tables.booking = [{ id: "b", salonId: "target", status: "COMPLETED" }];
+    const id = await finalizedClearance(app);
+    assert.equal((await revalidate(app, id)).statusCode, 200, "unchanged nonempty evidence must validate");
+    if (change === "status") tables.booking[0].status = "CANCELLED";
+    if (change === "addition") tables.booking.push({ id: "c", salonId: "target", status: "COMPLETED" });
+    if (change === "removal") tables.booking = [];
+    writes = [];
+    const before = structuredClone(tables.salon);
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.ok(tables.salonPurgeClearance[0].revokedAt);
+    assert.equal(tables.salonPurgeClearance[0].revocationReason, "Source state changed");
+    assert.deepEqual(writes, ["salonPurgeClearance"]);
+    assert.deepEqual(tables.salon, before);
+    assert.equal(tables.salonPurgeClearance.length, 1);
+  }));
+}
+test("revalidation detects StaffPresence content change", async () => withApp(async app => {
+  tables.staffMembership = [{ id: "m", salonId: "target", userId: "owner", barberId: "b", status: "ACTIVE", revokedAt: null }];
+  tables.staffPresence = [{ staffMembershipId: "m", dutyState: "ON_DUTY", generation: 1, changedAt: new Date(), changedByUserId: null, changeSource: "STAFF" }];
+  const id = await finalizedClearance(app);
+  tables.staffPresence[0].dutyState = "OFF_DUTY";
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+  assert.ok(tables.salonPurgeClearance[0].revokedAt);
+}));
+test("revalidation detects Loyalty child content change", async () => withApp(async app => {
+  tables.loyaltyCard = [{ id: "card", salonId: "target", isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: new Date() }];
+  tables.loyaltyCustomer = [{ id: "c", cardId: "card", customerId: "customer", currentStamps: 1, totalVisits: 1, lastStampedAt: null, rewardRedeemedAt: null }];
+  const id = await finalizedClearance(app);
+  tables.loyaltyCustomer[0].currentStamps = 2;
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+}));
+test("revalidation detects Analytics metadata change", async () => withApp(async app => {
+  tables.analyticsEvent = [{ id: "e", salonId: "target", userId: null, eventType: "VIEW", source: "app", metadata: { count: 1 }, createdAt: new Date() }];
+  const id = await finalizedClearance(app);
+  tables.analyticsEvent[0].metadata.count = 2;
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+}));
+test("revalidation ignores sibling records and JSON object-key order", async () => withApp(async app => {
+  const id = await finalizedClearance(app);
+  tables.booking.push({ id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
+  tables.staffMembership.push({ id: "sibling-member", salonId: "sibling" });
+  (tables.staffPresence ||= []).push({ staffMembershipId: "sibling-member", dutyState: "OFF_DUTY" });
+  tables.loyaltyCard.push({ id: "sibling-card", salonId: "sibling" });
+  (tables.loyaltyCustomer ||= []).push({ id: "other", cardId: "sibling-card", currentStamps: 99 });
+  const clearance = tables.salonPurgeClearance[0];
+  clearance.sourceState = Object.fromEntries(Object.entries(clearance.sourceState).reverse());
+  assert.equal((await revalidate(app, id)).statusCode, 200);
+}));
+test("revalidation refuses active hold and release does not resurrect revocation", async () => withApp(async app => {
+  const id = await finalizedClearance(app);
+  tables.salonRetentionHold.push({ id: "h", salonId: "target", releasedAt: null });
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+  assert.ok(tables.salonPurgeClearance[0].revokedAt);
+  tables.salonRetentionHold[0].releasedAt = new Date();
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+}));
+test("revalidation preserves an existing revocation", async () => withApp(async app => {
+  const id = await finalizedClearance(app);
+  tables.salonPurgeClearance[0].revokedAt = new Date();
+  tables.salonPurgeClearance[0].revocationReason = "Existing reason";
+  writes = [];
+  assert.equal((await revalidate(app, id)).statusCode, 409);
+  assert.equal(tables.salonPurgeClearance[0].revocationReason, "Existing reason");
+  assert.deepEqual(writes, []);
+}));
+for (const kind of ["partial", "version", "archive mismatch", "missing content"]) {
+  test(`revalidation refuses ${kind} evidence`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    const clearance = tables.salonPurgeClearance[0];
+    const stored = tables.salonArchive[0];
+    if (kind === "partial") {
+      clearance.coverage.categories = stored.coverage.categories = ["BOOKING"];
+    } else if (kind === "version") {
+      clearance.archiveVersion = stored.archiveVersion = 999;
+    } else if (kind === "missing content") {
+      delete clearance.sourceState.bookingContent;
+      delete stored.sourceState.bookingContent;
+    } else stored.sourceState.bookingIds = ["tampered"];
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.ok(tables.salonPurgeClearance[0].revokedAt);
+  }));
+}
+for (const flag of ["sourceState", "coverage", "archiveId", "currentState", "hash", "retentionSafe", "archiveSafe", "force", "confirmed"]) {
+  test(`revalidation rejects client ${flag}`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    writes = [];
+    assert.equal((await revalidate(app, id, { [flag]: true })).statusCode, 400);
+    assert.deepEqual(writes, []);
+  }));
+}
+for (const role of ["OWNER", "CUSTOMER"]) {
+  test(`${role} cannot invoke revalidation`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    writes = [];
+    assert.equal((await revalidate(app, id, {}, role)).statusCode, 403);
+    assert.deepEqual(writes, []);
+  }));
+}
 import { beforeEach, afterEach, test } from "node:test";
 import Fastify from "fastify";
 import { prisma } from "../lib/prisma.js";
@@ -15,12 +138,15 @@ function delegate(model: string): any {
   const matches = (row: any, where: any = {}) => Object.entries(where).every(([k, v]) => row[k] === v);
   const rows = () => tables[model] ||= [];
   return {
+    findMany: async ({ where, select }: any = {}) => structuredClone(rows().filter(row => matches(row, where)).map(row =>
+      select ? Object.fromEntries(Object.keys(select).filter(key => select[key] === true).map(key => [key, row[key]])) : row)),
     findUnique: async ({ where }: any) => structuredClone(rows().find(row => matches(row, where)) ?? null),
     findFirst: async ({ where }: any) => structuredClone(rows().filter(row => matches(row, where)).at(-1) ?? null),
     count: async ({ where }: any) => rows().filter(row => matches(row, where)).length,
     create: async ({ data }: any) => {
       writes.push(model);
       const row = { id: String(++serial), releasedAt: null, revokedAt: null, ...structuredClone(data) };
+      if (model === "salonArchive") (row as any).archiveId = row.id;
       rows().push(row);
       return structuredClone(row);
     },
