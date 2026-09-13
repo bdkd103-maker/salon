@@ -2,6 +2,8 @@ import type { Prisma } from "@prisma/client";
 import { isDeepStrictEqual } from "node:util";
 import { SALON_ARCHIVE_VERSION, SALON_ARCHIVE_PAYLOAD_VERSION } from "./salon-archive.js";
 import { loadSalonArchiveState } from "./salon-archive-source.js";
+import { evaluateSalonDeletionPolicy } from "./salon-deletion-policy.js";
+export { evaluateSalonDeletionPolicy, classifySalonDeletionModel, isTargetSalonOwnedOperationalRecord } from "./salon-deletion-policy.js";
 
 // Required for the current supported contract, not a claim of legal/purge completeness.
 export const REQUIRED_ARCHIVE_CATEGORIES = [
@@ -29,6 +31,12 @@ export async function evaluateSalonDeletionReadiness(
   // Do not fall back to an older clearance when the latest one is revoked/stale.
   if (!clearance) return { ready: false, status: 409, error: "Purge clearance required" } as const;
   const result = await revalidateSalonPurgeClearance(tx, salonId, clearance.id, actorUserId);
+  if (result.valid) {
+    const policy = evaluateSalonDeletionPolicy();
+    if (!policy.complete) {
+      return { ...result, ready: false, status: 409, error: "Deletion policy incomplete", blockingModels: policy.blockingModels } as const;
+    }
+  }
   return { ...result, ready: result.valid };
 }
 

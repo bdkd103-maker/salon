@@ -18,7 +18,9 @@ test("readiness accepts unchanged nonempty evidence using only the supplied tran
     db.salon = forbidden;
     db.salonPurgeClearance = forbidden;
     const result = await readiness();
-    assert.equal(result.ready, true);
+    assert.equal(result.valid, true, "unchanged source evidence must still validate");
+    assert.equal(result.ready, false, "unresolved deletion policy must block readiness");
+    assert.ok(result.blockingModels.includes("Message"));
     assert.equal(result.clearanceId, id);
     assert.deepEqual(tables.salon, before);
     assert.deepEqual(writes, []);
@@ -30,7 +32,10 @@ test("readiness accepts unchanged nonempty evidence using only the supplied tran
 test("readiness accepts still-empty evaluated categories and ignores sibling source changes", async () => withApp(async app => {
   await finalizedClearance(app);
   tables.booking.push({ id: "sibling-b", salonId: "sibling", status: "COMPLETED" });
-  assert.equal((await readiness()).ready, true);
+  const result = await readiness();
+  assert.equal(result.valid, true);
+  assert.equal(result.ready, false);
+  assert.ok(result.blockingModels.includes("Message"));
 }));
 for (const mode of ["revoked", "hold", "sibling clearance", "missing salon", "partial", "old version", "archive identity", "archive evidence", "missing clearance"]) {
   test(`readiness refuses ${mode}`, async () => withApp(async app => {
@@ -71,7 +76,9 @@ test("readiness does not fall back to older clearance after the latest was revok
 for (const flag of ["clearanceId", "archiveId", "sourceState", "coverage", "force", "retentionSafe", "archiveSafe", "confirmed"]) {
   test(`readiness cannot enable DELETE through client ${flag}`, async () => withApp(async app => {
     const id = await finalizedClearance(app);
-    assert.equal((await readiness()).ready, true);
+    const resultBeforeDelete = await readiness();
+    assert.equal(resultBeforeDelete.valid, true);
+    assert.equal(resultBeforeDelete.ready, false);
     const before = structuredClone(tables.salon);
     const result = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
       headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` },
