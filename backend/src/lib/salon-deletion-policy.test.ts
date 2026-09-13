@@ -28,7 +28,7 @@ test("group1 incomplete evidence and unresolved references remain blocking despi
     assert.equal(owned(model, { salonId: "target" }, "target"), false, model);
     assert.ok(Object.hasOwn(evaluate().classifications, model));
   }
-  for (const model of ["Booking", "ServiceVisit", "Message"]) assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
+  for (const model of ["Booking", "Message"]) assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
   assert.equal(evaluate().complete, false);
 });
 import { test } from "node:test";
@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus"]);
+  assert.deepEqual(allowed, ["QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "ServiceVisit"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -122,8 +122,8 @@ for (const [name, category, content, row] of historicalPolicyCases) {
     assert.equal(evidence.payloadVersion, 2);
     assert.deepEqual(JSON.parse(evidence.sourceState[content]![0]), Object.values(row));
     assert.throws(() => buildSalonArchiveState({ ...input, [category]: [{ ...row, salonId: "sibling" }] }), /another salon/);
-    assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
-    assert.equal(policyApi().owned(name, { salonId: "target" }, "target"), false);
+    assert.equal(policyApi().classify(name), name === "ServiceVisit" ? "DELETE_WITH_SALON" : "BLOCKING_UNCLASSIFIED");
+    assert.equal(policyApi().owned(name, { salonId: "target" }, "target"), name === "ServiceVisit");
     assert.equal(policyApi().owned(name, { salonId: "sibling" }, "target"), false);
     assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
     assert.equal(policyApi().evaluate().complete, false);
@@ -151,7 +151,7 @@ test("historical policy Booking: ServiceVisit Restrict must be resolved first; p
     edge("Booking", "Service", ["serviceId"], ["id"], "SetNull"),
   ]));
   assert.deepEqual(edges.filter(e => e.to === "Booking"), [edge("ServiceVisit", "Booking", ["bookingId", "salonId"], ["id", "salonId"], "Restrict")]);
-  assert.equal(policyApi().classify("ServiceVisit"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("ServiceVisit"), "DELETE_WITH_SALON");
 });
 test("historical policy ServiceVisit: QueueEntry Restrict lacks a salon composite FK", () => {
   const edges = historicalEdges();
@@ -163,7 +163,7 @@ test("historical policy ServiceVisit: QueueEntry Restrict lacks a salon composit
   ]));
   assert.deepEqual(edges.filter(e => e.to === "ServiceVisit"), [edge("QueueEntry", "ServiceVisit", ["serviceVisitId"], ["id"], "Restrict")]);
   assert.equal(policyApi().classify("QueueEntry"), "DELETE_WITH_SALON");
-  assert.equal(policyApi().classify("ServiceVisit"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("ServiceVisit"), "DELETE_WITH_SALON");
 });
 test("QueueEntry qualifies as DELETE_WITH_SALON with complete archive and cross-salon readiness", () => {
   const { classify, owned, evaluate } = policyApi();
@@ -171,6 +171,13 @@ test("QueueEntry qualifies as DELETE_WITH_SALON with complete archive and cross-
   assert.equal(owned("QueueEntry", { salonId: "sibling" }, "target"), false);
   assert.equal(owned("QueueEntry", { salonId: "target" }, "target"), true);
   assert.ok(!evaluate().blockingModels.includes("QueueEntry"));
+});
+test("ServiceVisit qualifies as DELETE_WITH_SALON with complete archive and cross-salon readiness", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("ServiceVisit"), "DELETE_WITH_SALON");
+  assert.equal(owned("ServiceVisit", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("ServiceVisit", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("ServiceVisit"));
 });
 test("historical policy StaffMembership: Restrict visits and cascading presence/leases remain blockers", () => {
   const edges = historicalEdges();
@@ -185,7 +192,7 @@ test("historical policy StaffMembership: Restrict visits and cascading presence/
   ]));
   assert.deepEqual(edges.filter(e => e.to === "StaffPresence"), [edge("StaffPresenceLease", "StaffPresence", ["staffMembershipId"], ["staffMembershipId"], "Cascade")]);
   assert.deepEqual(edges.filter(e => e.to === "StaffPresenceLease"), []);
-  for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease", "ServiceVisit"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+  for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
 });
 test("historical policy leaves unrelated classifications and shared identities unchanged", () => {
   for (const name of ["Barber", "Service", "Message", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
