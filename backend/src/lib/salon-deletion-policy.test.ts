@@ -101,3 +101,89 @@ test("policy client arguments cannot replace trusted classification or clear blo
   const expected = evaluate();
   assert.deepEqual(evaluate({ force: true, classifications: {}, blockingModels: [] }), expected);
 });
+
+// Complete persisted V2 fixtures for policy proof.
+const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
+const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const historicalPolicyCases = [
+  ["Booking", "bookings", "bookingContent", v2Booking],
+  ["ServiceVisit", "serviceVisits", "serviceVisitContent", v2Visit],
+  ["StaffMembership", "staffMemberships", "staffMembershipContent", v2Membership],
+] as const;
+for (const [name, category, content, row] of historicalPolicyCases) {
+  test(`historical policy ${name}: complete V2 evidence does not clear unresolved dependencies`, async () => {
+    const { buildSalonArchiveState } = await import("./salon-archive.js");
+    const model = Prisma.dmmf.datamodel.models.find(model => model.name === name)!;
+    assert.deepEqual(model.fields.filter(field => field.kind !== "object").map(field => field.name).sort(), Object.keys(row).sort());
+    const input = { salonId: "target", bookingIds: category === "bookings" ? [row.id] : [], serviceVisitIds: category === "serviceVisits" ? [row.id] : [], salonBoostIds: [], [category]: [row] };
+    const evidence = buildSalonArchiveState(input);
+    assert.equal(evidence.archiveVersion, 2);
+    assert.equal(evidence.payloadVersion, 2);
+    assert.deepEqual(JSON.parse(evidence.sourceState[content]![0]), Object.values(row));
+    assert.throws(() => buildSalonArchiveState({ ...input, [category]: [{ ...row, salonId: "sibling" }] }), /another salon/);
+    assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+    assert.equal(policyApi().owned(name, { salonId: "target" }, "target"), false);
+    assert.equal(policyApi().owned(name, { salonId: "sibling" }, "target"), false);
+    assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
+    assert.equal(policyApi().evaluate().complete, false);
+  });
+}
+// FK-owning fields describe cascade direction; inverse parent arrays do not.
+function historicalEdges() {
+  return Prisma.dmmf.datamodel.models.flatMap(model => model.fields
+    .filter(field => field.kind === "object" && (field.relationFromFields?.length ?? 0) > 0)
+    .map(field => ({ from: model.name, to: field.type, fields: field.relationFromFields, references: field.relationToFields,
+      action: field.relationOnDelete ?? (field.isRequired ? "Restrict" : "SetNull") })));
+}
+function edge(from: string, to: string, fields: string[], references: string[], action: string) {
+  return { from, to, fields, references, action };
+}
+function sortedEdges(edges: ReturnType<typeof historicalEdges>) {
+  return edges.map(value => JSON.stringify(value)).sort();
+}
+test("historical policy Booking: ServiceVisit Restrict must be resolved first; parents survive", () => {
+  const edges = historicalEdges();
+  assert.deepEqual(sortedEdges(edges.filter(e => e.from === "Booking")), sortedEdges([
+    edge("Booking", "Salon", ["salonId"], ["id"], "Cascade"),
+    edge("Booking", "User", ["userId"], ["id"], "Cascade"),
+    edge("Booking", "Barber", ["barberId"], ["id"], "SetNull"),
+    edge("Booking", "Service", ["serviceId"], ["id"], "SetNull"),
+  ]));
+  assert.deepEqual(edges.filter(e => e.to === "Booking"), [edge("ServiceVisit", "Booking", ["bookingId", "salonId"], ["id", "salonId"], "Restrict")]);
+  assert.equal(policyApi().classify("ServiceVisit"), "BLOCKING_UNCLASSIFIED");
+});
+test("historical policy ServiceVisit: QueueEntry Restrict lacks a salon composite FK", () => {
+  const edges = historicalEdges();
+  assert.deepEqual(sortedEdges(edges.filter(e => e.from === "ServiceVisit")), sortedEdges([
+    edge("ServiceVisit", "Salon", ["salonId"], ["id"], "Cascade"),
+    edge("ServiceVisit", "Booking", ["bookingId", "salonId"], ["id", "salonId"], "Restrict"),
+    edge("ServiceVisit", "StaffMembership", ["staffMembershipId", "salonId"], ["id", "salonId"], "Restrict"),
+    ...["startedByUserId", "completedByUserId", "cancelledByUserId"].map(field => edge("ServiceVisit", "User", [field], ["id"], "SetNull")),
+  ]));
+  assert.deepEqual(edges.filter(e => e.to === "ServiceVisit"), [edge("QueueEntry", "ServiceVisit", ["serviceVisitId"], ["id"], "Restrict")]);
+  assert.equal(policyApi().classify("QueueEntry"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("ServiceVisit"), "BLOCKING_UNCLASSIFIED");
+});
+test("historical policy StaffMembership: Restrict visits and cascading presence/leases remain blockers", () => {
+  const edges = historicalEdges();
+  assert.deepEqual(sortedEdges(edges.filter(e => e.from === "StaffMembership")), sortedEdges([
+    edge("StaffMembership", "Salon", ["salonId"], ["id"], "Cascade"),
+    edge("StaffMembership", "User", ["userId"], ["id"], "Cascade"),
+    edge("StaffMembership", "Barber", ["barberId", "salonId"], ["id", "salonId"], "Cascade"),
+  ]));
+  assert.deepEqual(sortedEdges(edges.filter(e => e.to === "StaffMembership")), sortedEdges([
+    edge("ServiceVisit", "StaffMembership", ["staffMembershipId", "salonId"], ["id", "salonId"], "Restrict"),
+    edge("StaffPresence", "StaffMembership", ["staffMembershipId"], ["id"], "Cascade"),
+  ]));
+  assert.deepEqual(edges.filter(e => e.to === "StaffPresence"), [edge("StaffPresenceLease", "StaffPresence", ["staffMembershipId"], ["staffMembershipId"], "Cascade")]);
+  assert.deepEqual(edges.filter(e => e.to === "StaffPresenceLease"), []);
+  for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease", "ServiceVisit"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+});
+test("historical policy leaves unrelated classifications and shared identities unchanged", () => {
+  for (const name of ["Barber", "Service", "Message", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
+  assert.equal(policyApi().classify("UnknownHistory"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
+  assert.equal(policyApi().classify("UserSubscription"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
+});
