@@ -31,7 +31,7 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   AvailabilitySlot: "BLOCKING_UNCLASSIFIED",
   Booking: "BLOCKING_UNCLASSIFIED",
   ServiceVisit: "BLOCKING_UNCLASSIFIED",
-  QueueEntry: "BLOCKING_UNCLASSIFIED",
+  QueueEntry: "DELETE_WITH_SALON",
   Offer: "BLOCKING_UNCLASSIFIED",
   // All persisted review fields are archived; no inbound FK depends on this row.
   // Target-salon scope and the separate retention/readiness gates still apply.

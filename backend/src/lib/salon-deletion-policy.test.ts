@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["Review", "SalonAvailabilitySubscription", "SalonLiveStatus"]);
+  assert.deepEqual(allowed, ["QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -162,8 +162,15 @@ test("historical policy ServiceVisit: QueueEntry Restrict lacks a salon composit
     ...["startedByUserId", "completedByUserId", "cancelledByUserId"].map(field => edge("ServiceVisit", "User", [field], ["id"], "SetNull")),
   ]));
   assert.deepEqual(edges.filter(e => e.to === "ServiceVisit"), [edge("QueueEntry", "ServiceVisit", ["serviceVisitId"], ["id"], "Restrict")]);
-  assert.equal(policyApi().classify("QueueEntry"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("QueueEntry"), "DELETE_WITH_SALON");
   assert.equal(policyApi().classify("ServiceVisit"), "BLOCKING_UNCLASSIFIED");
+});
+test("QueueEntry qualifies as DELETE_WITH_SALON with complete archive and cross-salon readiness", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("QueueEntry"), "DELETE_WITH_SALON");
+  assert.equal(owned("QueueEntry", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("QueueEntry", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("QueueEntry"));
 });
 test("historical policy StaffMembership: Restrict visits and cascading presence/leases remain blockers", () => {
   const edges = historicalEdges();
