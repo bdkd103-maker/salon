@@ -287,7 +287,7 @@ function request(app: ReturnType<typeof Fastify>, path: string, payload: any = {
   return app.inject({ method: "POST", url: "/api/v1/salons/target/" + path,
     headers: { authorization: `Bearer ${signAccessToken({ sub: role.toLowerCase(), role })}` }, payload });
 }
-// Current V2 fixture for issuance and hold tests.
+// Current V3 fixture for issuance and hold tests.
 function archive(salonId = "target") {
   tables.salonArchive.push({ archiveId: "archive-1", salonId,
     finalizedAt: new Date("2026-01-01T00:00:00Z"), ...buildSalonArchiveState({
@@ -361,8 +361,8 @@ test("clearance records independent archive evidence without mutating salon or a
   assert.ok(Number.isFinite(Date.parse(clearance.issuedAt)));
   assert.deepEqual(clearance.sourceState, tables.salonArchive[0].sourceState);
   assert.deepEqual(clearance.coverage, tables.salonArchive[0].coverage);
-  assert.equal(clearance.archiveVersion, 2);
-  assert.equal(clearance.payloadVersion, 2);
+  assert.equal(clearance.archiveVersion, 3);
+  assert.equal(clearance.payloadVersion, 3);
   assert.equal(clearance.archiveFinalizedAt, tables.salonArchive[0].finalizedAt.toISOString());
   tables.salonArchive[0].sourceState.bookingContent = ["changed"];
   assert.notDeepEqual(tables.salonPurgeClearance[0].sourceState, tables.salonArchive[0].sourceState);
@@ -402,7 +402,7 @@ test("missing salon cannot receive a hold or clearance", async () => withApp(asy
   assert.deepEqual(writes, []);
 }));
 
-// Complete current V2 source fixtures; historical V1 fixtures remain explicit.
+// Complete source fixtures (V2 shapes unchanged in V3); historical V1 fixtures remain explicit.
 const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
 const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
 const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
@@ -412,7 +412,7 @@ for (const [model, fixture, field, changed] of [
   ["serviceVisit", v2Visit, "startedByUserId", "another-actor"],
   ["staffMembership", v2Membership, "updatedAt", "2026-02-01T00:00:00.000Z"],
 ] as const) {
-  test(`V2 ${model} loaded persisted history change invalidates clearance`, async () => withApp(async app => {
+  test(`V3 ${model} loaded persisted history change invalidates clearance`, async () => withApp(async app => {
     tables[model] = [structuredClone(fixture)];
     const before = structuredClone(tables.salon);
     const id = await finalizedClearance(app);
@@ -423,7 +423,7 @@ for (const [model, fixture, field, changed] of [
     assert.deepEqual(tables.salon, before);
   }));
 }
-for (const [av, pv] of [[1, 1], [999, 2], [2, 999], [1, 2], [2, 1]]) {
+for (const [av, pv] of [[1, 1], [2, 2], [999, 3], [3, 999], [1, 2], [2, 1], [2, 3], [3, 2]]) {
   test(`clearance rejects historical/unsupported contract ${av}/${pv} without changing evidence`, async () => withApp(async app => {
     await request(app, "archive/finalize");
     const old = tables.salonArchive[0];
@@ -447,15 +447,15 @@ for (const [av, pv] of [[1, 1], [999, 2], [2, 999], [1, 2], [2, 1]]) {
     assert.deepEqual(tables.salonArchive, old);
   }));
 }
-test("V2 finalization creates distinct evidence and never upgrades historical V1 rows", async () => withApp(async app => {
+test("V3 finalization creates distinct evidence and never upgrades historical V1 rows", async () => withApp(async app => {
   const historical = { archiveId: "historical", salonId: "target", archiveVersion: 1, payloadVersion: 1,
     sourceState: { bookingContent: ['["b","target","COMPLETED"]'], serviceVisitContent: ['["v","target","COMPLETED"]'], staffMembershipContent: ['["m","target","owner","barber","ACTIVE",null]'] } };
   tables.salonArchive.push(structuredClone(historical));
   tables.booking = [structuredClone(v2Booking)];
   const response = await request(app, "archive/finalize");
   assert.equal(response.statusCode, 201);
-  assert.equal(response.json().archive.archiveVersion, 2);
-  assert.equal(response.json().archive.payloadVersion, 2);
+  assert.equal(response.json().archive.archiveVersion, 3);
+  assert.equal(response.json().archive.payloadVersion, 3);
   assert.notEqual(response.json().archive.archiveId, historical.archiveId);
   assert.deepEqual(tables.salonArchive[0], historical);
 }));
@@ -468,3 +468,39 @@ for (const path of ["archive/finalize", "purge-clearance"]) {
     }));
   }
 }
+
+const v3QueueEntry = {"id": "q", "salonId": "target", "customerId": null, "serviceVisitId": null, "source": "SALO_TICKET", "status": "WAITING", "joinedAt": "2026-01-01T00:00:00.000Z", "calledAt": null, "startedAt": null, "cancelledAt": null, "expiredAt": null, "noShowAt": null, "version": 1, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+for (const change of ["createdAt", "updatedAt", "insert", "remove"]) {
+  test(`V3 QueueEntry ${change} makes current evidence stale`, async () => withApp(async app => {
+    tables.queueEntry = [structuredClone(v3QueueEntry)];
+    const id = await finalizedClearance(app);
+    const oldArchive = structuredClone(tables.salonArchive);
+    const oldState = structuredClone(tables.salonPurgeClearance[0].sourceState);
+    assert.equal((await revalidate(app, id)).statusCode, 200);
+    if (change === "insert") tables.queueEntry.push({ ...v3QueueEntry, id: "new" });
+    else if (change === "remove") tables.queueEntry = [];
+    else tables.queueEntry[0][change] = "2026-02-01T00:00:00.000Z";
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.equal(tables.salonPurgeClearance[0].revocationReason, "Source state changed");
+    assert.deepEqual(tables.salonArchive, oldArchive);
+    assert.deepEqual(tables.salonPurgeClearance[0].sourceState, oldState);
+  }));
+}
+test("V3 QueueEntry finalization is target-scoped and leaves historical V2 evidence untouched", async () => withApp(async app => {
+  const { createdAt, updatedAt, ...oldQueue } = v3QueueEntry;
+  const historical = { archiveId: "old-v2", salonId: "target", archiveVersion: 2, payloadVersion: 2, sourceState: { queueEntryContent: [JSON.stringify(Object.values(oldQueue))] } };
+  tables.salonArchive.push(structuredClone(historical));
+  tables.queueEntry = [structuredClone(v3QueueEntry), { ...v3QueueEntry, id: "sibling-q", salonId: "sibling" }];
+  const id = await finalizedClearance(app);
+  const current = tables.salonArchive[1];
+  assert.equal(current.archiveVersion, 3);
+  assert.equal(current.payloadVersion, 3);
+  assert.deepEqual(current.sourceState.queueEntryContent, [JSON.stringify(Object.values(v3QueueEntry))]);
+  assert.deepEqual(tables.salonArchive[0], historical);
+  assert.notEqual(current.archiveId, historical.archiveId);
+  tables.queueEntry[1].updatedAt = "2026-03-01T00:00:00.000Z";
+  assert.equal((await revalidate(app, id)).statusCode, 200);
+  const result = await readiness();
+  assert.equal(result.ready, false);
+  assert.ok(result.blockingModels.includes("QueueEntry"));
+}));

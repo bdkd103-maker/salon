@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
 
-// Current server-written contract. V1 remains an explicit historical format only.
-export const SALON_ARCHIVE_VERSION = 2;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 2;
+// Current server-written contract. V1/V2 remain explicit historical formats only.
+export const SALON_ARCHIVE_VERSION = 3;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 3;
 export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
+export const LEGACY_SALON_ARCHIVE_V2_CONTRACT = Object.freeze({ archiveVersion: 2, payloadVersion: 2 });
 const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
 type ArchiveContract = { archiveVersion: number; payloadVersion: number };
 export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
@@ -76,7 +77,7 @@ export type SalonArchiveCoverage = {
 };
 
 type BuildSalonArchiveInput = {
-  queueEntries?: Array<{ id: string; salonId: string; customerId: string | null; serviceVisitId: string | null; source: string; status: string; joinedAt: Date | string; calledAt: Date | string | null; startedAt: Date | string | null; cancelledAt: Date | string | null; expiredAt: Date | string | null; noShowAt: Date | string | null; version: number }>;
+  queueEntries?: Array<HistoricalDates & { id: string; salonId: string; customerId: string | null; serviceVisitId: string | null; source: string; status: string; joinedAt: Date | string; calledAt: Date | string | null; startedAt: Date | string | null; cancelledAt: Date | string | null; expiredAt: Date | string | null; noShowAt: Date | string | null; version: number }>;
   loyalty?: Array<{ id: string; salonId: string; isActive: boolean; requiredStamps: number; rewardType: string; rewardTitle: string; rewardText: string; description: string | null; createdAt: Date | string; customers: LoyaltyCustomerSource[]; stamps: LoyaltyStampSource[] }>;
   offers?: Array<{ id: string; salonId: string | null; title: string; description: string | null; price: string | Prisma.Decimal | null; isActive: boolean; availableSlots: number | null; discount: string | Prisma.Decimal | null; endAt: Date | string | null; endTime: string | null; serviceName: string | null; startAt: Date | string | null; startTime: string | null }>;
   analyticsEvents?: Array<{ id: string; salonId: string; userId: string | null; eventType: string; source: string; metadata: Prisma.JsonValue; createdAt: Date | string }>;
@@ -139,10 +140,11 @@ function sortedUnique(values: string[]) {
 
 export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: ArchiveContract = CURRENT_CONTRACT) {
   const current = isCurrentSalonArchiveContract(contract);
-  if (!current && (contract.archiveVersion !== LEGACY_SALON_ARCHIVE_CONTRACT.archiveVersion
-    || contract.payloadVersion !== LEGACY_SALON_ARCHIVE_CONTRACT.payloadVersion)) {
-    throw new Error("Unsupported salon archive contract");
-  }
+  const legacyV1 = contract.archiveVersion === LEGACY_SALON_ARCHIVE_CONTRACT.archiveVersion
+    && contract.payloadVersion === LEGACY_SALON_ARCHIVE_CONTRACT.payloadVersion;
+  const legacyV2 = contract.archiveVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.archiveVersion
+    && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.payloadVersion;
+  if (!current && !legacyV1 && !legacyV2) throw new Error("Unsupported salon archive contract");
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -169,12 +171,12 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
       // Fixed field order ignores object-key order; sorting/deduplication ignores row noise.
       // Conflicting content for the same ID is retained rather than chosen by input order.
       bookingContent: sortedUnique(input.bookings.map((booking) =>
-        current ? v2Content(booking, V2_FIELDS.booking, input.salonId) : JSON.stringify([booking.id, booking.salonId, booking.status]),
+        !legacyV1 ? v2Content(booking, V2_FIELDS.booking, input.salonId) : JSON.stringify([booking.id, booking.salonId, booking.status]),
       )),
     }),
     ...(input.serviceVisits === undefined ? {} : {
   serviceVisitContent: sortedUnique(input.serviceVisits.map((visit) =>
-    current ? v2Content(visit, V2_FIELDS.serviceVisit, input.salonId) : JSON.stringify([visit.id, visit.salonId, visit.status]),
+    !legacyV1 ? v2Content(visit, V2_FIELDS.serviceVisit, input.salonId) : JSON.stringify([visit.id, visit.salonId, visit.status]),
   )),
 }),
 ...(input.salonBoosts === undefined ? {} : {
@@ -222,7 +224,7 @@ if (input.availability !== undefined) {
 }
 if (input.staffMemberships !== undefined) {
   sourceState.staffMembershipContent = sortedUnique(input.staffMemberships.map(row =>
-    current ? v2Content(row, V2_FIELDS.staffMembership, input.salonId) : JSON.stringify([row.id, row.salonId, row.userId, row.barberId, row.status, row.revokedAt === null ? null : new Date(row.revokedAt).toISOString()]),
+    !legacyV1 ? v2Content(row, V2_FIELDS.staffMembership, input.salonId) : JSON.stringify([row.id, row.salonId, row.userId, row.barberId, row.status, row.revokedAt === null ? null : new Date(row.revokedAt).toISOString()]),
   ));
   coverage.categories.push("STAFF_MEMBERSHIP");
   coverage.counts.staffMemberships = sortedUnique(input.staffMemberships.map(row => row.id)).length;
@@ -237,7 +239,13 @@ if (input.staffPresence !== undefined) {
 if (input.queueEntries !== undefined) {
   sourceState.queueEntryContent = sortedUnique(input.queueEntries.map(row => {
     if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
-    return JSON.stringify([row.id, row.salonId, row.customerId, row.serviceVisitId, row.source, row.status, archiveDate(row.joinedAt), archiveDate(row.calledAt), archiveDate(row.startedAt), archiveDate(row.cancelledAt), archiveDate(row.expiredAt), archiveDate(row.noShowAt), row.version]);
+    // V3 appends chronology; V1/V2 retain their exact 13-field tuple.
+    if (current && (row.createdAt == null || row.updatedAt == null)) {
+      throw new Error("Missing V3 QueueEntry chronology");
+    }
+    return JSON.stringify([row.id, row.salonId, row.customerId, row.serviceVisitId, row.source, row.status, archiveDate(row.joinedAt), archiveDate(row.calledAt), archiveDate(row.startedAt), archiveDate(row.cancelledAt), archiveDate(row.expiredAt), archiveDate(row.noShowAt), row.version,
+      ...(current ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
+    ]);
   }));
   coverage.categories.push("QUEUE_ENTRY");
   coverage.counts.queueEntries = sortedUnique(input.queueEntries.map(row => row.id)).length;

@@ -543,28 +543,31 @@ const v2Cases = [
   ["serviceVisits", "serviceVisitContent", v2Visit, ["id", "salonId", "status"]],
   ["staffMemberships", "staffMembershipContent", v2Membership, ["id", "salonId", "userId", "barberId", "status", "revokedAt"]],
 ] as const;
+// These remain historical V2 tests; current V3 QueueEntry is tested separately.
+const buildV2SalonArchiveState = (input: Parameters<typeof buildCurrentSalonArchiveState>[0]) =>
+  buildCurrentSalonArchiveState(input, { archiveVersion: 2, payloadVersion: 2 });
 for (const [key, content, row, legacyFields] of v2Cases) {
   const input = (rows: object[]) => ({ salonId: "target", bookingIds: key === "bookings" && rows.length ? ["b"] : [], serviceVisitIds: key === "serviceVisits" && rows.length ? ["v"] : [], salonBoostIds: [], [key]: rows });
   test(`V2 ${key} exact persisted field order, nulls and every field's integrity`, () => {
-    const before = buildCurrentSalonArchiveState(input([row]));
+    const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 2);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 2);
+    assert.equal(SALON_ARCHIVE_VERSION, 3);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 3);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
       const changed = field.endsWith("At") ? "2026-02-01T00:00:00.000Z" : typeof value === "number" ? 2 : "changed";
-      assert.notDeepEqual(buildCurrentSalonArchiveState(input([{ ...row, [field]: changed }])).sourceState, before.sourceState, field);
+      assert.notDeepEqual(buildV2SalonArchiveState(input([{ ...row, [field]: changed }])).sourceState, before.sourceState, field);
     }
   });
   test(`V2 ${key} canonical dates, ordering, duplicates and conflicting identity`, () => {
-    const before = buildCurrentSalonArchiveState(input([row]));
+    const before = buildV2SalonArchiveState(input([row]));
     const dates = Object.fromEntries(Object.entries(row).map(([k, v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
-    assert.deepEqual(buildCurrentSalonArchiveState(input([dates, row])), before);
+    assert.deepEqual(buildV2SalonArchiveState(input([dates, row])), before);
     const conflict = { ...row, status: "CANCELLED" };
-    const state = buildCurrentSalonArchiveState(input([row, conflict]));
-    assert.deepEqual(state, buildCurrentSalonArchiveState(input([conflict, row, conflict])));
+    const state = buildV2SalonArchiveState(input([row, conflict]));
+    assert.deepEqual(state, buildV2SalonArchiveState(input([conflict, row, conflict])));
     assert.equal(state.sourceState[content]!.length, 2);
     assert.equal(Object.values(state.coverage.counts).reduce((a, b) => a + b, 0), 1);
   });
@@ -577,14 +580,14 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     assert.equal(old.payloadVersion, 1);
     assert.deepEqual(JSON.parse(old.sourceState[content]![0]), Object.values(oldRow));
     assert.deepEqual(source, copy);
-    assert.throws(() => buildCurrentSalonArchiveState(source), /missing.*V2|V2.*missing/i);
+    assert.throws(() => buildV2SalonArchiveState(source), /missing.*V2|V2.*missing/i);
   });
   test(`V2 ${key} evaluated-empty semantics and target scoping`, () => {
-    const empty = buildCurrentSalonArchiveState(input([]));
+    const empty = buildV2SalonArchiveState(input([]));
     assert.equal(empty.coverage.emptyHistory, true);
     assert.deepEqual(empty.sourceState[content], []);
-    assert.equal(buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] }).sourceState[content], undefined);
-    assert.throws(() => buildCurrentSalonArchiveState(input([{ ...row, salonId: "sibling" }])), /another salon/i);
+    assert.equal(buildV2SalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] }).sourceState[content], undefined);
+    assert.throws(() => buildV2SalonArchiveState(input([{ ...row, salonId: "sibling" }])), /another salon/i);
   });
 }
 test("archive contract rejects mixed and unsupported versions", () => {
@@ -592,3 +595,43 @@ test("archive contract rejects mixed and unsupported versions", () => {
     assert.throws(() => buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] }, contract), /unsupported/i);
   }
 });
+
+const v3QueueEntry = {"id": "q", "salonId": "target", "customerId": null, "serviceVisitId": null, "source": "SALO_TICKET", "status": "WAITING", "joinedAt": "2026-01-01T00:00:00.000Z", "calledAt": null, "startedAt": null, "cancelledAt": null, "expiredAt": null, "noShowAt": null, "version": 1, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [], queueEntries: rows });
+test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
+  const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
+  const before = build([v3QueueEntry]);
+  assert.equal(before.archiveVersion, 3);
+  assert.equal(before.payloadVersion, 3);
+  assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
+  const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
+  assert.deepEqual(build([dates, v3QueueEntry]), before);
+  for (const field of ["createdAt", "updatedAt"]) {
+    const conflict = { ...v3QueueEntry, [field]: "2026-02-01T00:00:00.000Z" };
+    assert.notDeepEqual(build([conflict]).sourceState, before.sourceState);
+    const both = build([conflict, v3QueueEntry]);
+    assert.deepEqual(both, build([v3QueueEntry, conflict, conflict]));
+    assert.equal(both.sourceState.queueEntryContent!.length, 2);
+    assert.equal(both.coverage.counts.queueEntries, 1);
+  }
+  assert.deepEqual(build([]).sourceState.queueEntryContent, []);
+  assert.equal(build([]).coverage.counts.queueEntries, 0);
+  assert.equal(build([]).coverage.emptyHistory, true);
+  assert.ok(build([]).coverage.categories.includes("QUEUE_ENTRY"));
+  const omitted = buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] });
+  assert.equal(omitted.sourceState.queueEntryContent, undefined);
+  assert.equal(omitted.coverage.categories.includes("QUEUE_ENTRY"), false);
+});
+for (const version of [1, 2]) {
+  test(`V${version} QueueEntry keeps 13 fields and cannot be silently promoted`, () => {
+    const { createdAt, updatedAt, ...historicalRow } = v3QueueEntry;
+    const input = queueInput([historicalRow]) as Parameters<typeof buildCurrentSalonArchiveState>[0];
+    const snapshot = structuredClone(input);
+    const historical = buildCurrentSalonArchiveState(input, { archiveVersion: version, payloadVersion: version });
+    assert.equal(historical.archiveVersion, version);
+    assert.equal(historical.payloadVersion, version);
+    assert.deepEqual(JSON.parse(historical.sourceState.queueEntryContent![0]), Object.values(historicalRow));
+    assert.deepEqual(input, snapshot);
+    assert.throws(() => buildCurrentSalonArchiveState(input), /V3.*chronology|missing.*V3/i);
+  });
+}

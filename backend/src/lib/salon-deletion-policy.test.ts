@@ -117,7 +117,7 @@ for (const [name, category, content, row] of historicalPolicyCases) {
     const model = Prisma.dmmf.datamodel.models.find(model => model.name === name)!;
     assert.deepEqual(model.fields.filter(field => field.kind !== "object").map(field => field.name).sort(), Object.keys(row).sort());
     const input = { salonId: "target", bookingIds: category === "bookings" ? [row.id] : [], serviceVisitIds: category === "serviceVisits" ? [row.id] : [], salonBoostIds: [], [category]: [row] };
-    const evidence = buildSalonArchiveState(input);
+    const evidence = buildSalonArchiveState(input, { archiveVersion: 2, payloadVersion: 2 });
     assert.equal(evidence.archiveVersion, 2);
     assert.equal(evidence.payloadVersion, 2);
     assert.deepEqual(JSON.parse(evidence.sourceState[content]![0]), Object.values(row));
