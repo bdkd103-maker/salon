@@ -17,9 +17,10 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   SalonPurgeClearance: "SURVIVE_AS_INDEPENDENT_HISTORY",
   SalonArchive: "SURVIVE_AS_INDEPENDENT_HISTORY",
   DeviceToken: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // V7 lacks full root evidence; Message's surviving SetNull reference is unresolved.
   Salon: "BLOCKING_UNCLASSIFIED",
   SalonLiveStatus: "DELETE_WITH_SALON",
-  SalonBoost: "BLOCKING_UNCLASSIFIED",
+  SalonBoost: "DELETE_WITH_SALON",
   LoyaltyCard: "DELETE_WITH_SALON",
   LoyaltyCustomer: "DELETE_WITH_SALON",
   LoyaltyStamp: "DELETE_WITH_SALON",
@@ -32,12 +33,16 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   Booking: "DELETE_WITH_SALON",
   ServiceVisit: "DELETE_WITH_SALON",
   QueueEntry: "DELETE_WITH_SALON",
-  Offer: "BLOCKING_UNCLASSIFIED",
+  // Only rows whose salonId matches the target; null/global offers survive.
+  Offer: "DELETE_WITH_SALON",
   // All persisted review fields are archived; no inbound FK depends on this row.
   // Target-salon scope and the separate retention/readiness gates still apply.
   Review: "DELETE_WITH_SALON",
+  // Participant-owned inbox semantics and retention after salon detachment need a decision.
   Message: "BLOCKING_UNCLASSIFIED",
-  SalonMedia: "BLOCKING_UNCLASSIFIED",
+  // DB metadata only: all five fields are archived. URLs are not archived bytes
+  // and this classification never authorizes external media/blob deletion.
+  SalonMedia: "DELETE_WITH_SALON",
   Session: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   PasswordReset: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   Notification: "SHARED_OR_GLOBAL_DO_NOT_DELETE",

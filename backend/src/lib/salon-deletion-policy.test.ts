@@ -23,7 +23,7 @@ test("group1 Review qualifies only with complete persisted content and no inboun
 });
 test("group1 incomplete evidence and unresolved references remain blocking despite salonId", () => {
   const { evaluate, classify, owned } = policyApi();
-  for (const model of ["SalonMedia"]) {
+  for (const model of ["Salon"]) {
     assert.equal(classify(model), "BLOCKING_UNCLASSIFIED", model);
     assert.equal(owned(model, { salonId: "target" }, "target"), false, model);
     assert.ok(Object.hasOwn(evaluate().classifications, model));
@@ -32,7 +32,7 @@ test("group1 incomplete evidence and unresolved references remain blocking despi
   assert.equal(evaluate().complete, false);
 });
 import { test } from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { Prisma } from "@prisma/client";
 import * as validation from "./salon-clearance-revalidation.js";
 
@@ -76,9 +76,9 @@ for (const model of ["SalonEnforcement", "SalonArchive", "SalonRetentionHold", "
     assert.equal(policyApi().classify(model), "SURVIVE_AS_INDEPENDENT_HISTORY");
   });
 }
-test("policy Message and uncovered lease/history block readiness", () => {
+test("policy Message blocks readiness", () => {
   const { classify, evaluate } = policyApi();
-  for (const model of ["Message", "SalonBoost"])
+  for (const model of ["Message"])
     assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
   assert.equal(evaluate().complete, false);
 });
@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "Offer", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -142,6 +142,125 @@ function edge(from: string, to: string, fields: string[], references: string[], 
 function sortedEdges(edges: ReturnType<typeof historicalEdges>) {
   return edges.map(value => JSON.stringify(value)).sort();
 }
+
+for (const name of ["SalonBoost", "Offer"]) {
+  test(`${name} qualifies as a salon-scoped leaf; unassigned and sibling rows survive`, () => {
+    const edges = historicalEdges();
+    assert.deepEqual(edges.filter(e => e.from === name), [edge(name, "Salon", ["salonId"], ["id"], "Cascade")]);
+    assert.deepEqual(edges.filter(e => e.to === name), []);
+    const { classify, owned, evaluate } = policyApi();
+    assert.equal(classify(name), "DELETE_WITH_SALON");
+    assert.equal(owned(name, { salonId: "target" }, "target"), true);
+    for (const salonId of [null, undefined, "sibling"])
+      assert.equal(owned(name, { salonId }, "target"), false);
+    assert.ok(!evaluate().blockingModels.includes(name));
+  });
+}
+
+test("SalonMedia DB metadata qualifies independently of external media bytes", async () => {
+  const { loadSalonArchiveState } = await import("./salon-archive-source.js");
+  const fields = ["id", "salonId", "kind", "url", "createdAt"];
+  const model = Prisma.dmmf.datamodel.models.find(m => m.name === "SalonMedia")!;
+  assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(), [...fields].sort());
+  const edges = historicalEdges();
+  assert.deepEqual(edges.filter(e => e.from === "SalonMedia"), [edge("SalonMedia", "Salon", ["salonId"], ["id"], "Cascade")]);
+  assert.deepEqual(edges.filter(e => e.to === "SalonMedia"), []);
+  const row = { id: "media", salonId: "target", kind: "image", url: "https://media.invalid/shared.jpg", createdAt: new Date("2026-01-01T00:00:00Z") };
+  // Exercise the trusted loader's exact target predicate and full projection.
+  // No external file API is part of this evidence or DB-row classification.
+  const load = async (record: typeof row) => {
+    const tx = Object.fromEntries(Prisma.dmmf.datamodel.models.map(m => [
+      m.name[0].toLowerCase() + m.name.slice(1), { findMany: async () => [] },
+    ]));
+    tx.salonMedia = { findMany: async (...args: any[]) => {
+      assert.deepEqual(args[0], { where: { salonId: "target" }, select: Object.fromEntries(fields.map(f => [f, true])) });
+      return [record] as any;
+    } };
+    return loadSalonArchiveState(tx as any, "target");
+  };
+  const before = await load(row);
+  assert.deepEqual(JSON.parse(before.sourceState.salonMediaContent![0]),
+    [row.id, row.salonId, row.kind, row.url, row.createdAt.toISOString()]);
+  const changes = { ...row, id: "media-b", kind: "video", url: "https://media.invalid/changed.mp4", createdAt: new Date("2026-02-01T00:00:00Z") };
+  for (const field of ["id", "kind", "url", "createdAt"] as const)
+    assert.notDeepEqual((await load({ ...row, [field]: changes[field] })).sourceState, before.sourceState, field);
+  assert.equal(policyApi().classify("SalonMedia"), "DELETE_WITH_SALON");
+  assert.equal(policyApi().owned("SalonMedia", row, "target"), true);
+  assert.equal(policyApi().owned("SalonMedia", { ...row, salonId: "sibling" }, "target"), false);
+});
+
+test("Message remains unresolved participant history with three SetNull parents and no children", () => {
+  const model = Prisma.dmmf.datamodel.models.find(m => m.name === "Message")!;
+  assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(),
+    ["id", "salonId", "senderId", "receiverId", "subject", "body", "isRead", "createdAt"].sort());
+  const edges = historicalEdges();
+  assert.deepEqual(sortedEdges(edges.filter(e => e.from === "Message")), sortedEdges([
+    edge("Message", "Salon", ["salonId"], ["id"], "SetNull"),
+    edge("Message", "User", ["senderId"], ["id"], "SetNull"),
+    edge("Message", "User", ["receiverId"], ["id"], "SetNull"),
+  ]));
+  assert.deepEqual(edges.filter(e => e.to === "Message"), []);
+  assert.equal(policyApi().classify("Message"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().owned("Message", { salonId: "target" }, "target"), false);
+});
+
+test("Salon root inventory stays blocked by missing full evidence and surviving Message mutation", () => {
+  const model = Prisma.dmmf.datamodel.models.find(m => m.name === "Salon")!;
+  assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(), [
+    "id", "ownerId", "name", "slug", "city", "address", "latitude", "longitude", "phone", "email", "website",
+    "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "status",
+    "bookingIntakeEnabled", "saloTicketIntakeEnabled", "walkInIntakeEnabled", "rating", "reviewCount",
+    "openingTime", "closingTime", "workingDays", "timeZone", "createdAt", "updatedAt",
+  ].sort());
+  const edges = historicalEdges();
+  assert.deepEqual(edges.filter(e => e.from === "Salon"), [edge("Salon", "User", ["ownerId"], ["id"], "Cascade")]);
+  const children = ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "Offer", "QueueEntry",
+    "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership"];
+  assert.deepEqual(sortedEdges(edges.filter(e => e.to === "Salon")), sortedEdges([
+    ...children.map(name => edge(name, "Salon", ["salonId"], ["id"], "Cascade")),
+    edge("Message", "Salon", ["salonId"], ["id"], "SetNull"),
+  ]));
+  for (const child of children) assert.equal(policyApi().classify(child), "DELETE_WITH_SALON");
+  for (const name of ["SalonEnforcement", "SalonArchive", "SalonRetentionHold", "SalonPurgeClearance"])
+    assert.deepEqual(edges.filter(e => e.from === name || e.to === name), [], `${name} survives without FKs`);
+  assert.ok(!validation.REQUIRED_ARCHIVE_CATEGORIES.some(category => String(category) === "SALON"));
+  assert.deepEqual(policyApi().evaluate().blockingModels, ["Message", "Salon"]);
+});
+
+test("reviewed root, Message and leaf FK actions agree with checked-in SQL migrations", () => {
+  const base = new URL("../../prisma/migrations/", import.meta.url);
+  const sql = readdirSync(base, { withFileTypes: true }).filter(entry => entry.isDirectory())
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(entry => readFileSync(new URL(`${entry.name}/migration.sql`, base), "utf8")).join("\n");
+  for (const e of historicalEdges().filter(e => e.to === "Salon" || ["Salon", "Message", "SalonBoost", "Offer", "SalonMedia"].includes(e.from))) {
+    const constraint = `${e.from}_${e.fields!.join("_")}_fkey`;
+    const definitions = sql.split(";").filter(statement => statement.includes(`ADD CONSTRAINT "${constraint}"`));
+    assert.equal(definitions.length, 1, constraint);
+    assert.ok(definitions[0].includes(`REFERENCES "${e.to}"`), constraint);
+    assert.ok(definitions[0].includes(`ON DELETE ${e.action === "SetNull" ? "SET NULL" : e.action.toUpperCase()}`), constraint);
+    assert.ok(!sql.includes(`DROP CONSTRAINT "${constraint}"`), `${constraint} requires renewed migration review`);
+  }
+});
+
+test("proposed dependent-first ordering covers every classified child FK without authorizing root deletion", () => {
+  // A schema proof only, never an executable purge plan. Existing same-transaction
+  // retention, archive and cross-salon guards must pass before any future writes.
+  const order = ["QueueEntry", "ServiceVisit", "Booking", "AvailabilitySlot", "StaffPresenceLease", "StaffPresence",
+    "StaffMembership", "Barber", "Service", "LoyaltyStamp", "LoyaltyCustomer", "LoyaltyCard", "AnalyticsEvent",
+    "Offer", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Salon"];
+  const { classify, evaluate } = policyApi();
+  const children = Object.keys(evaluate().classifications).filter(name => classify(name) === "DELETE_WITH_SALON");
+  assert.deepEqual(order.filter(name => name !== "Salon").sort(), children.sort());
+  for (const e of historicalEdges().filter(e => order.includes(e.to))) {
+    if (e.from === "Message") {
+      assert.equal(classify(e.from), "BLOCKING_UNCLASSIFIED");
+      continue; // Deliberately unresolved; root deletion cannot yet be authorized.
+    }
+    assert.ok(order.includes(e.from), `unhandled surviving reference ${e.from} -> ${e.to}`);
+    assert.ok(order.indexOf(e.from) < order.indexOf(e.to), `${e.from} must precede ${e.to}`);
+  }
+  assert.equal(classify("Salon"), "BLOCKING_UNCLASSIFIED");
+});
 test("historical policy Booking: ServiceVisit Restrict must be resolved first; parents survive", () => {
   const edges = historicalEdges();
   assert.deepEqual(sortedEdges(edges.filter(e => e.from === "Booking")), sortedEdges([
