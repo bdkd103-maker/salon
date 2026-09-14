@@ -245,7 +245,7 @@ test("offer decimals normalize equivalent exact values and preserve null", () =>
   assert.deepEqual(build("12.30"), build("12.300"));
   assert.notDeepEqual(build(null).sourceState, build("0").sourceState);
 });
-const workforceCategories = [["services","SERVICE","serviceContent","id",{"id":"a","salonId":"target","name":"Cut","description":null,"durationMin":30,"price":"12.30","isActive":true},{"name":"Color","description":"New","durationMin":45,"price":"12.31","isActive":false}],["availability","AVAILABILITY","availabilityContent","id",{"id":"a","salonId":"target","barberId":null,"startAt":"2026-01-01T10:00:00Z","endAt":"2026-01-01T11:00:00Z","status":"AVAILABLE"},{"barberId":"b","startAt":"2026-01-01T10:30:00Z","endAt":"2026-01-01T11:30:00Z","status":"BOOKED"}],["staffMemberships","STAFF_MEMBERSHIP","staffMembershipContent","id",{"id":"a","salonId":"target","userId":"u","barberId":"b","status":"ACTIVE","revokedAt":null},{"userId":"v","barberId":"c","status":"REVOKED","revokedAt":"2026-01-01T10:00:00Z"}],["staffPresence","STAFF_PRESENCE","staffPresenceContent","staffMembershipId",{"staffMembershipId":"a","dutyState":"ON_DUTY","generation":1,"changedAt":"2026-01-01T10:00:00Z","changedByUserId":null,"changeSource":"STAFF"},{"dutyState":"OFF_DUTY","generation":2,"changedAt":"2026-01-01T11:00:00Z","changedByUserId":"u","changeSource":"OWNER"}]] as const;
+const workforceCategories = [["services","SERVICE","serviceContent","id",{"id":"a","salonId":"target","name":"Cut","description":null,"durationMin":30,"price":"12.30","isActive":true,"createdAt":"2026-01-01T09:00:00Z","updatedAt":"2026-01-01T10:00:00Z"},{"name":"Color","description":"New","durationMin":45,"price":"12.31","isActive":false}],["availability","AVAILABILITY","availabilityContent","id",{"id":"a","salonId":"target","barberId":null,"startAt":"2026-01-01T10:00:00Z","endAt":"2026-01-01T11:00:00Z","status":"AVAILABLE","createdAt":"2026-01-01T09:00:00Z"},{"barberId":"b","startAt":"2026-01-01T10:30:00Z","endAt":"2026-01-01T11:30:00Z","status":"BOOKED"}],["staffMemberships","STAFF_MEMBERSHIP","staffMembershipContent","id",{"id":"a","salonId":"target","userId":"u","barberId":"b","status":"ACTIVE","revokedAt":null},{"userId":"v","barberId":"c","status":"REVOKED","revokedAt":"2026-01-01T10:00:00Z"}],["staffPresence","STAFF_PRESENCE","staffPresenceContent","staffMembershipId",{"staffMembershipId":"a","dutyState":"ON_DUTY","generation":1,"changedAt":"2026-01-01T10:00:00Z","changedByUserId":null,"changeSource":"STAFF"},{"dutyState":"OFF_DUTY","generation":2,"changedAt":"2026-01-01T11:00:00Z","changedByUserId":"u","changeSource":"OWNER"}]] as const;
 for (const [key, category, contentKey, identity, row, changes] of workforceCategories) {
   const base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
   const build = (rows: Array<Record<string, unknown>>) => buildSalonArchiveState({ ...base, [key]: rows });
@@ -298,7 +298,9 @@ const additionalCategories = [
       "salonId": "target",
       "name": "Original",
       "specialty": "Cut",
-      "isActive": true
+      "isActive": true,
+      "createdAt": "2026-01-01T09:00:00Z",
+      "updatedAt": "2026-01-01T10:00:00Z"
     },
     {
       "name": "Changed",
@@ -553,8 +555,8 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 4);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 4);
+    assert.equal(SALON_ARCHIVE_VERSION, 5);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
@@ -602,8 +604,8 @@ const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], ser
 test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
   const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
   const before = build([v3QueueEntry]);
-  assert.equal(before.archiveVersion, 4);
-  assert.equal(before.payloadVersion, 4);
+  assert.equal(before.archiveVersion, 5);
+  assert.equal(before.payloadVersion, 5);
   assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
   const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
   assert.deepEqual(build([dates, v3QueueEntry]), before);
@@ -657,13 +659,13 @@ const v4Lease = {
 };
 
 test("V4 is the current archive/payload contract", () => {
-  assert.equal(SALON_ARCHIVE_VERSION, 4);
-  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 4);
+  assert.equal(SALON_ARCHIVE_VERSION, 5);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
   const state = buildCurrentSalonArchiveState({ ...v4Base, staffPresence: [] });
-  assert.equal(state.archiveVersion, 4);
-  assert.equal(state.payloadVersion, 4);
-  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }));
-  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 3, payloadVersion: 3 }), false);
+  assert.equal(state.archiveVersion, 5);
+  assert.equal(state.payloadVersion, 5);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }));
+  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }), false);
 });
 
 test("V4 StaffPresence archive evidence includes all 8 persisted fields", () => {
@@ -763,4 +765,191 @@ test("V3 evidence is not current deletion-eligible evidence after V4 bump", () =
   // V3 presence tuple has 6 fields (no createdAt/updatedAt, no leases)
   const parsed = JSON.parse(v3State.sourceState.staffPresenceContent![0]);
   assert.equal(parsed.length, 6);
+});
+
+// ── V5 archive contract: Barber/Service/AvailabilitySlot evidence completion ──
+
+const v5Base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+
+const v5Barber = {
+  id: "barber-1", salonId: "target", name: "Anna", specialty: "Cut",
+  isActive: true,
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+const v5Service = {
+  id: "service-1", salonId: "target", name: "Cut", description: null,
+  durationMin: 30, price: "12.30", isActive: true,
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+const v5Availability = {
+  id: "slot-1", salonId: "target", barberId: null,
+  startAt: "2026-01-01T10:00:00Z", endAt: "2026-01-01T11:00:00Z",
+  status: "AVAILABLE",
+  createdAt: "2026-01-01T09:00:00Z",
+};
+
+test("V5 is the current archive/payload contract", () => {
+  assert.equal(SALON_ARCHIVE_VERSION, 5);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
+  const state = buildCurrentSalonArchiveState({ ...v5Base, barbers: [] });
+  assert.equal(state.archiveVersion, 5);
+  assert.equal(state.payloadVersion, 5);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }));
+  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }), false);
+});
+
+test("V4 is legacy and not current deletion-eligible evidence after V5 bump", () => {
+  const v4State = buildCurrentSalonArchiveState(
+    { ...v5Base, barbers: [{ ...v5Barber }] },
+    { archiveVersion: 4, payloadVersion: 4 },
+  );
+  assert.equal(v4State.archiveVersion, 4);
+  assert.equal(v4State.payloadVersion, 4);
+  assert.equal(isCurrentSalonArchiveContract(v4State), false);
+  // V4 barber tuple has 5 fields (no createdAt/updatedAt)
+  const parsed = JSON.parse(v4State.sourceState.barberContent![0]);
+  assert.equal(parsed.length, 5);
+});
+
+test("V5 Barber archive evidence includes all 7 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v5Base,
+    barbers: [{ ...v5Barber }],
+  });
+  const content = state.sourceState.barberContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V5 tuple: [id, salonId, name, specialty, isActive, createdAt, updatedAt]
+  assert.equal(parsed[0], "barber-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], "Anna");
+  assert.equal(parsed[3], "Cut");
+  assert.equal(parsed[4], true);
+  assert.equal(parsed[5], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[6], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed.length, 7);
+});
+
+test("V5 Service archive evidence includes all 9 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v5Base,
+    services: [{ ...v5Service }],
+  });
+  const content = state.sourceState.serviceContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V5 tuple: [id, salonId, name, description, durationMin, price, isActive, createdAt, updatedAt]
+  assert.equal(parsed[0], "service-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], "Cut");
+  assert.equal(parsed[3], null);
+  assert.equal(parsed[4], 30);
+  assert.equal(parsed[5], "12.3");
+  assert.equal(parsed[6], true);
+  assert.equal(parsed[7], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[8], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed.length, 9);
+});
+
+test("V5 AvailabilitySlot archive evidence includes all 7 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v5Base,
+    availability: [{ ...v5Availability }],
+  });
+  const content = state.sourceState.availabilityContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V5 tuple: [id, salonId, barberId, startAt, endAt, status, createdAt]
+  assert.equal(parsed[0], "slot-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], null);
+  assert.equal(parsed[3], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed[4], "2026-01-01T11:00:00.000Z");
+  assert.equal(parsed[5], "AVAILABLE");
+  assert.equal(parsed[6], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed.length, 7);
+});
+
+test("V5 barber DateTime fields are canonicalized and nullable specialty is preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v5Base,
+    barbers: [{ ...v5Barber, createdAt: new Date("2026-01-01T09:00:00Z"), updatedAt: new Date("2026-01-01T10:00:00Z") }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v5Base,
+    barbers: [{ ...v5Barber }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.barberContent![0]);
+  assert.ok(parsed[5].includes(".000Z"));
+  assert.ok(parsed[6].includes(".000Z"));
+  // nullable specialty preserved
+  const withNull = buildCurrentSalonArchiveState({
+    ...v5Base,
+    barbers: [{ ...v5Barber, specialty: null }],
+  });
+  const parsedNull = JSON.parse(withNull.sourceState.barberContent![0]);
+  assert.equal(parsedNull[3], null);
+});
+
+test("V5 service DateTime fields are canonicalized", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v5Base,
+    services: [{ ...v5Service, createdAt: new Date("2026-01-01T09:00:00Z"), updatedAt: new Date("2026-01-01T10:00:00Z") }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v5Base,
+    services: [{ ...v5Service }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.serviceContent![0]);
+  assert.ok(parsed[7].includes(".000Z"));
+  assert.ok(parsed[8].includes(".000Z"));
+});
+
+test("V5 availability DateTime fields are canonicalized and nullable barberId is preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v5Base,
+    availability: [{ ...v5Availability, createdAt: new Date("2026-01-01T09:00:00Z") }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v5Base,
+    availability: [{ ...v5Availability }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.availabilityContent![0]);
+  assert.ok(parsed[6].includes(".000Z"));
+  // nullable barberId preserved
+  const withBarber = buildCurrentSalonArchiveState({
+    ...v5Base,
+    availability: [{ ...v5Availability, barberId: "b1" }],
+  });
+  const parsedBarber = JSON.parse(withBarber.sourceState.availabilityContent![0]);
+  assert.equal(parsedBarber[2], "b1");
+});
+
+test("V5 barber detects each meaningful field change", () => {
+  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, barbers: rows });
+  const before = build([v5Barber]);
+  for (const [field, value] of Object.entries({ name: "Changed", specialty: "Color", isActive: false, createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(build([{ ...v5Barber, [field]: value }]).sourceState, before.sourceState, field);
+  }
+});
+
+test("V5 service detects each meaningful field change", () => {
+  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, services: rows });
+  const before = build([v5Service]);
+  for (const [field, value] of Object.entries({ name: "Color", description: "New", durationMin: 45, price: "15.00", isActive: false, createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(build([{ ...v5Service, [field]: value }]).sourceState, before.sourceState, field);
+  }
+});
+
+test("V5 availability detects each meaningful field change", () => {
+  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, availability: rows });
+  const before = build([v5Availability]);
+  for (const [field, value] of Object.entries({ barberId: "b1", startAt: "2026-02-01T10:00:00Z", endAt: "2026-02-01T11:00:00Z", status: "BOOKED", createdAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(build([{ ...v5Availability, [field]: value }]).sourceState, before.sourceState, field);
+  }
 });

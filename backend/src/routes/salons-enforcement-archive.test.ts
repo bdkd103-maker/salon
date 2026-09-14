@@ -31,7 +31,7 @@ test("finalization queries every supported category even when empty", async () =
 
 test("finalization loads direct content and scopes presence and loyalty through target parents", async () => withApp(async app => {
   const date = new Date("2026-01-01T00:00:00Z");
-  tables.barber = ["target", "sibling"].map(salonId => ({ id: salonId + "-barber", salonId, name: salonId, specialty: null, isActive: true }));
+  tables.barber = ["target", "sibling"].map(salonId => ({ id: salonId + "-barber", salonId, name: salonId, specialty: null, isActive: true, createdAt: date, updatedAt: date }));
   tables.staffMembership = ["target", "sibling"].map(salonId => ({ ...v2Membership, id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
   tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER", createdAt: date, updatedAt: date }));
   tables.staffPresenceLease = ["target", "sibling"].map(id => ({ id: id + "-lease", staffMembershipId: id + "-staff", generation: 1, evidenceSource: "DEVICE", producerKey: id + "-key", observedAt: date, validUntil: date, revokedAt: null, createdAt: date, updatedAt: date }));

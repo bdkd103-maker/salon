@@ -1,11 +1,12 @@
 import { Prisma } from "@prisma/client";
 
 // Current server-written contract. V1/V2/V3 remain explicit historical formats only.
-export const SALON_ARCHIVE_VERSION = 4;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 4;
+export const SALON_ARCHIVE_VERSION = 5;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 5;
 export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
 export const LEGACY_SALON_ARCHIVE_V2_CONTRACT = Object.freeze({ archiveVersion: 2, payloadVersion: 2 });
 const LEGACY_SALON_ARCHIVE_V3_CONTRACT = Object.freeze({ archiveVersion: 3, payloadVersion: 3 });
+const LEGACY_SALON_ARCHIVE_V4_CONTRACT = Object.freeze({ archiveVersion: 4, payloadVersion: 4 });
 const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
 type ArchiveContract = { archiveVersion: number; payloadVersion: number };
 export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
@@ -13,6 +14,9 @@ export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
 }
 export function isLegacySalonArchiveV3Contract(contract: ArchiveContract) {
   return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V3_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V3_CONTRACT.payloadVersion;
+}
+export function isLegacySalonArchiveV4Contract(contract: ArchiveContract) {
+  return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V4_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V4_CONTRACT.payloadVersion;
 }
 
 // V2 positional field order is a persisted contract; changing it requires a new version.
@@ -88,8 +92,8 @@ type BuildSalonArchiveInput = {
   analyticsEvents?: Array<{ id: string; salonId: string; userId: string | null; eventType: string; source: string; metadata: Prisma.JsonValue; createdAt: Date | string }>;
   liveStatus?: Array<{ salonId: string; operationalState: string | null; observedAt: Date | string | null; expiresAt: Date | string | null; source: string | null }>;
   availabilitySubscriptions?: Array<{ id: string; salonId: string; userId: string; status: string; lastKnownAvailableChairs: number; lastNotifiedAt: Date | string | null; createdAt: Date | string }>;
-  services?: Array<{ id: string; salonId: string; name: string; description: string | null; durationMin: number; price: string | Prisma.Decimal; isActive: boolean }>;
-  availability?: Array<{ id: string; salonId: string; barberId: string | null; startAt: Date | string; endAt: Date | string; status: string }>;
+  services?: Array<{ id: string; salonId: string; name: string; description: string | null; durationMin: number; price: string | Prisma.Decimal; isActive: boolean; createdAt?: Date | string; updatedAt?: Date | string }>;
+  availability?: Array<{ id: string; salonId: string; barberId: string | null; startAt: Date | string; endAt: Date | string; status: string; createdAt?: Date | string }>;
   staffMemberships?: Array<HistoricalDates & { id: string; salonId: string; userId: string; barberId: string; status: string; revokedAt: Date | string | null }>;
   staffPresence?: Array<{ staffMembershipId: string; dutyState: string; generation: number; changedAt: Date | string; changedByUserId: string | null; changeSource: string; createdAt?: Date | string; updatedAt?: Date | string; leases?: Array<{ id: string; staffMembershipId: string; generation: number; evidenceSource: string; producerKey: string; observedAt: Date | string; validUntil: Date | string; revokedAt: Date | string | null; createdAt: Date | string; updatedAt: Date | string }> }>;
   salonId: string;
@@ -100,7 +104,7 @@ type BuildSalonArchiveInput = {
   bookings?: Array<HistoricalDates & { id: string; salonId: string; status: string; userId?: string; barberId?: string | null; serviceId?: string | null; startAt?: Date | string; endAt?: Date | string; notes?: string | null; customerName?: string | null; customerPhone?: string | null; cancelledAt?: Date | string | null; cancellationReason?: string | null }>;
   serviceVisits?: Array<HistoricalDates & { id: string; salonId: string; status: string; bookingId?: string | null; staffMembershipId?: string; source?: string; startedAt?: Date | string; completedAt?: Date | string | null; cancelledAt?: Date | string | null; version?: number; startedByUserId?: string | null; completedByUserId?: string | null; cancelledByUserId?: string | null }>;
   salonBoosts?: Array<{ id: string; salonId: string; status: string }>;
-  barbers?: Array<{ id: string; salonId: string; name: string; specialty: string | null; isActive: boolean }>;
+  barbers?: Array<{ id: string; salonId: string; name: string; specialty: string | null; isActive: boolean; createdAt?: Date | string; updatedAt?: Date | string }>;
   reviews?: Array<{ id: string; salonId: string; userId: string; rating: number; comment: string | null; createdAt: Date | string }>;
   salonMedia?: Array<{ id: string; salonId: string; kind: string; url: string; createdAt: Date | string }>;
 };
@@ -150,7 +154,8 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
   const legacyV2 = contract.archiveVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.archiveVersion
     && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.payloadVersion;
   const legacyV3 = isLegacySalonArchiveV3Contract(contract);
-  if (!current && !legacyV1 && !legacyV2 && !legacyV3) throw new Error("Unsupported salon archive contract");
+  const legacyV4 = isLegacySalonArchiveV4Contract(contract);
+  if (!current && !legacyV1 && !legacyV2 && !legacyV3 && !legacyV4) throw new Error("Unsupported salon archive contract");
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -195,7 +200,9 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
 // Only supplied categories are evaluated; omitted data must not imply empty coverage.
 if (input.barbers !== undefined) {
   sourceState.barberContent = sortedUnique(input.barbers.map(row =>
-    JSON.stringify([row.id, row.salonId, row.name, row.specialty, row.isActive]),
+    JSON.stringify([row.id, row.salonId, row.name, row.specialty, row.isActive,
+      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+    ]),
   ));
   coverage.categories.push("BARBER");
   coverage.counts.barbers = sortedUnique(input.barbers.map(row => row.id)).length;
@@ -216,14 +223,18 @@ if (input.salonMedia !== undefined) {
 }
 if (input.services !== undefined) {
   sourceState.serviceContent = sortedUnique(input.services.map(row =>
-    JSON.stringify([row.id, row.salonId, row.name, row.description, row.durationMin, new Prisma.Decimal(row.price).toString(), row.isActive]),
+    JSON.stringify([row.id, row.salonId, row.name, row.description, row.durationMin, new Prisma.Decimal(row.price).toString(), row.isActive,
+      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+    ]),
   ));
   coverage.categories.push("SERVICE");
   coverage.counts.services = sortedUnique(input.services.map(row => row.id)).length;
 }
 if (input.availability !== undefined) {
   sourceState.availabilityContent = sortedUnique(input.availability.map(row =>
-    JSON.stringify([row.id, row.salonId, row.barberId, new Date(row.startAt).toISOString(), new Date(row.endAt).toISOString(), row.status]),
+    JSON.stringify([row.id, row.salonId, row.barberId, new Date(row.startAt).toISOString(), new Date(row.endAt).toISOString(), row.status,
+      ...(current ? [new Date(row.createdAt!).toISOString()] : []),
+    ]),
   ));
   coverage.categories.push("AVAILABILITY");
   coverage.counts.availability = sortedUnique(input.availability.map(row => row.id)).length;
