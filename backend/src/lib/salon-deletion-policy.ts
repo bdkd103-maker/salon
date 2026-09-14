@@ -41,7 +41,7 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   Session: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   PasswordReset: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   Notification: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
-  AnalyticsEvent: "BLOCKING_UNCLASSIFIED",
+  AnalyticsEvent: "DELETE_WITH_SALON",
   SalonAvailabilitySubscription: "DELETE_WITH_SALON",
   RegistrationVerificationChallenge: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   VerificationRateLimitBucket: "SHARED_OR_GLOBAL_DO_NOT_DELETE",

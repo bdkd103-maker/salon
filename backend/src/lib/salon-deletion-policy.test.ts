@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -244,6 +244,31 @@ test("LoyaltyStamp qualifies as DELETE_WITH_SALON with complete archive and scal
   assert.equal(owned("LoyaltyStamp", { salonId: "sibling" }, "target"), false);
   assert.equal(owned("LoyaltyStamp", { salonId: "target" }, "target"), true);
   assert.ok(!evaluate().blockingModels.includes("LoyaltyStamp"));
+});
+test("AnalyticsEvent qualifies as DELETE_WITH_SALON with complete archive and leaf salon ownership", async () => {
+  const { buildSalonArchiveState } = await import("./salon-archive.js");
+  const { classify, owned, evaluate } = policyApi();
+  const model = Prisma.dmmf.datamodel.models.find(m => m.name === "AnalyticsEvent")!;
+  const fields = ["id", "salonId", "userId", "eventType", "source", "metadata", "createdAt"];
+  assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(),
+    [...fields].sort(), "new persisted fields require archive/policy review");
+  const incoming = Prisma.dmmf.datamodel.models.flatMap(m => m.fields
+    .filter(f => f.kind === "object" && f.type === "AnalyticsEvent" && (f.relationFromFields?.length ?? 0) > 0));
+  assert.deepEqual(incoming, [], "new inbound FK requires policy review");
+  const row = { id: "ev-1", salonId: "target", userId: "user-1", eventType: "profile_view", source: "app", metadata: { page: "home" }, createdAt: new Date("2026-01-01T00:00:00Z") };
+  const build = (record: typeof row) => buildSalonArchiveState({
+    salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [], analyticsEvents: [record],
+  });
+  const before = build(row);
+  assert.deepEqual(JSON.parse(before.sourceState.analyticsEventContent![0]),
+    ["ev-1", "target", "user-1", "profile_view", "app", { page: "home" }, "2026-01-01T00:00:00.000Z"]);
+  const changes = { id: "ev-2", salonId: "other", userId: "other-user", eventType: "booking_view", source: "web", metadata: { page: "booking" }, createdAt: new Date("2026-02-01T00:00:00Z") };
+  for (const field of fields.filter(f => f !== "salonId"))
+    assert.notDeepEqual(build({ ...row, [field]: changes[field as keyof typeof changes] }).sourceState, before.sourceState, field);
+  assert.equal(classify("AnalyticsEvent"), "DELETE_WITH_SALON");
+  assert.equal(owned("AnalyticsEvent", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("AnalyticsEvent", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("AnalyticsEvent"));
 });
 test("historical policy StaffMembership: ServiceVisit Restrict resolves before parent; presence and leases are salon-scoped children", () => {
   const edges = historicalEdges();
