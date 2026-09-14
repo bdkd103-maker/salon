@@ -23,9 +23,16 @@ export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonI
   const staffPresence = (await Promise.all(staffMemberships.map(membership =>
     tx.staffPresence.findMany({
       where: { staffMembershipId: membership.id },
-      select: { staffMembershipId: true, dutyState: true, generation: true, changedAt: true, changedByUserId: true, changeSource: true },
+      select: { staffMembershipId: true, dutyState: true, generation: true, changedAt: true, changedByUserId: true, changeSource: true, createdAt: true, updatedAt: true },
     }),
   ))).flat();
+  const staffPresenceWithLeases = await Promise.all(staffPresence.map(async presence => {
+    const leases = await tx.staffPresenceLease.findMany({
+      where: { staffMembershipId: presence.staffMembershipId },
+      select: { id: true, staffMembershipId: true, generation: true, evidenceSource: true, producerKey: true, observedAt: true, validUntil: true, revokedAt: true, createdAt: true, updatedAt: true },
+    });
+    return { ...presence, leases };
+  }));
   const loyalty = await Promise.all(cards.map(async card => {
     const [customers, stamps] = await Promise.all([
       tx.loyaltyCustomer.findMany({ where: { cardId: card.id }, select: { id: true, cardId: true, customerId: true, currentStamps: true, totalVisits: true, lastStampedAt: true, rewardRedeemedAt: true } }),
@@ -40,7 +47,7 @@ export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonI
     serviceVisitIds: serviceVisits.map((row) => row.id),
     salonBoostIds: salonBoosts.map((row) => row.id),
     bookings, serviceVisits, salonBoosts, barbers, reviews, salonMedia,
-    services, availability, staffMemberships, staffPresence, queueEntries,
+    services, availability, staffMemberships, staffPresence: staffPresenceWithLeases, queueEntries,
     loyalty, offers, analyticsEvents, liveStatus, availabilitySubscriptions,
   });
 }

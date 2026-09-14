@@ -1,14 +1,18 @@
 import { Prisma } from "@prisma/client";
 
-// Current server-written contract. V1/V2 remain explicit historical formats only.
-export const SALON_ARCHIVE_VERSION = 3;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 3;
+// Current server-written contract. V1/V2/V3 remain explicit historical formats only.
+export const SALON_ARCHIVE_VERSION = 4;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 4;
 export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
 export const LEGACY_SALON_ARCHIVE_V2_CONTRACT = Object.freeze({ archiveVersion: 2, payloadVersion: 2 });
+const LEGACY_SALON_ARCHIVE_V3_CONTRACT = Object.freeze({ archiveVersion: 3, payloadVersion: 3 });
 const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
 type ArchiveContract = { archiveVersion: number; payloadVersion: number };
 export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
   return contract.archiveVersion === SALON_ARCHIVE_VERSION && contract.payloadVersion === SALON_ARCHIVE_PAYLOAD_VERSION;
+}
+export function isLegacySalonArchiveV3Contract(contract: ArchiveContract) {
+  return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V3_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V3_CONTRACT.payloadVersion;
 }
 
 // V2 positional field order is a persisted contract; changing it requires a new version.
@@ -67,6 +71,7 @@ export type SalonArchiveCoverage = {
     availability?: number;
     staffMemberships?: number;
     staffPresence?: number;
+    staffPresenceLease?: number;
     queueEntries?: number;
     loyalty?: number;
     offers?: number;
@@ -86,7 +91,7 @@ type BuildSalonArchiveInput = {
   services?: Array<{ id: string; salonId: string; name: string; description: string | null; durationMin: number; price: string | Prisma.Decimal; isActive: boolean }>;
   availability?: Array<{ id: string; salonId: string; barberId: string | null; startAt: Date | string; endAt: Date | string; status: string }>;
   staffMemberships?: Array<HistoricalDates & { id: string; salonId: string; userId: string; barberId: string; status: string; revokedAt: Date | string | null }>;
-  staffPresence?: Array<{ staffMembershipId: string; dutyState: string; generation: number; changedAt: Date | string; changedByUserId: string | null; changeSource: string }>;
+  staffPresence?: Array<{ staffMembershipId: string; dutyState: string; generation: number; changedAt: Date | string; changedByUserId: string | null; changeSource: string; createdAt?: Date | string; updatedAt?: Date | string; leases?: Array<{ id: string; staffMembershipId: string; generation: number; evidenceSource: string; producerKey: string; observedAt: Date | string; validUntil: Date | string; revokedAt: Date | string | null; createdAt: Date | string; updatedAt: Date | string }> }>;
   salonId: string;
   bookingIds: string[];
   serviceVisitIds: string[];
@@ -144,7 +149,8 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
     && contract.payloadVersion === LEGACY_SALON_ARCHIVE_CONTRACT.payloadVersion;
   const legacyV2 = contract.archiveVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.archiveVersion
     && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V2_CONTRACT.payloadVersion;
-  if (!current && !legacyV1 && !legacyV2) throw new Error("Unsupported salon archive contract");
+  const legacyV3 = isLegacySalonArchiveV3Contract(contract);
+  if (!current && !legacyV1 && !legacyV2 && !legacyV3) throw new Error("Unsupported salon archive contract");
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -230,11 +236,26 @@ if (input.staffMemberships !== undefined) {
   coverage.counts.staffMemberships = sortedUnique(input.staffMemberships.map(row => row.id)).length;
 }
 if (input.staffPresence !== undefined) {
-  sourceState.staffPresenceContent = sortedUnique(input.staffPresence.map(row =>
-    JSON.stringify([row.staffMembershipId, row.dutyState, row.generation, new Date(row.changedAt).toISOString(), row.changedByUserId, row.changeSource]),
-  ));
+  sourceState.staffPresenceContent = sortedUnique(input.staffPresence.map(row => {
+    const leases = row.leases ?? [];
+    return JSON.stringify([
+      row.staffMembershipId, row.dutyState, row.generation,
+      new Date(row.changedAt).toISOString(), row.changedByUserId, row.changeSource,
+      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+      ...(current ? [leases.map(lease => JSON.stringify([
+        lease.id, lease.staffMembershipId, lease.generation,
+        lease.evidenceSource, lease.producerKey,
+        new Date(lease.observedAt).toISOString(), new Date(lease.validUntil).toISOString(),
+        archiveDate(lease.revokedAt),
+        new Date(lease.createdAt).toISOString(), new Date(lease.updatedAt).toISOString(),
+      ]))] : []),
+    ]);
+  }));
   coverage.categories.push("STAFF_PRESENCE");
   coverage.counts.staffPresence = sortedUnique(input.staffPresence.map(row => row.staffMembershipId)).length;
+  if (current) {
+    coverage.counts.staffPresenceLease = sortedUnique(input.staffPresence.flatMap(row => (row.leases ?? []).map(lease => lease.id))).length;
+  }
 }
 if (input.queueEntries !== undefined) {
   sourceState.queueEntryContent = sortedUnique(input.queueEntries.map(row => {

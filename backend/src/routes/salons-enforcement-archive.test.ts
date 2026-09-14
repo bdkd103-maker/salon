@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 const finalize = (app: ReturnType<typeof Fastify>, id = "target", role = "ADMIN") =>
   app.inject({ method: "POST", url: `/api/v1/salons/${id}/archive/finalize`, headers: headers(role) });
 const supportedCounts = ["bookings", "serviceVisits", "salonBoosts", "barbers", "reviews", "salonMedia", "services",
-  "availability", "staffMemberships", "staffPresence", "queueEntries", "loyalty", "offers", "analyticsEvents", "liveStatus", "availabilitySubscriptions"];
+  "availability", "staffMemberships", "staffPresence", "staffPresenceLease", "queueEntries", "loyalty", "offers", "analyticsEvents", "liveStatus", "availabilitySubscriptions"];
 
 test("finalization persists Booking content and detects a same-ID status change", async () => withApp(async app => {
   const first = await finalize(app);
@@ -33,7 +33,8 @@ test("finalization loads direct content and scopes presence and loyalty through 
   const date = new Date("2026-01-01T00:00:00Z");
   tables.barber = ["target", "sibling"].map(salonId => ({ id: salonId + "-barber", salonId, name: salonId, specialty: null, isActive: true }));
   tables.staffMembership = ["target", "sibling"].map(salonId => ({ ...v2Membership, id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
-  tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER" }));
+  tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER", createdAt: date, updatedAt: date }));
+  tables.staffPresenceLease = ["target", "sibling"].map(id => ({ id: id + "-lease", staffMembershipId: id + "-staff", generation: 1, evidenceSource: "DEVICE", producerKey: id + "-key", observedAt: date, validUntil: date, revokedAt: null, createdAt: date, updatedAt: date }));
   tables.loyaltyCard = ["target", "sibling"].map(salonId => ({ id: salonId + "-card", salonId, isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: date }));
   tables.loyaltyCustomer = ["target", "sibling"].map(id => ({ id: id + "-customer", cardId: id + "-card", customerId: "customer", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null }));
   tables.loyaltyStamp = ["target", "sibling"].map(id => ({ id: id + "-stamp", cardId: id + "-card", customerId: "customer", barberId: null, transactionId: id + "-transaction", stampAt: date, isValid: true }));
@@ -155,6 +156,7 @@ beforeEach(() => {
     booking: [{ ...v2Booking, id: "booking-history", salonId: "target", userId: "customer", status: "COMPLETED" }],
     serviceVisit: [{ ...v2Visit, id: "visit-history", salonId: "target", status: "COMPLETED" }],
     salonBoost: [{ id: "boost-history", salonId: "target", status: "EXPIRED" }],
+    staffPresenceLease: [],
   };
   for (const name of names) mock[name] = delegate(name);
   mock.$transaction = async (run: any) => {

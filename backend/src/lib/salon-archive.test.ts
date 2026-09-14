@@ -383,6 +383,7 @@ import {
   SALON_ARCHIVE_PAYLOAD_VERSION,
   SALON_ARCHIVE_VERSION,
   buildSalonArchiveState as buildCurrentSalonArchiveState,
+  isCurrentSalonArchiveContract,
 } from "./salon-archive.js";
 
 // Existing tuple fixtures explicitly exercise the historical V1 contract.
@@ -552,8 +553,8 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 3);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 3);
+    assert.equal(SALON_ARCHIVE_VERSION, 4);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 4);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
@@ -601,8 +602,8 @@ const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], ser
 test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
   const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
   const before = build([v3QueueEntry]);
-  assert.equal(before.archiveVersion, 3);
-  assert.equal(before.payloadVersion, 3);
+  assert.equal(before.archiveVersion, 4);
+  assert.equal(before.payloadVersion, 4);
   assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
   const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
   assert.deepEqual(build([dates, v3QueueEntry]), before);
@@ -635,3 +636,131 @@ for (const version of [1, 2]) {
     assert.throws(() => buildCurrentSalonArchiveState(input), /V3.*chronology|missing.*V3/i);
   });
 }
+
+// ── V4 archive contract: StaffPresence + StaffPresenceLease ──
+
+const v4Base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+
+const v4Presence = {
+  staffMembershipId: "m1", dutyState: "ON_DUTY", generation: 1,
+  changedAt: "2026-01-01T10:00:00Z", changedByUserId: "owner", changeSource: "OWNER",
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+  leases: [] as Array<Record<string, unknown>>,
+};
+
+const v4Lease = {
+  id: "lease-1", staffMembershipId: "m1", generation: 1,
+  evidenceSource: "DEVICE", producerKey: "key-1",
+  observedAt: "2026-01-01T10:00:00Z", validUntil: "2026-01-01T11:00:00Z",
+  revokedAt: null as string | null,
+  createdAt: "2026-01-01T09:30:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+test("V4 is the current archive/payload contract", () => {
+  assert.equal(SALON_ARCHIVE_VERSION, 4);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 4);
+  const state = buildCurrentSalonArchiveState({ ...v4Base, staffPresence: [] });
+  assert.equal(state.archiveVersion, 4);
+  assert.equal(state.payloadVersion, 4);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }));
+  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 3, payloadVersion: 3 }), false);
+});
+
+test("V4 StaffPresence archive evidence includes all 8 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{ ...v4Presence, leases: [] }],
+  });
+  const content = state.sourceState.staffPresenceContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V4 tuple: [staffMembershipId, dutyState, generation, changedAt, changedByUserId, changeSource, createdAt, updatedAt, []]
+  assert.equal(parsed[0], "m1");
+  assert.equal(parsed[1], "ON_DUTY");
+  assert.equal(parsed[2], 1);
+  assert.equal(parsed[3], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed[4], "owner");
+  assert.equal(parsed[5], "OWNER");
+  assert.equal(parsed[6], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[7], "2026-01-01T10:00:00.000Z");
+  assert.deepEqual(parsed[8], []);
+});
+
+test("V4 StaffPresenceLease evidence includes all 10 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{ ...v4Presence, leases: [{ ...v4Lease }] }],
+  });
+  const content = state.sourceState.staffPresenceContent!;
+  const parsed = JSON.parse(content[0]);
+  const lease = JSON.parse(parsed[8][0]);
+  assert.equal(lease[0], "lease-1");
+  assert.equal(lease[1], "m1");
+  assert.equal(lease[2], 1);
+  assert.equal(lease[3], "DEVICE");
+  assert.equal(lease[4], "key-1");
+  assert.equal(lease[5], "2026-01-01T10:00:00.000Z");
+  assert.equal(lease[6], "2026-01-01T11:00:00.000Z");
+  assert.equal(lease[7], null);
+  assert.equal(lease[8], "2026-01-01T09:30:00.000Z");
+  assert.equal(lease[9], "2026-01-01T10:00:00.000Z");
+});
+
+test("V4 lease DateTimes are canonicalized and nullable revokedAt is preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{ ...v4Presence, leases: [{ ...v4Lease, observedAt: new Date("2026-01-01T10:00:00Z") }] }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{ ...v4Presence, leases: [{ ...v4Lease, observedAt: "2026-01-01T10:00:00Z" }] }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  // revokedAt null is preserved
+  const parsed = JSON.parse(withDates.sourceState.staffPresenceContent![0]);
+  const lease = JSON.parse(parsed[8][0]);
+  assert.equal(lease[7], null);
+  // revokedAt with value is canonicalized
+  const withRevoked = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{ ...v4Presence, leases: [{ ...v4Lease, revokedAt: "2026-01-01T12:00:00Z" }] }],
+  });
+  const parsedRevoked = JSON.parse(withRevoked.sourceState.staffPresenceContent![0]);
+  const leaseRevoked = JSON.parse(parsedRevoked[8][0]);
+  assert.equal(leaseRevoked[7], "2026-01-01T12:00:00.000Z");
+});
+
+test("V4 leases are scoped through StaffMembership and appear in archive evidence", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v4Base,
+    staffPresence: [{
+      ...v4Presence,
+      leases: [
+        { ...v4Lease, id: "lease-a" },
+        { ...v4Lease, id: "lease-b", evidenceSource: "NETWORK" },
+      ],
+    }],
+  });
+  const content = state.sourceState.staffPresenceContent!;
+  const parsed = JSON.parse(content[0]);
+  assert.equal(parsed[8].length, 2);
+  const leaseA = JSON.parse(parsed[8][0]);
+  const leaseB = JSON.parse(parsed[8][1]);
+  assert.equal(leaseA[0], "lease-a");
+  assert.equal(leaseB[0], "lease-b");
+  assert.equal(leaseB[3], "NETWORK");
+  assert.equal(state.coverage.counts.staffPresenceLease, 2);
+});
+
+test("V3 evidence is not current deletion-eligible evidence after V4 bump", () => {
+  const v3State = buildCurrentSalonArchiveState(
+    { ...v4Base, staffPresence: [{ ...v4Presence, leases: [] }] },
+    { archiveVersion: 3, payloadVersion: 3 },
+  );
+  assert.equal(v3State.archiveVersion, 3);
+  assert.equal(v3State.payloadVersion, 3);
+  assert.equal(isCurrentSalonArchiveContract(v3State), false);
+  // V3 presence tuple has 6 fields (no createdAt/updatedAt, no leases)
+  const parsed = JSON.parse(v3State.sourceState.staffPresenceContent![0]);
+  assert.equal(parsed.length, 6);
+});
