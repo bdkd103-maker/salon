@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 const finalize = (app: ReturnType<typeof Fastify>, id = "target", role = "ADMIN") =>
   app.inject({ method: "POST", url: `/api/v1/salons/${id}/archive/finalize`, headers: headers(role) });
 const supportedCounts = ["bookings", "serviceVisits", "salonBoosts", "barbers", "reviews", "salonMedia", "services",
-  "availability", "staffMemberships", "staffPresence", "staffPresenceLease", "queueEntries", "loyalty", "offers", "analyticsEvents", "liveStatus", "availabilitySubscriptions"];
+  "availability", "staffMemberships", "staffPresence", "staffPresenceLease", "queueEntries", "loyalty", "offers", "analyticsEvents", "liveStatus", "availabilitySubscriptions", "messageProvenance"];
 
 test("finalization persists Booking content and detects a same-ID status change", async () => withApp(async app => {
   const first = await finalize(app);
@@ -84,7 +84,7 @@ let writes: Array<{ model: string; operation: string }>;
 let serial: number;
 
 function salon(id: string) {
-  return { id, ownerId: "owner", name: `Fixture ${id}`, slug: id, city: "Berlin",
+  return { ...rootSalon, id, ownerId: "owner", name: `Fixture ${id}`, slug: id, city: "Berlin",
     address: "Fixture Street 12", phone: "+49301234567", isActive: true,
     isVip: false, adminVip: false, classification: "REGULAR", description: "Original profile",
     services: [], reviews: [], media: [], barbers: [], offers: [] };
@@ -448,3 +448,12 @@ test("finalized archive is bound to a deterministic source state", async () => w
 const v2Booking = {"id": "b", "salonId": "target", "userId": "customer", "barberId": null, "serviceId": null, "startAt": "2026-01-01T00:00:00.000Z", "endAt": "2026-01-01T00:00:00.000Z", "status": "COMPLETED", "notes": null, "customerName": null, "customerPhone": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z", "cancelledAt": null, "cancellationReason": null};
 const v2Visit = {"id": "v", "salonId": "target", "bookingId": null, "staffMembershipId": "m", "source": "WALK_IN", "status": "COMPLETED", "startedAt": "2026-01-01T00:00:00.000Z", "completedAt": null, "cancelledAt": null, "version": 1, "startedByUserId": null, "completedByUserId": null, "cancelledByUserId": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
 const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barberId": "barber", "status": "ACTIVE", "revokedAt": null, "createdAt": "2026-01-01T00:00:00.000Z", "updatedAt": "2026-01-01T00:00:00.000Z"};
+
+const rootSalon = {
+  id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
+  latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
+  rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
+  createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),
+};

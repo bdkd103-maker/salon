@@ -17,8 +17,9 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   SalonPurgeClearance: "SURVIVE_AS_INDEPENDENT_HISTORY",
   SalonArchive: "SURVIVE_AS_INDEPENDENT_HISTORY",
   DeviceToken: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
-  // V7 lacks full root evidence; Message's surviving SetNull reference is unresolved.
-  Salon: "BLOCKING_UNCLASSIFIED",
+  // V8 binds every root field and surviving Message provenance. Delete only after
+  // controlled dependents and same-transaction archive/retention/readiness checks.
+  Salon: "DELETE_WITH_SALON",
   SalonLiveStatus: "DELETE_WITH_SALON",
   SalonBoost: "DELETE_WITH_SALON",
   LoyaltyCard: "DELETE_WITH_SALON",
@@ -38,8 +39,9 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   // All persisted review fields are archived; no inbound FK depends on this row.
   // Target-salon scope and the separate retention/readiness gates still apply.
   Review: "DELETE_WITH_SALON",
-  // Participant-owned inbox semantics and retention after salon detachment need a decision.
-  Message: "BLOCKING_UNCLASSIFIED",
+  // Conversation history survives; Salon deletion only sets salonId to null.
+  // Never traverse sender/receiver Users or include messages in dependent deletion.
+  Message: "SURVIVE_AS_INDEPENDENT_HISTORY",
   // DB metadata only: all five fields are archived. URLs are not archived bytes
   // and this classification never authorizes external media/blob deletion.
   SalonMedia: "DELETE_WITH_SALON",
@@ -72,9 +74,9 @@ export function evaluateSalonDeletionPolicy() {
 // Structural ownership only; callers must also pass all retention/readiness gates.
 // No owner-user traversal, and no implication that arbitrary row data is trusted.
 export function isTargetSalonOwnedOperationalRecord(
-  model: string, row: { salonId?: unknown }, targetSalonId: string,
+  model: string, row: { id?: unknown; salonId?: unknown }, targetSalonId: string,
 ) {
   return classifySalonDeletionModel(model) === "DELETE_WITH_SALON"
     && typeof targetSalonId === "string" && targetSalonId.length > 0
-    && row.salonId === targetSalonId;
+    && (model === "Salon" ? row.id === targetSalonId : row.salonId === targetSalonId);
 }

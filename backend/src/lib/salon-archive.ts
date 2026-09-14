@@ -1,14 +1,15 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type Salon } from "@prisma/client";
 
-// Current server-written contract. V1/V2/V3/V4/V5/V6 remain explicit historical formats only.
-export const SALON_ARCHIVE_VERSION = 7;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 7;
+// Current server-written contract. V1/V2/V3/V4/V5/V6/V7 remain explicit historical formats only.
+export const SALON_ARCHIVE_VERSION = 8;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 8;
 export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
 export const LEGACY_SALON_ARCHIVE_V2_CONTRACT = Object.freeze({ archiveVersion: 2, payloadVersion: 2 });
 const LEGACY_SALON_ARCHIVE_V3_CONTRACT = Object.freeze({ archiveVersion: 3, payloadVersion: 3 });
 const LEGACY_SALON_ARCHIVE_V4_CONTRACT = Object.freeze({ archiveVersion: 4, payloadVersion: 4 });
 const LEGACY_SALON_ARCHIVE_V5_CONTRACT = Object.freeze({ archiveVersion: 5, payloadVersion: 5 });
 const LEGACY_SALON_ARCHIVE_V6_CONTRACT = Object.freeze({ archiveVersion: 6, payloadVersion: 6 });
+const LEGACY_SALON_ARCHIVE_V7_CONTRACT = Object.freeze({ archiveVersion: 7, payloadVersion: 7 });
 const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
 type ArchiveContract = { archiveVersion: number; payloadVersion: number };
 export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
@@ -25,6 +26,29 @@ export function isLegacySalonArchiveV5Contract(contract: ArchiveContract) {
 }
 export function isLegacySalonArchiveV6Contract(contract: ArchiveContract) {
   return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V6_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V6_CONTRACT.payloadVersion;
+}
+
+export function isLegacySalonArchiveV7Contract(contract: ArchiveContract) {
+  return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V7_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V7_CONTRACT.payloadVersion;
+}
+
+// V8 stores an explicit scalar snapshot; additions require a reviewed contract.
+const SALON_FIELDS = [
+  "id", "ownerId", "name", "slug", "city", "address", "latitude", "longitude", "phone", "email", "website",
+  "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "status",
+  "bookingIntakeEnabled", "saloTicketIntakeEnabled", "walkInIntakeEnabled", "rating", "reviewCount",
+  "openingTime", "closingTime", "workingDays", "timeZone", "createdAt", "updatedAt",
+] as const;
+const SALON_NULLABLE_FIELDS = new Set<string>(["latitude", "longitude", "email", "website", "description", "openingTime", "closingTime", "timeZone"]);
+function salonContent(row: NonNullable<BuildSalonArchiveInput["salon"]>, salonId: string) {
+  const content = Object.fromEntries(SALON_FIELDS.map(field => {
+    const value = row[field];
+    if (value === undefined || (value === null && !SALON_NULLABLE_FIELDS.has(field)))
+      throw new Error(`Missing V8 Salon field: ${field}`);
+    return [field, field === "createdAt" || field === "updatedAt" ? archiveDate(value as Date | string) : value];
+  }));
+  if (row.id !== salonId) throw new Error("Archive record belongs to another salon");
+  return JSON.stringify(content);
 }
 
 // V2 positional field order is a persisted contract; changing it requires a new version.
@@ -47,6 +71,8 @@ function v2Content(row: object, fields: readonly string[], salonId: string) {
 type HistoricalDates = { createdAt?: Date | string; updatedAt?: Date | string };
 
 export type SalonArchiveSourceState = {
+  salonContent?: string;
+  messageProvenanceContent?: string[];
   salonId: string;
   bookingIds: string[];
   serviceVisitIds: string[];
@@ -73,6 +99,7 @@ export type SalonArchiveCoverage = {
   categories: string[];
   emptyHistory: boolean;
   counts: {
+    messageProvenance?: number;
     bookings: number;
     serviceVisits: number;
     salonBoosts: number;
@@ -94,6 +121,8 @@ export type SalonArchiveCoverage = {
 };
 
 type BuildSalonArchiveInput = {
+  salon?: Omit<Salon, "createdAt" | "updatedAt"> & { createdAt: Date | string; updatedAt: Date | string };
+  messageProvenance?: Array<{ id: string; salonId: string | null }>;
   queueEntries?: Array<HistoricalDates & { id: string; salonId: string; customerId: string | null; serviceVisitId: string | null; source: string; status: string; joinedAt: Date | string; calledAt: Date | string | null; startedAt: Date | string | null; cancelledAt: Date | string | null; expiredAt: Date | string | null; noShowAt: Date | string | null; version: number }>;
   loyalty?: Array<{ id: string; salonId: string; isActive: boolean; requiredStamps: number; rewardType: string; rewardTitle: string; rewardText: string; description: string | null; createdAt: Date | string; updatedAt: Date | string; customers: LoyaltyCustomerSource[]; stamps: LoyaltyStampSource[] }>;
   offers?: Array<{ id: string; salonId: string | null; title: string; description: string | null; price: string | Prisma.Decimal | null; isActive: boolean; availableSlots: number | null; discount: string | Prisma.Decimal | null; endAt: Date | string | null; endTime: string | null; serviceName: string | null; startAt: Date | string | null; startTime: string | null; createdAt?: Date | string; updatedAt?: Date | string }>;
@@ -169,7 +198,9 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
   const legacyV4 = isLegacySalonArchiveV4Contract(contract);
   const legacyV5 = isLegacySalonArchiveV5Contract(contract);
   const legacyV6 = isLegacySalonArchiveV6Contract(contract);
-  if (!current && !legacyV1 && !legacyV2 && !legacyV3 && !legacyV4 && !legacyV5 && !legacyV6) throw new Error("Unsupported salon archive contract");
+  const legacyV7 = isLegacySalonArchiveV7Contract(contract);
+  const expanded = current || legacyV7;
+  if (!current && !legacyV7 && !legacyV1 && !legacyV2 && !legacyV3 && !legacyV4 && !legacyV5 && !legacyV6) throw new Error("Unsupported salon archive contract");
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -208,7 +239,7 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
   salonBoostContent: sortedUnique(input.salonBoosts.map((boost) => {
     if (boost.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
     return JSON.stringify([boost.id, boost.salonId, boost.status,
-      ...(current ? [
+      ...(expanded ? [
         boost.durationDays, archiveDate(boost.startsAt), archiveDate(boost.endsAt),
         boost.amountCents, boost.currency, boost.providerReference, boost.paymentIntentId, boost.notes,
         archiveDate(boost.createdAt), archiveDate(boost.updatedAt),
@@ -222,7 +253,7 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
 if (input.barbers !== undefined) {
   sourceState.barberContent = sortedUnique(input.barbers.map(row =>
     JSON.stringify([row.id, row.salonId, row.name, row.specialty, row.isActive,
-      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+      ...(expanded ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
     ]),
   ));
   coverage.categories.push("BARBER");
@@ -245,7 +276,7 @@ if (input.salonMedia !== undefined) {
 if (input.services !== undefined) {
   sourceState.serviceContent = sortedUnique(input.services.map(row =>
     JSON.stringify([row.id, row.salonId, row.name, row.description, row.durationMin, new Prisma.Decimal(row.price).toString(), row.isActive,
-      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+      ...(expanded ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
     ]),
   ));
   coverage.categories.push("SERVICE");
@@ -254,7 +285,7 @@ if (input.services !== undefined) {
 if (input.availability !== undefined) {
   sourceState.availabilityContent = sortedUnique(input.availability.map(row =>
     JSON.stringify([row.id, row.salonId, row.barberId, new Date(row.startAt).toISOString(), new Date(row.endAt).toISOString(), row.status,
-      ...(current ? [new Date(row.createdAt!).toISOString()] : []),
+      ...(expanded ? [new Date(row.createdAt!).toISOString()] : []),
     ]),
   ));
   coverage.categories.push("AVAILABILITY");
@@ -273,8 +304,8 @@ if (input.staffPresence !== undefined) {
     return JSON.stringify([
       row.staffMembershipId, row.dutyState, row.generation,
       new Date(row.changedAt).toISOString(), row.changedByUserId, row.changeSource,
-      ...(current ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
-      ...(current ? [leases.map(lease => JSON.stringify([
+      ...(expanded ? [new Date(row.createdAt!).toISOString(), new Date(row.updatedAt!).toISOString()] : []),
+      ...(expanded ? [leases.map(lease => JSON.stringify([
         lease.id, lease.staffMembershipId, lease.generation,
         lease.evidenceSource, lease.producerKey,
         new Date(lease.observedAt).toISOString(), new Date(lease.validUntil).toISOString(),
@@ -285,7 +316,7 @@ if (input.staffPresence !== undefined) {
   }));
   coverage.categories.push("STAFF_PRESENCE");
   coverage.counts.staffPresence = sortedUnique(input.staffPresence.map(row => row.staffMembershipId)).length;
-  if (current) {
+  if (expanded) {
     coverage.counts.staffPresenceLease = sortedUnique(input.staffPresence.flatMap(row => (row.leases ?? []).map(lease => lease.id))).length;
   }
 }
@@ -293,11 +324,11 @@ if (input.queueEntries !== undefined) {
   sourceState.queueEntryContent = sortedUnique(input.queueEntries.map(row => {
     if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
     // V3 appends chronology; V1/V2 retain their exact 13-field tuple.
-    if (current && (row.createdAt == null || row.updatedAt == null)) {
+    if (expanded && (row.createdAt == null || row.updatedAt == null)) {
       throw new Error("Missing V3 QueueEntry chronology");
     }
     return JSON.stringify([row.id, row.salonId, row.customerId, row.serviceVisitId, row.source, row.status, archiveDate(row.joinedAt), archiveDate(row.calledAt), archiveDate(row.startedAt), archiveDate(row.cancelledAt), archiveDate(row.expiredAt), archiveDate(row.noShowAt), row.version,
-      ...(current ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
+      ...(expanded ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
     ]);
   }));
   coverage.categories.push("QUEUE_ENTRY");
@@ -306,7 +337,7 @@ if (input.queueEntries !== undefined) {
 if (input.loyalty !== undefined) {
   sourceState.loyaltyContent = sortedUnique(input.loyalty.map(row => {
     if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
-    return JSON.stringify([row.id, row.salonId, row.isActive, row.requiredStamps, row.rewardType, row.rewardTitle, row.rewardText, row.description, archiveDate(row.createdAt), ...(current ? [archiveDate(row.updatedAt)] : []), ...loyaltyChildren(row, current)]);
+    return JSON.stringify([row.id, row.salonId, row.isActive, row.requiredStamps, row.rewardType, row.rewardTitle, row.rewardText, row.description, archiveDate(row.createdAt), ...(expanded ? [archiveDate(row.updatedAt)] : []), ...loyaltyChildren(row, expanded)]);
   }));
   coverage.categories.push("LOYALTY");
   coverage.counts.loyalty = sortedUnique(input.loyalty.map(row => row.id)).length;
@@ -315,7 +346,7 @@ if (input.offers !== undefined) {
   sourceState.offerContent = sortedUnique(input.offers.map(row => {
     if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
     return JSON.stringify([row.id, row.salonId, row.title, row.description, row.price === null ? null : new Prisma.Decimal(row.price).toString(), row.isActive, row.availableSlots, row.discount === null ? null : new Prisma.Decimal(row.discount).toString(), archiveDate(row.endAt), row.endTime, row.serviceName, archiveDate(row.startAt), row.startTime,
-      ...(current ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
+      ...(expanded ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
     ]);
   }));
   coverage.categories.push("OFFER");
@@ -344,6 +375,19 @@ if (input.availabilitySubscriptions !== undefined) {
   }));
   coverage.categories.push("AVAILABILITY_SUBSCRIPTION");
   coverage.counts.availabilitySubscriptions = sortedUnique(input.availabilitySubscriptions.map(row => row.id)).length;
+}
+if (current && input.salon !== undefined) {
+  sourceState.salonContent = salonContent(input.salon, input.salonId);
+  coverage.categories.push("SALON");
+}
+if (current && input.messageProvenance !== undefined) {
+  sourceState.messageProvenanceContent = sortedUnique(input.messageProvenance.map(row => {
+    if (typeof row.id !== "string" || row.id.length === 0) throw new Error("Missing V8 Message provenance ID");
+    if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
+    return JSON.stringify([row.id, row.salonId]);
+  }));
+  coverage.categories.push("MESSAGE_PROVENANCE");
+  coverage.counts.messageProvenance = sourceState.messageProvenanceContent.length;
 }
 coverage.emptyHistory = Object.values(coverage.counts).every(count => count === 0);
 

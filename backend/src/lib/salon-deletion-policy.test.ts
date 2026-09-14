@@ -21,15 +21,12 @@ test("group1 Review qualifies only with complete persisted content and no inboun
   assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
   assert.equal(policyApi().owned("Review", { salonId: "sibling" }, "target"), false);
 });
-test("group1 incomplete evidence and unresolved references remain blocking despite salonId", () => {
+test("complete policy preserves Message and fails closed for unknown models", () => {
   const { evaluate, classify, owned } = policyApi();
-  for (const model of ["Salon"]) {
-    assert.equal(classify(model), "BLOCKING_UNCLASSIFIED", model);
-    assert.equal(owned(model, { salonId: "target" }, "target"), false, model);
-    assert.ok(Object.hasOwn(evaluate().classifications, model));
-  }
-  for (const model of ["Message"]) assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
-  assert.equal(evaluate().complete, false);
+  assert.equal(classify("Message"), "SURVIVE_AS_INDEPENDENT_HISTORY");
+  assert.equal(owned("Message", { salonId: "target" }, "target"), false);
+  assert.equal(classify("Unknown"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(evaluate().complete, true);
 });
 import { test } from "node:test";
 import { readFileSync, readdirSync } from "node:fs";
@@ -76,21 +73,21 @@ for (const model of ["SalonEnforcement", "SalonArchive", "SalonRetentionHold", "
     assert.equal(policyApi().classify(model), "SURVIVE_AS_INDEPENDENT_HISTORY");
   });
 }
-test("policy Message blocks readiness", () => {
+test("policy Message survives and Salon completes classification", () => {
   const { classify, evaluate } = policyApi();
   for (const model of ["Message"])
-    assert.equal(classify(model), "BLOCKING_UNCLASSIFIED");
-  assert.equal(evaluate().complete, false);
+    assert.equal(classify(model), "SURVIVE_AS_INDEPENDENT_HISTORY");
+  assert.equal(evaluate().complete, true);
 });
 test("policy operational allowlist is explicit and never traverses owners or siblings", () => {
   const { evaluate, owned } = policyApi();
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "Offer", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "Offer", "QueueEntry", "Review", "Salon", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
-    assert.equal(owned(model, { salonId: "target" }, "target"), true);
+    assert.equal(owned(model, model === "Salon" ? { id: "target" } : { salonId: "target" }, "target"), true);
   }
   for (const model of ["User", "UserSubscription", "Salon", "Message", "Unknown"])
     assert.equal(owned(model, { id: "owner", salonId: "target" }, "target"), false);
@@ -126,7 +123,7 @@ for (const [name, category, content, row] of historicalPolicyCases) {
     assert.equal(policyApi().owned(name, { salonId: "target" }, "target"), name === "ServiceVisit" || name === "Booking" || name === "StaffMembership");
     assert.equal(policyApi().owned(name, { salonId: "sibling" }, "target"), false);
     assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
-    assert.equal(policyApi().evaluate().complete, false);
+    assert.equal(policyApi().evaluate().complete, true);
   });
 }
 // FK-owning fields describe cascade direction; inverse parent arrays do not.
@@ -172,6 +169,7 @@ test("SalonMedia DB metadata qualifies independently of external media bytes", a
     const tx = Object.fromEntries(Prisma.dmmf.datamodel.models.map(m => [
       m.name[0].toLowerCase() + m.name.slice(1), { findMany: async () => [] },
     ]));
+    (tx as any).salon = { findUnique: async () => rootSalon };
     tx.salonMedia = { findMany: async (...args: any[]) => {
       assert.deepEqual(args[0], { where: { salonId: "target" }, select: Object.fromEntries(fields.map(f => [f, true])) });
       return [record] as any;
@@ -189,7 +187,7 @@ test("SalonMedia DB metadata qualifies independently of external media bytes", a
   assert.equal(policyApi().owned("SalonMedia", { ...row, salonId: "sibling" }, "target"), false);
 });
 
-test("Message remains unresolved participant history with three SetNull parents and no children", () => {
+test("Message survives as independent participant history with three SetNull parents and no children", () => {
   const model = Prisma.dmmf.datamodel.models.find(m => m.name === "Message")!;
   assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(),
     ["id", "salonId", "senderId", "receiverId", "subject", "body", "isRead", "createdAt"].sort());
@@ -200,11 +198,11 @@ test("Message remains unresolved participant history with three SetNull parents 
     edge("Message", "User", ["receiverId"], ["id"], "SetNull"),
   ]));
   assert.deepEqual(edges.filter(e => e.to === "Message"), []);
-  assert.equal(policyApi().classify("Message"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(policyApi().classify("Message"), "SURVIVE_AS_INDEPENDENT_HISTORY");
   assert.equal(policyApi().owned("Message", { salonId: "target" }, "target"), false);
 });
 
-test("Salon root inventory stays blocked by missing full evidence and surviving Message mutation", () => {
+test("Salon root inventory qualifies with V8 evidence and controlled Message detachment", () => {
   const model = Prisma.dmmf.datamodel.models.find(m => m.name === "Salon")!;
   assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(), [
     "id", "ownerId", "name", "slug", "city", "address", "latitude", "longitude", "phone", "email", "website",
@@ -223,8 +221,8 @@ test("Salon root inventory stays blocked by missing full evidence and surviving 
   for (const child of children) assert.equal(policyApi().classify(child), "DELETE_WITH_SALON");
   for (const name of ["SalonEnforcement", "SalonArchive", "SalonRetentionHold", "SalonPurgeClearance"])
     assert.deepEqual(edges.filter(e => e.from === name || e.to === name), [], `${name} survives without FKs`);
-  assert.ok(!validation.REQUIRED_ARCHIVE_CATEGORIES.some(category => String(category) === "SALON"));
-  assert.deepEqual(policyApi().evaluate().blockingModels, ["Message", "Salon"]);
+  assert.ok(validation.REQUIRED_ARCHIVE_CATEGORIES.some(category => String(category) === "SALON"));
+  assert.deepEqual(policyApi().evaluate().blockingModels, []);
 });
 
 test("reviewed root, Message and leaf FK actions agree with checked-in SQL migrations", () => {
@@ -242,24 +240,25 @@ test("reviewed root, Message and leaf FK actions agree with checked-in SQL migra
   }
 });
 
-test("proposed dependent-first ordering covers every classified child FK without authorizing root deletion", () => {
+test("dependent-first ordering covers every classified FK and preserves independent Message", () => {
   // A schema proof only, never an executable purge plan. Existing same-transaction
   // retention, archive and cross-salon guards must pass before any future writes.
   const order = ["QueueEntry", "ServiceVisit", "Booking", "AvailabilitySlot", "StaffPresenceLease", "StaffPresence",
     "StaffMembership", "Barber", "Service", "LoyaltyStamp", "LoyaltyCustomer", "LoyaltyCard", "AnalyticsEvent",
     "Offer", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Salon"];
   const { classify, evaluate } = policyApi();
-  const children = Object.keys(evaluate().classifications).filter(name => classify(name) === "DELETE_WITH_SALON");
+  const children = Object.keys(evaluate().classifications).filter(name => name !== "Salon" && classify(name) === "DELETE_WITH_SALON");
   assert.deepEqual(order.filter(name => name !== "Salon").sort(), children.sort());
   for (const e of historicalEdges().filter(e => order.includes(e.to))) {
     if (e.from === "Message") {
-      assert.equal(classify(e.from), "BLOCKING_UNCLASSIFIED");
-      continue; // Deliberately unresolved; root deletion cannot yet be authorized.
+      assert.equal(classify(e.from), "SURVIVE_AS_INDEPENDENT_HISTORY");
+      assert.equal(e.action, "SetNull");
+      continue; // Approved detachment preserves conversation rows and archived provenance.
     }
     assert.ok(order.includes(e.from), `unhandled surviving reference ${e.from} -> ${e.to}`);
     assert.ok(order.indexOf(e.from) < order.indexOf(e.to), `${e.from} must precede ${e.to}`);
   }
-  assert.equal(classify("Salon"), "BLOCKING_UNCLASSIFIED");
+  assert.equal(classify("Salon"), "DELETE_WITH_SALON");
 });
 test("historical policy Booking: ServiceVisit Restrict must be resolved first; parents survive", () => {
   const edges = historicalEdges();
@@ -405,9 +404,28 @@ test("historical policy StaffMembership: ServiceVisit Restrict resolves before p
   for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease"]) assert.equal(policyApi().classify(name), "DELETE_WITH_SALON");
 });
 test("historical policy leaves unrelated classifications and shared identities unchanged", () => {
-  for (const name of ["Message"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+  for (const name of ["Message"]) assert.equal(policyApi().classify(name), "SURVIVE_AS_INDEPENDENT_HISTORY");
   assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
   assert.equal(policyApi().classify("UnknownHistory"), "BLOCKING_UNCLASSIFIED");
   assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
   assert.equal(policyApi().classify("UserSubscription"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
+});
+
+const rootSalon = {
+  id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
+  latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
+  rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
+  createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),
+};
+
+test("Salon ownership uses its primary key, never a client-shaped salonId", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("Salon"), "DELETE_WITH_SALON");
+  assert.equal(owned("Salon", { id: "target" }, "target"), true);
+  assert.equal(owned("Salon", { id: "sibling", salonId: "target" }, "target"), false);
+  assert.equal(owned("Salon", { salonId: "target" }, "target"), false);
+  assert.equal(owned("Salon", { id: "" }, ""), false);
+  assert.deepEqual(evaluate().blockingModels, []);
 });

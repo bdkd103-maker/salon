@@ -20,8 +20,7 @@ test("readiness accepts unchanged nonempty evidence using only the supplied tran
     db.salonPurgeClearance = forbidden;
     const result = await readiness();
     assert.equal(result.valid, true, "unchanged source evidence must still validate");
-    assert.equal(result.ready, false, "unresolved deletion policy must block readiness");
-    assert.ok(result.blockingModels.includes("Message"));
+    assert.equal(result.ready, true, "complete policy and fresh evidence must qualify");
     assert.equal(result.clearanceId, id);
     assert.deepEqual(tables.salon, before);
     assert.deepEqual(writes, []);
@@ -35,8 +34,7 @@ test("readiness accepts still-empty evaluated categories and ignores sibling sou
   tables.booking.push({ ...v2Booking, id: "sibling-b", salonId: "sibling", status: "COMPLETED" });
   const result = await readiness();
   assert.equal(result.valid, true);
-  assert.equal(result.ready, false);
-  assert.ok(result.blockingModels.includes("Message"));
+  assert.equal(result.ready, true);
 }));
 for (const mode of ["revoked", "hold", "sibling clearance", "missing salon", "partial", "old version", "archive identity", "archive evidence", "missing clearance"]) {
   test(`readiness refuses ${mode}`, async () => withApp(async app => {
@@ -79,7 +77,7 @@ for (const flag of ["clearanceId", "archiveId", "sourceState", "coverage", "forc
     const id = await finalizedClearance(app);
     const resultBeforeDelete = await readiness();
     assert.equal(resultBeforeDelete.valid, true);
-    assert.equal(resultBeforeDelete.ready, false);
+    assert.equal(resultBeforeDelete.ready, true);
     const before = structuredClone(tables.salon);
     const result = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
       headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` },
@@ -259,7 +257,7 @@ beforeEach(() => {
   serial = 0;
   writes = [];
   tables = {
-    salon: [{ id: "target", isActive: true }, { id: "sibling", isActive: true }],
+    salon: [{ ...rootSalon }, { ...rootSalon, id: "sibling" }],
     salonArchive: [],
     salonRetentionHold: [],
     salonPurgeClearance: [],
@@ -292,7 +290,7 @@ function request(app: ReturnType<typeof Fastify>, path: string, payload: any = {
 function archive(salonId = "target") {
   tables.salonArchive.push({ archiveId: "archive-1", salonId,
     finalizedAt: new Date("2026-01-01T00:00:00Z"), ...buildSalonArchiveState({
-      salonId, bookingIds: [], serviceVisitIds: [], salonBoostIds: [], bookings: [], serviceVisits: [], salonBoosts: [],
+      salonId, salon: { ...rootSalon, id: salonId } as any, messageProvenance: [], bookingIds: [], serviceVisitIds: [], salonBoostIds: [], bookings: [], serviceVisits: [], salonBoosts: [],
       barbers: [], reviews: [], salonMedia: [], services: [], availability: [], staffMemberships: [], staffPresence: [],
       queueEntries: [], loyalty: [], offers: [], analyticsEvents: [], liveStatus: [], availabilitySubscriptions: [],
     }) });
@@ -362,8 +360,8 @@ test("clearance records independent archive evidence without mutating salon or a
   assert.ok(Number.isFinite(Date.parse(clearance.issuedAt)));
   assert.deepEqual(clearance.sourceState, tables.salonArchive[0].sourceState);
   assert.deepEqual(clearance.coverage, tables.salonArchive[0].coverage);
-  assert.equal(clearance.archiveVersion, 7);
-  assert.equal(clearance.payloadVersion, 7);
+  assert.equal(clearance.archiveVersion, 8);
+  assert.equal(clearance.payloadVersion, 8);
   assert.equal(clearance.archiveFinalizedAt, tables.salonArchive[0].finalizedAt.toISOString());
   tables.salonArchive[0].sourceState.bookingContent = ["changed"];
   assert.notDeepEqual(tables.salonPurgeClearance[0].sourceState, tables.salonArchive[0].sourceState);
@@ -455,8 +453,8 @@ test("V3 finalization creates distinct evidence and never upgrades historical V1
   tables.booking = [structuredClone(v2Booking)];
   const response = await request(app, "archive/finalize");
   assert.equal(response.statusCode, 201);
-  assert.equal(response.json().archive.archiveVersion, 7);
-  assert.equal(response.json().archive.payloadVersion, 7);
+  assert.equal(response.json().archive.archiveVersion, 8);
+  assert.equal(response.json().archive.payloadVersion, 8);
   assert.notEqual(response.json().archive.archiveId, historical.archiveId);
   assert.deepEqual(tables.salonArchive[0], historical);
 }));
@@ -494,16 +492,15 @@ test("V3 QueueEntry finalization is target-scoped and leaves historical V2 evide
   tables.queueEntry = [structuredClone(v3QueueEntry), { ...v3QueueEntry, id: "sibling-q", salonId: "sibling" }];
   const id = await finalizedClearance(app);
   const current = tables.salonArchive[1];
-  assert.equal(current.archiveVersion, 7);
-  assert.equal(current.payloadVersion, 7);
+  assert.equal(current.archiveVersion, 8);
+  assert.equal(current.payloadVersion, 8);
   assert.deepEqual(current.sourceState.queueEntryContent, [JSON.stringify(Object.values(v3QueueEntry))]);
   assert.deepEqual(tables.salonArchive[0], historical);
   assert.notEqual(current.archiveId, historical.archiveId);
   tables.queueEntry[1].updatedAt = "2026-03-01T00:00:00.000Z";
   assert.equal((await revalidate(app, id)).statusCode, 200);
   const result = await readiness();
-  assert.equal(result.ready, false);
-  assert.ok(result.blockingModels.length > 0, "readiness must remain blocked after source state change");
+  assert.equal(result.ready, true, "sibling-only changes must not invalidate target evidence");
 }));
 
 test("cross-salon Direction A: target QueueEntry → sibling ServiceVisit must block purge readiness", async () => withApp(async app => {
@@ -595,4 +592,77 @@ test("cross-salon Direction A: sibling AvailabilitySlot → target Barber must b
   assert.notEqual(result.error, "Deletion policy incomplete",
     "refusal reason must be cross-salon AvailabilitySlot→Barber, not generic policy incompleteness");
   assert.deepEqual(tables.salon, before);
+}));
+
+const rootSalon = {
+  id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
+  latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
+  rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
+  createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),
+};
+
+for (const field of Object.keys(rootSalon)) {
+  test(`V8 revalidation refuses stale Salon ${field}`, async () => withApp(async app => {
+    const id = await finalizedClearance(app);
+    const historical = structuredClone(tables.salonArchive);
+    const value = tables.salon[0][field];
+    tables.salon[0][field] = field === "classification" ? "PREMIUM" : field === "status" ? "CLOSED"
+      : ["latitude", "longitude"].includes(field) ? 1 : value instanceof Date ? new Date("2026-02-01T00:00:00Z") : Array.isArray(value) ? ["TUE"]
+      : typeof value === "boolean" ? !value : typeof value === "number" ? value + 1 : "changed";
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.ok(tables.salonPurgeClearance[0].revokedAt);
+    assert.deepEqual(tables.salonArchive, historical);
+  }));
+}
+for (const change of ["insert", "remove", "detach"]) {
+  test(`V8 provenance revalidation refuses Message ${change}`, async () => withApp(async app => {
+    tables.message = [{ id: "message", salonId: "target", senderId: "customer", receiverId: "owner", body: "Hello" }];
+    const id = await finalizedClearance(app);
+    assert.deepEqual(tables.salonArchive[0].sourceState.messageProvenanceContent, [JSON.stringify(["message", "target"])]);
+    if (change === "insert") tables.message.push({ id: "new", salonId: "target" });
+    if (change === "remove") tables.message = [];
+    if (change === "detach") tables.message[0].salonId = null;
+    assert.equal((await revalidate(app, id)).statusCode, 409);
+    assert.ok(tables.salonPurgeClearance[0].revokedAt);
+  }));
+}
+test("V8 provenance is recoverable after simulated FK detachment", async () => withApp(async app => {
+  tables.message = [{ id: "message", salonId: "target", senderId: "customer", receiverId: "owner", body: "Hello" }];
+  await finalizedClearance(app);
+  const archive = structuredClone(tables.salonArchive[0]);
+  const conversation = structuredClone(tables.message[0]);
+  // Model only the committed SET NULL action, never execute a database deletion.
+  tables.message[0].salonId = null;
+  tables.salon = tables.salon.filter(s => s.id !== "target");
+  assert.deepEqual(tables.message[0], { ...conversation, salonId: null });
+  assert.deepEqual(tables.salonArchive[0], archive);
+  assert.deepEqual(archive.sourceState.messageProvenanceContent, [JSON.stringify([conversation.id, "target"])]);
+  assert.equal(JSON.parse(archive.sourceState.salonContent).name, rootSalon.name);
+}));
+test("V7 archive is rejected for clearance and remains unchanged", async () => withApp(async app => {
+  archive();
+  tables.salonArchive[0].archiveVersion = 7;
+  tables.salonArchive[0].payloadVersion = 7;
+  const before = structuredClone(tables.salonArchive);
+  assert.equal((await request(app, "purge-clearance")).statusCode, 409);
+  assert.deepEqual(tables.salonArchive, before);
+}));
+
+test("V8 provenance is salon-scoped despite shared participants and never writes conversations", async () => withApp(async app => {
+  tables.message = ["target", "sibling", null].map((salonId, index) => ({
+    id: `message-${index}`, salonId, senderId: "customer", receiverId: "owner", body: "Hello", isRead: false,
+  }));
+  const before = structuredClone(tables.message);
+  const id = await finalizedClearance(app);
+  assert.deepEqual(tables.salonArchive[0].sourceState.messageProvenanceContent, [JSON.stringify(["message-0", "target"])]);
+  assert.deepEqual(tables.message, before);
+  tables.message[1].salonId = null;
+  tables.message[0].isRead = true; // Surviving content is not being deleted or frozen.
+  tables.salon[1].name = "Changed sibling";
+  writes = [];
+  assert.equal((await revalidate(app, id)).statusCode, 200);
+  assert.equal((await readiness()).ready, true);
+  assert.deepEqual(writes, []);
 }));

@@ -1,4 +1,68 @@
 import assert from "node:assert/strict";
+const rootSalon = {
+  id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
+  latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
+  rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
+  createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),
+};
+
+test("V8 root evidence is complete, nullable, canonical and freshness-sensitive", async () => {
+  const { Prisma } = await import("@prisma/client");
+  const fields = Prisma.dmmf.datamodel.models.find(m => m.name === "Salon")!.fields.filter(f => f.kind !== "object");
+  assert.equal(fields.length, 29);
+  assert.deepEqual(Object.keys(rootSalon).sort(), fields.map(f => f.name).sort());
+  const build = (salon: any) => buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [], salon } as any);
+  const before = build(rootSalon);
+  assert.equal(before.archiveVersion, 8);
+  assert.equal(before.payloadVersion, 8);
+  assert.ok(isCurrentSalonArchiveContract(before));
+  assert.deepEqual(JSON.parse((before.sourceState as any).salonContent), JSON.parse(JSON.stringify(rootSalon)));
+  for (const field of fields) {
+    const value = (rootSalon as any)[field.name];
+    const changed = field.name === "classification" ? "PREMIUM" : field.name === "status" ? "CLOSED" : field.type === "DateTime" ? new Date("2026-02-01T00:00:00Z") : field.isList ? ["TUE"]
+      : field.type === "Boolean" ? !value : ["Float", "Int"].includes(field.type) ? 1 : "changed";
+    if (field.name === "id") assert.throws(() => build({ ...rootSalon, id: "sibling" }), /another salon/);
+    else assert.notDeepEqual(build({ ...rootSalon, [field.name]: changed }).sourceState, before.sourceState, field.name);
+    const missing = { ...rootSalon } as any; delete missing[field.name];
+    assert.throws(() => build(missing), /Missing V8 Salon field/, field.name);
+    if (field.isRequired) assert.throws(() => build({ ...rootSalon, [field.name]: null }), /Missing V8 Salon field/, field.name);
+  }
+  assert.deepEqual(build({ ...rootSalon, createdAt: "2026-01-01T01:00:00+01:00" }).sourceState, before.sourceState);
+  assert.deepEqual(build(Object.fromEntries(Object.entries(rootSalon).reverse())).sourceState, before.sourceState);
+});
+
+test("V7 remains exact legacy evidence; only V8 root/provenance coverage qualifies", async () => {
+  const { hasCurrentSalonArchiveCoverage, REQUIRED_ARCHIVE_CATEGORIES } = await import("./salon-clearance-revalidation.js");
+  const input = { ...v7Base, salon: rootSalon, salonBoosts: [v7SalonBoost], offers: [v7Offer], messageProvenance: [{ id: "message", salonId: "target" }] };
+  const old = buildCurrentSalonArchiveState(input as any, { archiveVersion: 7, payloadVersion: 7 });
+  const current = buildCurrentSalonArchiveState(input as any);
+  assert.equal(isCurrentSalonArchiveContract(old), false);
+  assert.equal((old.sourceState as any).salonContent, undefined);
+  assert.equal((old.sourceState as any).messageProvenanceContent, undefined);
+  assert.deepEqual(old.sourceState.salonBoostContent, current.sourceState.salonBoostContent);
+  assert.deepEqual(old.sourceState.offerContent, current.sourceState.offerContent);
+  assert.equal(JSON.parse(old.sourceState.salonBoostContent![0]).length, 13);
+  assert.equal(JSON.parse(old.sourceState.offerContent![0]).length, 15);
+  assert.equal(hasCurrentSalonArchiveCoverage({ ...old, coverage: { categories: [...REQUIRED_ARCHIVE_CATEGORIES] } }), false);
+  for (const category of ["SALON", "MESSAGE_PROVENANCE"]) {
+    assert.ok(REQUIRED_ARCHIVE_CATEGORIES.some(c => String(c) === category));
+    assert.equal(hasCurrentSalonArchiveCoverage({ ...current, coverage: { categories: REQUIRED_ARCHIVE_CATEGORIES.filter(c => String(c) !== category) } }), false);
+  }
+});
+
+test("V8 message provenance preserves stable IDs without mutating conversations", () => {
+  const build = (messageProvenance: any[]) => buildCurrentSalonArchiveState({ ...v7Base, salon: rootSalon, messageProvenance } as any);
+  const row = { id: "message", salonId: "target" };
+  const before = build([row]);
+  assert.deepEqual((before.sourceState as any).messageProvenanceContent, [JSON.stringify(["message", "target"])]);
+  assert.deepEqual(build([row, row]).sourceState, before.sourceState);
+  assert.notDeepEqual(build([]).sourceState, before.sourceState);
+  assert.notDeepEqual(build([{ ...row, id: "new" }]).sourceState, before.sourceState);
+  assert.throws(() => build([{ ...row, salonId: "sibling" }]), /another salon/);
+  assert.throws(() => build([{ salonId: "target" }]), /Missing V8 Message/);
+});
 test("loyalty child history is canonical, content-aware and card-scoped", () => {
   const card = nextCategories[1][4];
   const customer = { id: "c", cardId: "a", customerId: "u", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null, createdAt: "2026-01-01T10:00:00Z", updatedAt: "2026-01-01T10:00:00Z" };
@@ -556,8 +620,8 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 7);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 7);
+    assert.equal(SALON_ARCHIVE_VERSION, 8);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 8);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
@@ -605,8 +669,8 @@ const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], ser
 test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
   const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
   const before = build([v3QueueEntry]);
-  assert.equal(before.archiveVersion, 7);
-  assert.equal(before.payloadVersion, 7);
+  assert.equal(before.archiveVersion, 8);
+  assert.equal(before.payloadVersion, 8);
   assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
   const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
   assert.deepEqual(build([dates, v3QueueEntry]), before);
@@ -1130,13 +1194,13 @@ const v7Offer = {
   createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
 };
 
-test("V7 is the current archive/payload contract", () => {
-  assert.equal(SALON_ARCHIVE_VERSION, 7);
-  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 7);
+test("V8 is the current archive/payload contract", () => {
+  assert.equal(SALON_ARCHIVE_VERSION, 8);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 8);
   const state = buildCurrentSalonArchiveState({ ...v7Base, salonBoosts: [{ ...v7SalonBoost }] });
-  assert.equal(state.archiveVersion, 7);
-  assert.equal(state.payloadVersion, 7);
-  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 7, payloadVersion: 7 }));
+  assert.equal(state.archiveVersion, 8);
+  assert.equal(state.payloadVersion, 8);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 8, payloadVersion: 8 }));
   assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 6, payloadVersion: 6 }), false);
 });
 

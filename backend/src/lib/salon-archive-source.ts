@@ -3,6 +3,10 @@ import { buildSalonArchiveState } from "./salon-archive.js";
 
 // Shared by finalization and current-source revalidation within their transactions.
 export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonId: string) {
+  // Scalar root evidence and message links share the finalization/revalidation transaction.
+  const salon = await tx.salon.findUnique({ where: { id: salonId } });
+  if (!salon) throw new Error("Salon archive source missing");
+  const messageProvenance = await tx.message.findMany({ where: { salonId }, select: { id: true, salonId: true } });
   const [bookings, serviceVisits, salonBoosts, barbers, reviews, salonMedia, services, availability, staffMemberships, queueEntries, cards, offers, analyticsEvents, liveStatus, availabilitySubscriptions] = await Promise.all([
     tx.booking.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, userId: true, barberId: true, serviceId: true, startAt: true, endAt: true, status: true, notes: true, customerName: true, customerPhone: true, createdAt: true, updatedAt: true, cancelledAt: true, cancellationReason: true } }),
     tx.serviceVisit.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, bookingId: true, staffMembershipId: true, source: true, status: true, startedAt: true, completedAt: true, cancelledAt: true, version: true, startedByUserId: true, completedByUserId: true, cancelledByUserId: true, createdAt: true, updatedAt: true } }),
@@ -43,6 +47,7 @@ export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonI
 
   return buildSalonArchiveState({
     salonId: salonId,
+    salon, messageProvenance,
     bookingIds: bookings.map((row) => row.id),
     serviceVisitIds: serviceVisits.map((row) => row.id),
     salonBoostIds: salonBoosts.map((row) => row.id),
