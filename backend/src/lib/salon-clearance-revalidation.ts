@@ -47,6 +47,35 @@ async function detectCrossSalonQueueEntryServiceVisit(tx: Prisma.TransactionClie
   return null;
 }
 
+// Detect cross-salon Booking→Barber, Booking→Service, and AvailabilitySlot→Barber
+// references that single-column FKs cannot enforce. These are unsafe because
+// deleting a target-salon Barber/Service would SetNull the sibling-salon row's FK —
+// a cross-salon mutation. Returns a refusal string when contamination exists, null when safe.
+async function detectCrossSalonBarberServiceReferences(tx: Prisma.TransactionClient, salonId: string) {
+  const [allBookings, allAvailabilitySlots, targetBarbers, targetServices] = await Promise.all([
+    tx.booking.findMany({ select: { id: true, salonId: true, barberId: true, serviceId: true } }),
+    tx.availabilitySlot.findMany({ select: { id: true, salonId: true, barberId: true } }),
+    tx.barber.findMany({ where: { salonId }, select: { id: true, salonId: true } }),
+    tx.service.findMany({ where: { salonId }, select: { id: true, salonId: true } }),
+  ]);
+  const targetBarberIds = new Set(targetBarbers.map(b => b.id));
+  const targetServiceIds = new Set(targetServices.map(s => s.id));
+  for (const booking of allBookings) {
+    if (booking.barberId != null && booking.salonId !== salonId && targetBarberIds.has(booking.barberId)) {
+      return "Cross-salon Booking→Barber dependency blocks purge";
+    }
+    if (booking.serviceId != null && booking.salonId !== salonId && targetServiceIds.has(booking.serviceId)) {
+      return "Cross-salon Booking→Service dependency blocks purge";
+    }
+  }
+  for (const slot of allAvailabilitySlots) {
+    if (slot.barberId != null && slot.salonId !== salonId && targetBarberIds.has(slot.barberId)) {
+      return "Cross-salon AvailabilitySlot→Barber dependency blocks purge";
+    }
+  }
+  return null;
+}
+
 // Internal boundary for an authenticated ADMIN/server caller. The caller must
 // open a Serializable transaction and keep any future deletion in that SAME
 // transaction. This result must never be reused as a later preflight token.
@@ -65,6 +94,10 @@ export async function evaluateSalonDeletionReadiness(
     const crossSalon = await detectCrossSalonQueueEntryServiceVisit(tx, salonId);
     if (crossSalon) {
       return { ready: false, status: 409, error: crossSalon } as const;
+    }
+    const crossSalonBarberService = await detectCrossSalonBarberServiceReferences(tx, salonId);
+    if (crossSalonBarberService) {
+      return { ready: false, status: 409, error: crossSalonBarberService } as const;
     }
     const policy = evaluateSalonDeletionPolicy();
     if (!policy.complete) {

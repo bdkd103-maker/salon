@@ -548,3 +548,51 @@ test("cross-salon Direction B: sibling QueueEntry → target ServiceVisit must b
     "refusal reason must be cross-salon QueueEntry→ServiceVisit, not generic policy incompleteness");
   assert.deepEqual(tables.salon, before);
 }));
+
+test("cross-salon Direction A: sibling Booking → target Barber must block purge readiness", async () => withApp(async app => {
+  // A Booking owned by a sibling salon references a Barber owned by the target salon.
+  // The DB has no composite FK on Booking.barberId to enforce same-salon ownership.
+  // Deleting the target salon would SetNull the sibling Booking's barberId — a cross-salon mutation.
+  tables.barber = [{ id: "target-barber", salonId: "target", name: "Target Barber", specialty: null, isActive: true, createdAt: new Date(), updatedAt: new Date() }];
+  tables.booking = [{ ...v2Booking, id: "sibling-b", salonId: "sibling", barberId: "target-barber" }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const result = await readiness();
+  assert.equal(result.ready, false,
+    "readiness must refuse when a sibling-salon Booking references a target-salon Barber");
+  assert.notEqual(result.error, "Deletion policy incomplete",
+    "refusal reason must be cross-salon Booking→Barber, not generic policy incompleteness");
+  assert.deepEqual(tables.salon, before);
+}));
+
+test("cross-salon Direction A: sibling Booking → target Service must block purge readiness", async () => withApp(async app => {
+  // A Booking owned by a sibling salon references a Service owned by the target salon.
+  // The DB has no composite FK on Booking.serviceId to enforce same-salon ownership.
+  // Deleting the target salon would SetNull the sibling Booking's serviceId — a cross-salon mutation.
+  tables.service = [{ id: "target-service", salonId: "target", name: "Target Service", description: null, durationMin: 30, price: "10.00", isActive: true, createdAt: new Date(), updatedAt: new Date() }];
+  tables.booking = [{ ...v2Booking, id: "sibling-b", salonId: "sibling", serviceId: "target-service" }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const result = await readiness();
+  assert.equal(result.ready, false,
+    "readiness must refuse when a sibling-salon Booking references a target-salon Service");
+  assert.notEqual(result.error, "Deletion policy incomplete",
+    "refusal reason must be cross-salon Booking→Service, not generic policy incompleteness");
+  assert.deepEqual(tables.salon, before);
+}));
+
+test("cross-salon Direction A: sibling AvailabilitySlot → target Barber must block purge readiness", async () => withApp(async app => {
+  // An AvailabilitySlot owned by a sibling salon references a Barber owned by the target salon.
+  // The DB has no composite FK on AvailabilitySlot.barberId to enforce same-salon ownership.
+  // Deleting the target salon would SetNull the sibling AvailabilitySlot's barberId — a cross-salon mutation.
+  tables.barber = [{ id: "target-barber", salonId: "target", name: "Target Barber", specialty: null, isActive: true, createdAt: new Date(), updatedAt: new Date() }];
+  tables.availabilitySlot = [{ id: "sibling-slot", salonId: "sibling", barberId: "target-barber", startAt: new Date("2026-01-01T10:00:00Z"), endAt: new Date("2026-01-01T11:00:00Z"), status: "AVAILABLE", createdAt: new Date() }];
+  const id = await finalizedClearance(app);
+  const before = structuredClone(tables.salon);
+  const result = await readiness();
+  assert.equal(result.ready, false,
+    "readiness must refuse when a sibling-salon AvailabilitySlot references a target-salon Barber");
+  assert.notEqual(result.error, "Deletion policy incomplete",
+    "refusal reason must be cross-salon AvailabilitySlot→Barber, not generic policy incompleteness");
+  assert.deepEqual(tables.salon, before);
+}));
