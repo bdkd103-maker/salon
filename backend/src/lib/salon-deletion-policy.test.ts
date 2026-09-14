@@ -23,7 +23,7 @@ test("group1 Review qualifies only with complete persisted content and no inboun
 });
 test("group1 incomplete evidence and unresolved references remain blocking despite salonId", () => {
   const { evaluate, classify, owned } = policyApi();
-  for (const model of ["Barber", "Service", "SalonMedia"]) {
+  for (const model of ["SalonMedia"]) {
     assert.equal(classify(model), "BLOCKING_UNCLASSIFIED", model);
     assert.equal(owned(model, { salonId: "target" }, "target"), false, model);
     assert.ok(Object.hasOwn(evaluate().classifications, model));
@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AvailabilitySlot", "Booking", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AvailabilitySlot", "Barber", "Booking", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -210,6 +210,20 @@ test("AvailabilitySlot qualifies as DELETE_WITH_SALON with complete archive and 
   assert.equal(owned("AvailabilitySlot", { salonId: "target" }, "target"), true);
   assert.ok(!evaluate().blockingModels.includes("AvailabilitySlot"));
 });
+test("Barber qualifies as DELETE_WITH_SALON with complete archive and cross-salon readiness", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("Barber"), "DELETE_WITH_SALON");
+  assert.equal(owned("Barber", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("Barber", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("Barber"));
+});
+test("Service qualifies as DELETE_WITH_SALON with complete archive and cross-salon readiness", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("Service"), "DELETE_WITH_SALON");
+  assert.equal(owned("Service", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("Service", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("Service"));
+});
 test("historical policy StaffMembership: ServiceVisit Restrict resolves before parent; presence and leases are salon-scoped children", () => {
   const edges = historicalEdges();
   assert.deepEqual(sortedEdges(edges.filter(e => e.from === "StaffMembership")), sortedEdges([
@@ -226,7 +240,7 @@ test("historical policy StaffMembership: ServiceVisit Restrict resolves before p
   for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease"]) assert.equal(policyApi().classify(name), "DELETE_WITH_SALON");
 });
 test("historical policy leaves unrelated classifications and shared identities unchanged", () => {
-  for (const name of ["Barber", "Service", "Message", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+  for (const name of ["Message", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
   assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
   assert.equal(policyApi().classify("UnknownHistory"), "BLOCKING_UNCLASSIFIED");
   assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
