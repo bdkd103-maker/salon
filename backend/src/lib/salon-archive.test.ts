@@ -556,8 +556,8 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 6);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 6);
+    assert.equal(SALON_ARCHIVE_VERSION, 7);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 7);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
@@ -605,8 +605,8 @@ const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], ser
 test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
   const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
   const before = build([v3QueueEntry]);
-  assert.equal(before.archiveVersion, 6);
-  assert.equal(before.payloadVersion, 6);
+  assert.equal(before.archiveVersion, 7);
+  assert.equal(before.payloadVersion, 7);
   assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
   const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
   assert.deepEqual(build([dates, v3QueueEntry]), before);
@@ -961,14 +961,17 @@ const v6LoyaltyStamp = {
   createdAt: "2026-01-01T09:00:00Z",
 };
 
-test("V6 is the current archive/payload contract", () => {
-  assert.equal(SALON_ARCHIVE_VERSION, 6);
-  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 6);
-  const state = buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [] }] });
-  assert.equal(state.archiveVersion, 6);
-  assert.equal(state.payloadVersion, 6);
-  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 6, payloadVersion: 6 }));
-  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }), false);
+test("V6 is legacy and not current deletion-eligible evidence after V7 bump", () => {
+  const v6State = buildCurrentSalonArchiveState(
+    { ...v7Base, salonBoosts: [{ ...v7SalonBoost }] },
+    { archiveVersion: 6, payloadVersion: 6 },
+  );
+  assert.equal(v6State.archiveVersion, 6);
+  assert.equal(v6State.payloadVersion, 6);
+  assert.equal(isCurrentSalonArchiveContract(v6State), false);
+  // V6 salonBoost tuple has 3 fields (id, salonId, status only)
+  const parsed = JSON.parse(v6State.sourceState.salonBoostContent![0]);
+  assert.equal(parsed.length, 3);
 });
 
 test("V5 is legacy and not current deletion-eligible evidence after V6 bump", () => {
@@ -1103,5 +1106,230 @@ test("V6 loyalty detects each meaningful field change", () => {
   const beforeStamp = buildStamp([v6LoyaltyStamp]);
   for (const [field, value] of Object.entries({ barberId: "b2", transactionId: "tx-2", stampAt: "2026-02-01T00:00:00Z", isValid: false, verificationToken: "tok-2", createdAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(buildStamp([{ ...v6LoyaltyStamp, [field]: value }]).sourceState, beforeStamp.sourceState, field);
+  }
+});
+
+// ── V7 archive contract: SalonBoost + Offer evidence completion ──
+
+const v7Base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+
+const v7SalonBoost = {
+  id: "boost-1", salonId: "target", status: "ACTIVE",
+  durationDays: 7, startsAt: "2026-01-01T10:00:00Z", endsAt: "2026-01-08T10:00:00Z",
+  amountCents: 500, currency: "EUR", providerReference: "ref-1",
+  paymentIntentId: "pi-1", notes: "Promo boost",
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+const v7Offer = {
+  id: "offer-1", salonId: "target", title: "Summer Cut",
+  description: "Discounted cut", price: "25.00", isActive: true,
+  availableSlots: 5, discount: "5.00",
+  endAt: "2026-02-01T10:00:00Z", endTime: "18:00",
+  serviceName: "Haircut", startAt: "2026-01-01T10:00:00Z", startTime: "09:00",
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+test("V7 is the current archive/payload contract", () => {
+  assert.equal(SALON_ARCHIVE_VERSION, 7);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 7);
+  const state = buildCurrentSalonArchiveState({ ...v7Base, salonBoosts: [{ ...v7SalonBoost }] });
+  assert.equal(state.archiveVersion, 7);
+  assert.equal(state.payloadVersion, 7);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 7, payloadVersion: 7 }));
+  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 6, payloadVersion: 6 }), false);
+});
+
+test("V6 is legacy and not current deletion-eligible evidence after V7 bump", () => {
+  const v6State = buildCurrentSalonArchiveState(
+    { ...v7Base, salonBoosts: [{ ...v7SalonBoost }] },
+    { archiveVersion: 6, payloadVersion: 6 },
+  );
+  assert.equal(v6State.archiveVersion, 6);
+  assert.equal(v6State.payloadVersion, 6);
+  assert.equal(isCurrentSalonArchiveContract(v6State), false);
+  // V6 salonBoost tuple has 3 fields (id, salonId, status only)
+  const parsed = JSON.parse(v6State.sourceState.salonBoostContent![0]);
+  assert.equal(parsed.length, 3);
+});
+
+test("V6 Offer tuple is legacy with 13 fields (no createdAt/updatedAt)", () => {
+  const v6State = buildCurrentSalonArchiveState(
+    { ...v7Base, offers: [{ ...v7Offer }] },
+    { archiveVersion: 6, payloadVersion: 6 },
+  );
+  assert.equal(v6State.archiveVersion, 6);
+  assert.equal(v6State.payloadVersion, 6);
+  assert.equal(isCurrentSalonArchiveContract(v6State), false);
+  const parsed = JSON.parse(v6State.sourceState.offerContent![0]);
+  assert.equal(parsed.length, 13);
+});
+
+test("V7 SalonBoost archive evidence includes all 13 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v7Base,
+    salonBoosts: [{ ...v7SalonBoost }],
+  });
+  const content = state.sourceState.salonBoostContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V7 tuple: [id, salonId, status, durationDays, startsAt, endsAt, amountCents, currency, providerReference, paymentIntentId, notes, createdAt, updatedAt]
+  assert.equal(parsed[0], "boost-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], "ACTIVE");
+  assert.equal(parsed[3], 7);
+  assert.equal(parsed[4], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed[5], "2026-01-08T10:00:00.000Z");
+  assert.equal(parsed[6], 500);
+  assert.equal(parsed[7], "EUR");
+  assert.equal(parsed[8], "ref-1");
+  assert.equal(parsed[9], "pi-1");
+  assert.equal(parsed[10], "Promo boost");
+  assert.equal(parsed[11], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[12], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed.length, 13);
+});
+
+test("V7 SalonBoost DateTime fields are canonicalized and nullable fields are preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v7Base,
+    salonBoosts: [{
+      ...v7SalonBoost,
+      startsAt: new Date("2026-01-01T10:00:00Z"),
+      endsAt: new Date("2026-01-08T10:00:00Z"),
+      createdAt: new Date("2026-01-01T09:00:00Z"),
+      updatedAt: new Date("2026-01-01T10:00:00Z"),
+    }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v7Base,
+    salonBoosts: [{ ...v7SalonBoost }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.salonBoostContent![0]);
+  assert.ok(parsed[4].includes(".000Z"));
+  assert.ok(parsed[5].includes(".000Z"));
+  assert.ok(parsed[11].includes(".000Z"));
+  assert.ok(parsed[12].includes(".000Z"));
+  // nullable fields preserved
+  const withNulls = buildCurrentSalonArchiveState({
+    ...v7Base,
+    salonBoosts: [{
+      ...v7SalonBoost,
+      startsAt: null, endsAt: null, amountCents: null, currency: null,
+      providerReference: null, paymentIntentId: null, notes: null,
+    }],
+  });
+  const parsedNulls = JSON.parse(withNulls.sourceState.salonBoostContent![0]);
+  assert.equal(parsedNulls[4], null);
+  assert.equal(parsedNulls[5], null);
+  assert.equal(parsedNulls[6], null);
+  assert.equal(parsedNulls[7], null);
+  assert.equal(parsedNulls[8], null);
+  assert.equal(parsedNulls[9], null);
+  assert.equal(parsedNulls[10], null);
+});
+
+test("V7 SalonBoost detects each meaningful field change", () => {
+  const build = (boosts: object[]) => buildCurrentSalonArchiveState({ ...v7Base, salonBoosts: boosts });
+  const before = build([v7SalonBoost]);
+  for (const [field, value] of Object.entries({
+    status: "EXPIRED", durationDays: 14, startsAt: "2026-02-01T10:00:00Z", endsAt: "2026-02-15T10:00:00Z",
+    amountCents: 1000, currency: "USD", providerReference: "ref-2", paymentIntentId: "pi-2",
+    notes: "Updated", createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z",
+  })) {
+    assert.notDeepEqual(build([{ ...v7SalonBoost, [field]: value }]).sourceState, before.sourceState, field);
+  }
+});
+
+test("V7 Offer archive evidence includes all 15 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v7Base,
+    offers: [{ ...v7Offer }],
+  });
+  const content = state.sourceState.offerContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V7 tuple: [id, salonId, title, description, price, isActive, availableSlots, discount, endAt, endTime, serviceName, startAt, startTime, createdAt, updatedAt]
+  assert.equal(parsed[0], "offer-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], "Summer Cut");
+  assert.equal(parsed[3], "Discounted cut");
+  assert.equal(parsed[4], "25");
+  assert.equal(parsed[5], true);
+  assert.equal(parsed[6], 5);
+  assert.equal(parsed[7], "5");
+  assert.equal(parsed[8], "2026-02-01T10:00:00.000Z");
+  assert.equal(parsed[9], "18:00");
+  assert.equal(parsed[10], "Haircut");
+  assert.equal(parsed[11], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed[12], "09:00");
+  assert.equal(parsed[13], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[14], "2026-01-01T10:00:00.000Z");
+  assert.equal(parsed.length, 15);
+});
+
+test("V7 Offer DateTime fields are canonicalized and nullable fields are preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v7Base,
+    offers: [{
+      ...v7Offer,
+      endAt: new Date("2026-02-01T10:00:00Z"),
+      startAt: new Date("2026-01-01T10:00:00Z"),
+      createdAt: new Date("2026-01-01T09:00:00Z"),
+      updatedAt: new Date("2026-01-01T10:00:00Z"),
+    }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v7Base,
+    offers: [{ ...v7Offer }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.offerContent![0]);
+  assert.ok(parsed[8].includes(".000Z"));
+  assert.ok(parsed[11].includes(".000Z"));
+  assert.ok(parsed[13].includes(".000Z"));
+  assert.ok(parsed[14].includes(".000Z"));
+  // nullable fields preserved
+  const withNulls = buildCurrentSalonArchiveState({
+    ...v7Base,
+    offers: [{
+      ...v7Offer,
+      description: null, price: null, availableSlots: null, discount: null,
+      endAt: null, endTime: null, serviceName: null, startAt: null, startTime: null,
+    }],
+  });
+  const parsedNulls = JSON.parse(withNulls.sourceState.offerContent![0]);
+  assert.equal(parsedNulls[3], null);
+  assert.equal(parsedNulls[4], null);
+  assert.equal(parsedNulls[6], null);
+  assert.equal(parsedNulls[7], null);
+  assert.equal(parsedNulls[8], null);
+  assert.equal(parsedNulls[9], null);
+  assert.equal(parsedNulls[10], null);
+  assert.equal(parsedNulls[11], null);
+  assert.equal(parsedNulls[12], null);
+});
+
+test("V7 Offer Decimal values use existing canonical representation", () => {
+  const build = (price: string | null) => buildCurrentSalonArchiveState({ ...v7Base, offers: [{ ...v7Offer, price }] });
+  assert.deepEqual(build("25.00"), build("25.000"));
+  assert.deepEqual(build("5.00"), build("5.000"));
+  assert.notDeepEqual(build(null).sourceState, build("0").sourceState);
+  const buildDiscount = (discount: string | null) => buildCurrentSalonArchiveState({ ...v7Base, offers: [{ ...v7Offer, discount }] });
+  assert.deepEqual(buildDiscount("5.00"), buildDiscount("5.000"));
+  assert.notDeepEqual(buildDiscount(null).sourceState, buildDiscount("0").sourceState);
+});
+
+test("V7 Offer detects each meaningful field change", () => {
+  const build = (offers: object[]) => buildCurrentSalonArchiveState({ ...v7Base, offers: offers });
+  const before = build([v7Offer]);
+  for (const [field, value] of Object.entries({
+    title: "Winter Cut", description: "New desc", price: "30.00", isActive: false,
+    availableSlots: 10, discount: "10.00", endAt: "2026-03-01T10:00:00Z", endTime: "20:00",
+    serviceName: "Color", startAt: "2026-02-01T10:00:00Z", startTime: "11:00",
+    createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z",
+  })) {
+    assert.notDeepEqual(build([{ ...v7Offer, [field]: value }]).sourceState, before.sourceState, field);
   }
 });

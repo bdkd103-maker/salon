@@ -1,13 +1,14 @@
 import { Prisma } from "@prisma/client";
 
-// Current server-written contract. V1/V2/V3/V4/V5 remain explicit historical formats only.
-export const SALON_ARCHIVE_VERSION = 6;
-export const SALON_ARCHIVE_PAYLOAD_VERSION = 6;
+// Current server-written contract. V1/V2/V3/V4/V5/V6 remain explicit historical formats only.
+export const SALON_ARCHIVE_VERSION = 7;
+export const SALON_ARCHIVE_PAYLOAD_VERSION = 7;
 export const LEGACY_SALON_ARCHIVE_CONTRACT = Object.freeze({ archiveVersion: 1, payloadVersion: 1 });
 export const LEGACY_SALON_ARCHIVE_V2_CONTRACT = Object.freeze({ archiveVersion: 2, payloadVersion: 2 });
 const LEGACY_SALON_ARCHIVE_V3_CONTRACT = Object.freeze({ archiveVersion: 3, payloadVersion: 3 });
 const LEGACY_SALON_ARCHIVE_V4_CONTRACT = Object.freeze({ archiveVersion: 4, payloadVersion: 4 });
 const LEGACY_SALON_ARCHIVE_V5_CONTRACT = Object.freeze({ archiveVersion: 5, payloadVersion: 5 });
+const LEGACY_SALON_ARCHIVE_V6_CONTRACT = Object.freeze({ archiveVersion: 6, payloadVersion: 6 });
 const CURRENT_CONTRACT = Object.freeze({ archiveVersion: SALON_ARCHIVE_VERSION, payloadVersion: SALON_ARCHIVE_PAYLOAD_VERSION });
 type ArchiveContract = { archiveVersion: number; payloadVersion: number };
 export function isCurrentSalonArchiveContract(contract: ArchiveContract) {
@@ -21,6 +22,9 @@ export function isLegacySalonArchiveV4Contract(contract: ArchiveContract) {
 }
 export function isLegacySalonArchiveV5Contract(contract: ArchiveContract) {
   return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V5_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V5_CONTRACT.payloadVersion;
+}
+export function isLegacySalonArchiveV6Contract(contract: ArchiveContract) {
+  return contract.archiveVersion === LEGACY_SALON_ARCHIVE_V6_CONTRACT.archiveVersion && contract.payloadVersion === LEGACY_SALON_ARCHIVE_V6_CONTRACT.payloadVersion;
 }
 
 // V2 positional field order is a persisted contract; changing it requires a new version.
@@ -92,7 +96,7 @@ export type SalonArchiveCoverage = {
 type BuildSalonArchiveInput = {
   queueEntries?: Array<HistoricalDates & { id: string; salonId: string; customerId: string | null; serviceVisitId: string | null; source: string; status: string; joinedAt: Date | string; calledAt: Date | string | null; startedAt: Date | string | null; cancelledAt: Date | string | null; expiredAt: Date | string | null; noShowAt: Date | string | null; version: number }>;
   loyalty?: Array<{ id: string; salonId: string; isActive: boolean; requiredStamps: number; rewardType: string; rewardTitle: string; rewardText: string; description: string | null; createdAt: Date | string; updatedAt: Date | string; customers: LoyaltyCustomerSource[]; stamps: LoyaltyStampSource[] }>;
-  offers?: Array<{ id: string; salonId: string | null; title: string; description: string | null; price: string | Prisma.Decimal | null; isActive: boolean; availableSlots: number | null; discount: string | Prisma.Decimal | null; endAt: Date | string | null; endTime: string | null; serviceName: string | null; startAt: Date | string | null; startTime: string | null }>;
+  offers?: Array<{ id: string; salonId: string | null; title: string; description: string | null; price: string | Prisma.Decimal | null; isActive: boolean; availableSlots: number | null; discount: string | Prisma.Decimal | null; endAt: Date | string | null; endTime: string | null; serviceName: string | null; startAt: Date | string | null; startTime: string | null; createdAt?: Date | string; updatedAt?: Date | string }>;
   analyticsEvents?: Array<{ id: string; salonId: string; userId: string | null; eventType: string; source: string; metadata: Prisma.JsonValue; createdAt: Date | string }>;
   liveStatus?: Array<{ salonId: string; operationalState: string | null; observedAt: Date | string | null; expiresAt: Date | string | null; source: string | null }>;
   availabilitySubscriptions?: Array<{ id: string; salonId: string; userId: string; status: string; lastKnownAvailableChairs: number; lastNotifiedAt: Date | string | null; createdAt: Date | string }>;
@@ -107,7 +111,7 @@ type BuildSalonArchiveInput = {
   // Optional expanded fields permit explicit historical V1 input; V2 rejects missing fields.
   bookings?: Array<HistoricalDates & { id: string; salonId: string; status: string; userId?: string; barberId?: string | null; serviceId?: string | null; startAt?: Date | string; endAt?: Date | string; notes?: string | null; customerName?: string | null; customerPhone?: string | null; cancelledAt?: Date | string | null; cancellationReason?: string | null }>;
   serviceVisits?: Array<HistoricalDates & { id: string; salonId: string; status: string; bookingId?: string | null; staffMembershipId?: string; source?: string; startedAt?: Date | string; completedAt?: Date | string | null; cancelledAt?: Date | string | null; version?: number; startedByUserId?: string | null; completedByUserId?: string | null; cancelledByUserId?: string | null }>;
-  salonBoosts?: Array<{ id: string; salonId: string; status: string }>;
+  salonBoosts?: Array<{ id: string; salonId: string; status: string; durationDays: number; startsAt: Date | string | null; endsAt: Date | string | null; amountCents: number | null; currency: string | null; providerReference: string | null; paymentIntentId: string | null; notes: string | null; createdAt: Date | string; updatedAt: Date | string }>;
   barbers?: Array<{ id: string; salonId: string; name: string; specialty: string | null; isActive: boolean; createdAt?: Date | string; updatedAt?: Date | string }>;
   reviews?: Array<{ id: string; salonId: string; userId: string; rating: number; comment: string | null; createdAt: Date | string }>;
   salonMedia?: Array<{ id: string; salonId: string; kind: string; url: string; createdAt: Date | string }>;
@@ -164,7 +168,8 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
   const legacyV3 = isLegacySalonArchiveV3Contract(contract);
   const legacyV4 = isLegacySalonArchiveV4Contract(contract);
   const legacyV5 = isLegacySalonArchiveV5Contract(contract);
-  if (!current && !legacyV1 && !legacyV2 && !legacyV3 && !legacyV4 && !legacyV5) throw new Error("Unsupported salon archive contract");
+  const legacyV6 = isLegacySalonArchiveV6Contract(contract);
+  if (!current && !legacyV1 && !legacyV2 && !legacyV3 && !legacyV4 && !legacyV5 && !legacyV6) throw new Error("Unsupported salon archive contract");
   const bookingIds = sortedUnique(input.bookingIds);
   const serviceVisitIds = sortedUnique(input.serviceVisitIds);
   const salonBoostIds = sortedUnique(input.salonBoostIds);
@@ -200,9 +205,16 @@ export function buildSalonArchiveState(input: BuildSalonArchiveInput, contract: 
   )),
 }),
 ...(input.salonBoosts === undefined ? {} : {
-  salonBoostContent: sortedUnique(input.salonBoosts.map((boost) =>
-    JSON.stringify([boost.id, boost.salonId, boost.status]),
-  )),
+  salonBoostContent: sortedUnique(input.salonBoosts.map((boost) => {
+    if (boost.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
+    return JSON.stringify([boost.id, boost.salonId, boost.status,
+      ...(current ? [
+        boost.durationDays, archiveDate(boost.startsAt), archiveDate(boost.endsAt),
+        boost.amountCents, boost.currency, boost.providerReference, boost.paymentIntentId, boost.notes,
+        archiveDate(boost.createdAt), archiveDate(boost.updatedAt),
+      ] : []),
+    ]);
+  })),
 }),
 };
 
@@ -302,7 +314,9 @@ if (input.loyalty !== undefined) {
 if (input.offers !== undefined) {
   sourceState.offerContent = sortedUnique(input.offers.map(row => {
     if (row.salonId !== input.salonId) throw new Error("Archive record belongs to another salon");
-    return JSON.stringify([row.id, row.salonId, row.title, row.description, row.price === null ? null : new Prisma.Decimal(row.price).toString(), row.isActive, row.availableSlots, row.discount === null ? null : new Prisma.Decimal(row.discount).toString(), archiveDate(row.endAt), row.endTime, row.serviceName, archiveDate(row.startAt), row.startTime]);
+    return JSON.stringify([row.id, row.salonId, row.title, row.description, row.price === null ? null : new Prisma.Decimal(row.price).toString(), row.isActive, row.availableSlots, row.discount === null ? null : new Prisma.Decimal(row.discount).toString(), archiveDate(row.endAt), row.endTime, row.serviceName, archiveDate(row.startAt), row.startTime,
+      ...(current ? [archiveDate(row.createdAt!), archiveDate(row.updatedAt!)] : []),
+    ]);
   }));
   coverage.categories.push("OFFER");
   coverage.counts.offers = sortedUnique(input.offers.map(row => row.id)).length;

@@ -155,7 +155,7 @@ beforeEach(() => {
     // These are history/evidence fixtures, not assertions that bookings are vouchers.
     booking: [{ ...v2Booking, id: "booking-history", salonId: "target", userId: "customer", status: "COMPLETED" }],
     serviceVisit: [{ ...v2Visit, id: "visit-history", salonId: "target", status: "COMPLETED" }],
-    salonBoost: [{ id: "boost-history", salonId: "target", status: "EXPIRED" }],
+    salonBoost: [{ id: "boost-history", salonId: "target", status: "EXPIRED", durationDays: 7, startsAt: null, endsAt: null, amountCents: 0, currency: "EUR", providerReference: null, paymentIntentId: null, notes: null, createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z") }],
     staffPresenceLease: [],
   };
   for (const name of names) mock[name] = delegate(name);
