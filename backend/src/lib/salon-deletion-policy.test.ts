@@ -87,7 +87,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AvailabilitySlot", "Barber", "Booking", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "QueueEntry", "Review", "SalonAvailabilitySubscription", "SalonLiveStatus", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, { salonId: "target" }, "target"), true);
@@ -224,6 +224,27 @@ test("Service qualifies as DELETE_WITH_SALON with complete archive and cross-sal
   assert.equal(owned("Service", { salonId: "target" }, "target"), true);
   assert.ok(!evaluate().blockingModels.includes("Service"));
 });
+test("LoyaltyCard qualifies as DELETE_WITH_SALON with complete archive and salon-scoped cascade", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("LoyaltyCard"), "DELETE_WITH_SALON");
+  assert.equal(owned("LoyaltyCard", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("LoyaltyCard", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("LoyaltyCard"));
+});
+test("LoyaltyCustomer qualifies as DELETE_WITH_SALON with complete archive and cascade ownership", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("LoyaltyCustomer"), "DELETE_WITH_SALON");
+  assert.equal(owned("LoyaltyCustomer", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("LoyaltyCustomer", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("LoyaltyCustomer"));
+});
+test("LoyaltyStamp qualifies as DELETE_WITH_SALON with complete archive and scalar-only barberId", () => {
+  const { classify, owned, evaluate } = policyApi();
+  assert.equal(classify("LoyaltyStamp"), "DELETE_WITH_SALON");
+  assert.equal(owned("LoyaltyStamp", { salonId: "sibling" }, "target"), false);
+  assert.equal(owned("LoyaltyStamp", { salonId: "target" }, "target"), true);
+  assert.ok(!evaluate().blockingModels.includes("LoyaltyStamp"));
+});
 test("historical policy StaffMembership: ServiceVisit Restrict resolves before parent; presence and leases are salon-scoped children", () => {
   const edges = historicalEdges();
   assert.deepEqual(sortedEdges(edges.filter(e => e.from === "StaffMembership")), sortedEdges([
@@ -240,7 +261,7 @@ test("historical policy StaffMembership: ServiceVisit Restrict resolves before p
   for (const name of ["StaffMembership", "StaffPresence", "StaffPresenceLease"]) assert.equal(policyApi().classify(name), "DELETE_WITH_SALON");
 });
 test("historical policy leaves unrelated classifications and shared identities unchanged", () => {
-  for (const name of ["Message", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
+  for (const name of ["Message"]) assert.equal(policyApi().classify(name), "BLOCKING_UNCLASSIFIED");
   assert.equal(policyApi().classify("Review"), "DELETE_WITH_SALON");
   assert.equal(policyApi().classify("UnknownHistory"), "BLOCKING_UNCLASSIFIED");
   assert.equal(policyApi().classify("User"), "SHARED_OR_GLOBAL_DO_NOT_DELETE");
