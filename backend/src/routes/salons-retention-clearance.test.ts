@@ -138,8 +138,8 @@ test("revalidation detects StaffPresence content change", async () => withApp(as
   assert.ok(tables.salonPurgeClearance[0].revokedAt);
 }));
 test("revalidation detects Loyalty child content change", async () => withApp(async app => {
-  tables.loyaltyCard = [{ id: "card", salonId: "target", isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: new Date() }];
-  tables.loyaltyCustomer = [{ id: "c", cardId: "card", customerId: "customer", currentStamps: 1, totalVisits: 1, lastStampedAt: null, rewardRedeemedAt: null }];
+  tables.loyaltyCard = [{ id: "card", salonId: "target", isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: new Date(), updatedAt: new Date() }];
+  tables.loyaltyCustomer = [{ id: "c", cardId: "card", customerId: "customer", currentStamps: 1, totalVisits: 1, lastStampedAt: null, rewardRedeemedAt: null, createdAt: new Date(), updatedAt: new Date() }];
   const id = await finalizedClearance(app);
   tables.loyaltyCustomer[0].currentStamps = 2;
   assert.equal((await revalidate(app, id)).statusCode, 409);
@@ -362,8 +362,8 @@ test("clearance records independent archive evidence without mutating salon or a
   assert.ok(Number.isFinite(Date.parse(clearance.issuedAt)));
   assert.deepEqual(clearance.sourceState, tables.salonArchive[0].sourceState);
   assert.deepEqual(clearance.coverage, tables.salonArchive[0].coverage);
-  assert.equal(clearance.archiveVersion, 5);
-  assert.equal(clearance.payloadVersion, 5);
+  assert.equal(clearance.archiveVersion, 6);
+  assert.equal(clearance.payloadVersion, 6);
   assert.equal(clearance.archiveFinalizedAt, tables.salonArchive[0].finalizedAt.toISOString());
   tables.salonArchive[0].sourceState.bookingContent = ["changed"];
   assert.notDeepEqual(tables.salonPurgeClearance[0].sourceState, tables.salonArchive[0].sourceState);
@@ -455,8 +455,8 @@ test("V3 finalization creates distinct evidence and never upgrades historical V1
   tables.booking = [structuredClone(v2Booking)];
   const response = await request(app, "archive/finalize");
   assert.equal(response.statusCode, 201);
-  assert.equal(response.json().archive.archiveVersion, 5);
-  assert.equal(response.json().archive.payloadVersion, 5);
+  assert.equal(response.json().archive.archiveVersion, 6);
+  assert.equal(response.json().archive.payloadVersion, 6);
   assert.notEqual(response.json().archive.archiveId, historical.archiveId);
   assert.deepEqual(tables.salonArchive[0], historical);
 }));
@@ -494,8 +494,8 @@ test("V3 QueueEntry finalization is target-scoped and leaves historical V2 evide
   tables.queueEntry = [structuredClone(v3QueueEntry), { ...v3QueueEntry, id: "sibling-q", salonId: "sibling" }];
   const id = await finalizedClearance(app);
   const current = tables.salonArchive[1];
-  assert.equal(current.archiveVersion, 5);
-  assert.equal(current.payloadVersion, 5);
+  assert.equal(current.archiveVersion, 6);
+  assert.equal(current.payloadVersion, 6);
   assert.deepEqual(current.sourceState.queueEntryContent, [JSON.stringify(Object.values(v3QueueEntry))]);
   assert.deepEqual(tables.salonArchive[0], historical);
   assert.notEqual(current.archiveId, historical.archiveId);

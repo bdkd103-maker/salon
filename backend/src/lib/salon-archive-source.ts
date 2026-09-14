@@ -14,7 +14,7 @@ export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonI
     tx.availabilitySlot.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, barberId: true, startAt: true, endAt: true, status: true, createdAt: true } }),
     tx.staffMembership.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, userId: true, barberId: true, status: true, revokedAt: true, createdAt: true, updatedAt: true } }),
     tx.queueEntry.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, customerId: true, serviceVisitId: true, source: true, status: true, joinedAt: true, calledAt: true, startedAt: true, cancelledAt: true, expiredAt: true, noShowAt: true, version: true, createdAt: true, updatedAt: true } }),
-    tx.loyaltyCard.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, isActive: true, requiredStamps: true, rewardType: true, rewardTitle: true, rewardText: true, description: true, createdAt: true } }),
+    tx.loyaltyCard.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, isActive: true, requiredStamps: true, rewardType: true, rewardTitle: true, rewardText: true, description: true, createdAt: true, updatedAt: true } }),
     tx.offer.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, title: true, description: true, price: true, isActive: true, availableSlots: true, discount: true, endAt: true, endTime: true, serviceName: true, startAt: true, startTime: true } }),
     tx.analyticsEvent.findMany({ where: { salonId: salonId }, select: { id: true, salonId: true, userId: true, eventType: true, source: true, metadata: true, createdAt: true } }),
     tx.salonLiveStatus.findMany({ where: { salonId: salonId }, select: { salonId: true, operationalState: true, observedAt: true, expiresAt: true, source: true } }),
@@ -35,8 +35,8 @@ export async function loadSalonArchiveState(tx: Prisma.TransactionClient, salonI
   }));
   const loyalty = await Promise.all(cards.map(async card => {
     const [customers, stamps] = await Promise.all([
-      tx.loyaltyCustomer.findMany({ where: { cardId: card.id }, select: { id: true, cardId: true, customerId: true, currentStamps: true, totalVisits: true, lastStampedAt: true, rewardRedeemedAt: true } }),
-      tx.loyaltyStamp.findMany({ where: { cardId: card.id }, select: { id: true, cardId: true, customerId: true, barberId: true, transactionId: true, stampAt: true, isValid: true } }),
+      tx.loyaltyCustomer.findMany({ where: { cardId: card.id }, select: { id: true, cardId: true, customerId: true, currentStamps: true, totalVisits: true, lastStampedAt: true, rewardRedeemedAt: true, createdAt: true, updatedAt: true } }),
+      tx.loyaltyStamp.findMany({ where: { cardId: card.id }, select: { id: true, cardId: true, customerId: true, barberId: true, transactionId: true, stampAt: true, isValid: true, verificationToken: true, createdAt: true } }),
     ]);
     return { ...card, customers, stamps };
   }));

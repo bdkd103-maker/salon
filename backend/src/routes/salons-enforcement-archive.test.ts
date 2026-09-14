@@ -35,9 +35,9 @@ test("finalization loads direct content and scopes presence and loyalty through 
   tables.staffMembership = ["target", "sibling"].map(salonId => ({ ...v2Membership, id: salonId + "-staff", salonId, userId: "owner", barberId: salonId + "-barber", status: "ACTIVE", revokedAt: null }));
   tables.staffPresence = ["target", "sibling"].map(id => ({ staffMembershipId: id + "-staff", dutyState: "ON_DUTY", generation: 1, changedAt: date, changedByUserId: "owner", changeSource: "OWNER", createdAt: date, updatedAt: date }));
   tables.staffPresenceLease = ["target", "sibling"].map(id => ({ id: id + "-lease", staffMembershipId: id + "-staff", generation: 1, evidenceSource: "DEVICE", producerKey: id + "-key", observedAt: date, validUntil: date, revokedAt: null, createdAt: date, updatedAt: date }));
-  tables.loyaltyCard = ["target", "sibling"].map(salonId => ({ id: salonId + "-card", salonId, isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: date }));
-  tables.loyaltyCustomer = ["target", "sibling"].map(id => ({ id: id + "-customer", cardId: id + "-card", customerId: "customer", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null }));
-  tables.loyaltyStamp = ["target", "sibling"].map(id => ({ id: id + "-stamp", cardId: id + "-card", customerId: "customer", barberId: null, transactionId: id + "-transaction", stampAt: date, isValid: true }));
+  tables.loyaltyCard = ["target", "sibling"].map(salonId => ({ id: salonId + "-card", salonId, isActive: true, requiredStamps: 8, rewardType: "FREE_SERVICE", rewardTitle: "Cut", rewardText: "Cut", description: null, createdAt: date, updatedAt: date }));
+  tables.loyaltyCustomer = ["target", "sibling"].map(id => ({ id: id + "-customer", cardId: id + "-card", customerId: "customer", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null, createdAt: date, updatedAt: date }));
+  tables.loyaltyStamp = ["target", "sibling"].map(id => ({ id: id + "-stamp", cardId: id + "-card", customerId: "customer", barberId: null, transactionId: id + "-transaction", stampAt: date, isValid: true, verificationToken: null, createdAt: date }));
   tables.booking.push({ ...v2Booking, id: "sibling-booking", salonId: "sibling", status: "COMPLETED" });
   const before = structuredClone(tables);
   const result = await finalize(app);

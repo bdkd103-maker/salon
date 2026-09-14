@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 test("loyalty child history is canonical, content-aware and card-scoped", () => {
   const card = nextCategories[1][4];
-  const customer = { id: "c", cardId: "a", customerId: "u", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null };
-  const stamp = { id: "s", cardId: "a", customerId: "u", barberId: null, transactionId: "tx", stampAt: "2026-01-01T10:00:00Z", isValid: true };
+  const customer = { id: "c", cardId: "a", customerId: "u", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null, createdAt: "2026-01-01T10:00:00Z", updatedAt: "2026-01-01T10:00:00Z" };
+  const stamp = { id: "s", cardId: "a", customerId: "u", barberId: null, transactionId: "tx", stampAt: "2026-01-01T10:00:00Z", isValid: true, verificationToken: null, createdAt: "2026-01-01T10:00:00Z" };
   const base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
   const build = (customers: object[], stamps: object[]) => buildSalonArchiveState({ ...base, loyalty: [{ ...card, customers, stamps }] });
   const before = build([customer], [stamp]);
@@ -66,6 +66,7 @@ const nextCategories = [
       "rewardText": "Free cut",
       "description": null,
       "createdAt": "2026-01-01T10:00:00Z",
+      "updatedAt": "2026-01-01T10:00:00Z",
       "customers": [],
       "stamps": []
     },
@@ -555,8 +556,8 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     const before = buildV2SalonArchiveState(input([row]));
     assert.equal(before.archiveVersion, 2);
     assert.equal(before.payloadVersion, 2);
-    assert.equal(SALON_ARCHIVE_VERSION, 5);
-    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
+    assert.equal(SALON_ARCHIVE_VERSION, 6);
+    assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 6);
     assert.deepEqual(JSON.parse(before.sourceState[content]![0]), Object.values(row));
     for (const [field, value] of Object.entries(row)) {
       if (field === "salonId") continue;
@@ -604,8 +605,8 @@ const queueInput = (rows: object[]) => ({ salonId: "target", bookingIds: [], ser
 test("V3 QueueEntry exact field order, chronology, nulls and canonical duplicates", () => {
   const build = (rows: object[]) => buildCurrentSalonArchiveState(queueInput(rows) as Parameters<typeof buildCurrentSalonArchiveState>[0]);
   const before = build([v3QueueEntry]);
-  assert.equal(before.archiveVersion, 5);
-  assert.equal(before.payloadVersion, 5);
+  assert.equal(before.archiveVersion, 6);
+  assert.equal(before.payloadVersion, 6);
   assert.deepEqual(JSON.parse(before.sourceState.queueEntryContent![0]), Object.values(v3QueueEntry));
   const dates = Object.fromEntries(Object.entries(v3QueueEntry).reverse().map(([k,v]) => [k, k.endsWith("At") && v !== null ? new Date(v as string) : v]));
   assert.deepEqual(build([dates, v3QueueEntry]), before);
@@ -657,16 +658,6 @@ const v4Lease = {
   revokedAt: null as string | null,
   createdAt: "2026-01-01T09:30:00Z", updatedAt: "2026-01-01T10:00:00Z",
 };
-
-test("V4 is the current archive/payload contract", () => {
-  assert.equal(SALON_ARCHIVE_VERSION, 5);
-  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
-  const state = buildCurrentSalonArchiveState({ ...v4Base, staffPresence: [] });
-  assert.equal(state.archiveVersion, 5);
-  assert.equal(state.payloadVersion, 5);
-  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }));
-  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }), false);
-});
 
 test("V4 StaffPresence archive evidence includes all 8 persisted fields", () => {
   const state = buildCurrentSalonArchiveState({
@@ -789,16 +780,6 @@ const v5Availability = {
   status: "AVAILABLE",
   createdAt: "2026-01-01T09:00:00Z",
 };
-
-test("V5 is the current archive/payload contract", () => {
-  assert.equal(SALON_ARCHIVE_VERSION, 5);
-  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 5);
-  const state = buildCurrentSalonArchiveState({ ...v5Base, barbers: [] });
-  assert.equal(state.archiveVersion, 5);
-  assert.equal(state.payloadVersion, 5);
-  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }));
-  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 4, payloadVersion: 4 }), false);
-});
 
 test("V4 is legacy and not current deletion-eligible evidence after V5 bump", () => {
   const v4State = buildCurrentSalonArchiveState(
@@ -951,5 +932,176 @@ test("V5 availability detects each meaningful field change", () => {
   const before = build([v5Availability]);
   for (const [field, value] of Object.entries({ barberId: "b1", startAt: "2026-02-01T10:00:00Z", endAt: "2026-02-01T11:00:00Z", status: "BOOKED", createdAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(build([{ ...v5Availability, [field]: value }]).sourceState, before.sourceState, field);
+  }
+});
+
+// ── V6 archive contract: Loyalty chain evidence completion ──
+
+const v6Base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
+
+const v6LoyaltyCard = {
+  id: "card-1", salonId: "target", isActive: true, requiredStamps: 8,
+  rewardType: "FREE_SERVICE", rewardTitle: "Free cut", rewardText: "Free cut",
+  description: null,
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+  customers: [], stamps: [],
+};
+
+const v6LoyaltyCustomer = {
+  id: "cust-1", cardId: "card-1", customerId: "user-1",
+  currentStamps: 3, totalVisits: 5,
+  lastStampedAt: "2026-01-01T10:00:00Z", rewardRedeemedAt: null,
+  createdAt: "2026-01-01T09:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+};
+
+const v6LoyaltyStamp = {
+  id: "stamp-1", cardId: "card-1", customerId: "user-1", barberId: "b1",
+  transactionId: "tx-1", stampAt: "2026-01-01T10:00:00Z", isValid: true,
+  verificationToken: "tok-1",
+  createdAt: "2026-01-01T09:00:00Z",
+};
+
+test("V6 is the current archive/payload contract", () => {
+  assert.equal(SALON_ARCHIVE_VERSION, 6);
+  assert.equal(SALON_ARCHIVE_PAYLOAD_VERSION, 6);
+  const state = buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [] }] });
+  assert.equal(state.archiveVersion, 6);
+  assert.equal(state.payloadVersion, 6);
+  assert.ok(isCurrentSalonArchiveContract({ archiveVersion: 6, payloadVersion: 6 }));
+  assert.equal(isCurrentSalonArchiveContract({ archiveVersion: 5, payloadVersion: 5 }), false);
+});
+
+test("V5 is legacy and not current deletion-eligible evidence after V6 bump", () => {
+  const v5State = buildCurrentSalonArchiveState(
+    { ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [] }] },
+    { archiveVersion: 5, payloadVersion: 5 },
+  );
+  assert.equal(v5State.archiveVersion, 5);
+  assert.equal(v5State.payloadVersion, 5);
+  assert.equal(isCurrentSalonArchiveContract(v5State), false);
+  // V5 loyalty card tuple has 11 elements (9 card fields + 2 nested child arrays, no updatedAt)
+  const parsed = JSON.parse(v5State.sourceState.loyaltyContent![0]);
+  assert.equal(parsed.length, 11);
+});
+
+test("V6 LoyaltyCard archive evidence includes all 10 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [] }],
+  });
+  const content = state.sourceState.loyaltyContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  // V6 tuple: [id, salonId, isActive, requiredStamps, rewardType, rewardTitle, rewardText, description, createdAt, updatedAt, customers[], stamps[]]
+  assert.equal(parsed[0], "card-1");
+  assert.equal(parsed[1], "target");
+  assert.equal(parsed[2], true);
+  assert.equal(parsed[3], 8);
+  assert.equal(parsed[4], "FREE_SERVICE");
+  assert.equal(parsed[5], "Free cut");
+  assert.equal(parsed[6], "Free cut");
+  assert.equal(parsed[7], null);
+  assert.equal(parsed[8], "2026-01-01T09:00:00.000Z");
+  assert.equal(parsed[9], "2026-01-01T10:00:00.000Z");
+  assert.ok(Array.isArray(parsed[10]));
+  assert.ok(Array.isArray(parsed[11]));
+  assert.equal(parsed.length, 12);
+});
+
+test("V6 LoyaltyCustomer archive evidence includes all 9 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, customers: [{ ...v6LoyaltyCustomer }], stamps: [] }],
+  });
+  const content = state.sourceState.loyaltyContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  const customerTuple = JSON.parse(parsed[10][0]);
+  // V6 tuple: [id, cardId, customerId, currentStamps, totalVisits, lastStampedAt, rewardRedeemedAt, createdAt, updatedAt]
+  assert.equal(customerTuple[0], "cust-1");
+  assert.equal(customerTuple[1], "card-1");
+  assert.equal(customerTuple[2], "user-1");
+  assert.equal(customerTuple[3], 3);
+  assert.equal(customerTuple[4], 5);
+  assert.equal(customerTuple[5], "2026-01-01T10:00:00.000Z");
+  assert.equal(customerTuple[6], null);
+  assert.equal(customerTuple[7], "2026-01-01T09:00:00.000Z");
+  assert.equal(customerTuple[8], "2026-01-01T10:00:00.000Z");
+  assert.equal(customerTuple.length, 9);
+});
+
+test("V6 LoyaltyStamp archive evidence includes all 9 persisted fields", () => {
+  const state = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [{ ...v6LoyaltyStamp }] }],
+  });
+  const content = state.sourceState.loyaltyContent!;
+  assert.equal(content.length, 1);
+  const parsed = JSON.parse(content[0]);
+  const stampTuple = JSON.parse(parsed[11][0]);
+  // V6 tuple: [id, cardId, customerId, barberId, transactionId, stampAt, isValid, verificationToken, createdAt]
+  assert.equal(stampTuple[0], "stamp-1");
+  assert.equal(stampTuple[1], "card-1");
+  assert.equal(stampTuple[2], "user-1");
+  assert.equal(stampTuple[3], "b1");
+  assert.equal(stampTuple[4], "tx-1");
+  assert.equal(stampTuple[5], "2026-01-01T10:00:00.000Z");
+  assert.equal(stampTuple[6], true);
+  assert.equal(stampTuple[7], "tok-1");
+  assert.equal(stampTuple[8], "2026-01-01T09:00:00.000Z");
+  assert.equal(stampTuple.length, 9);
+});
+
+test("V6 loyalty DateTime fields are canonicalized and nullable verificationToken is preserved", () => {
+  const withDates = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, createdAt: new Date("2026-01-01T09:00:00Z"), updatedAt: new Date("2026-01-01T10:00:00Z"),
+      customers: [{ ...v6LoyaltyCustomer, lastStampedAt: new Date("2026-01-01T10:00:00Z"), createdAt: new Date("2026-01-01T09:00:00Z"), updatedAt: new Date("2026-01-01T10:00:00Z") }],
+      stamps: [{ ...v6LoyaltyStamp, stampAt: new Date("2026-01-01T10:00:00Z"), createdAt: new Date("2026-01-01T09:00:00Z") }],
+    }],
+  });
+  const withStrings = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, customers: [{ ...v6LoyaltyCustomer }], stamps: [{ ...v6LoyaltyStamp }] }],
+  });
+  assert.deepEqual(withDates, withStrings);
+  const parsed = JSON.parse(withDates.sourceState.loyaltyContent![0]);
+  // card tuple dates at indices 8,9
+  assert.ok(parsed[8].includes(".000Z"));
+  assert.ok(parsed[9].includes(".000Z"));
+  // customer dates at indices 5,7,8
+  const customerTuple = JSON.parse(parsed[10][0]);
+  assert.ok(customerTuple[5].includes(".000Z"));
+  assert.ok(customerTuple[7].includes(".000Z"));
+  assert.ok(customerTuple[8].includes(".000Z"));
+  // stamp dates at indices 5,8
+  const stampTuple = JSON.parse(parsed[11][0]);
+  assert.ok(stampTuple[5].includes(".000Z"));
+  assert.ok(stampTuple[8].includes(".000Z"));
+  // nullable verificationToken preserved
+  const withNull = buildCurrentSalonArchiveState({
+    ...v6Base,
+    loyalty: [{ ...v6LoyaltyCard, customers: [], stamps: [{ ...v6LoyaltyStamp, verificationToken: null }] }],
+  });
+  const parsedNull = JSON.parse(withNull.sourceState.loyaltyContent![0]);
+  const stampNull = JSON.parse(parsedNull[11][0]);
+  assert.equal(stampNull[7], null);
+});
+
+test("V6 loyalty detects each meaningful field change", () => {
+  const buildCard = (card: object) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...card, customers: v6LoyaltyCard.customers, stamps: v6LoyaltyCard.stamps }] });
+  const beforeCard = buildCard(v6LoyaltyCard);
+  for (const [field, value] of Object.entries({ isActive: false, requiredStamps: 9, rewardType: "FIXED_DISCOUNT", rewardTitle: "New", rewardText: "New", description: "Desc", createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(buildCard({ ...v6LoyaltyCard, [field]: value }).sourceState, beforeCard.sourceState, field);
+  }
+  const buildCustomer = (cust: object[]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: cust, stamps: [] }] });
+  const beforeCustomer = buildCustomer([v6LoyaltyCustomer]);
+  for (const [field, value] of Object.entries({ currentStamps: 4, totalVisits: 6, lastStampedAt: "2026-02-01T00:00:00Z", rewardRedeemedAt: "2026-02-01T00:00:00Z", createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(buildCustomer([{ ...v6LoyaltyCustomer, [field]: value }]).sourceState, beforeCustomer.sourceState, field);
+  }
+  const buildStamp = (stamps: object[]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps }] });
+  const beforeStamp = buildStamp([v6LoyaltyStamp]);
+  for (const [field, value] of Object.entries({ barberId: "b2", transactionId: "tx-2", stampAt: "2026-02-01T00:00:00Z", isValid: false, verificationToken: "tok-2", createdAt: "2026-02-01T00:00:00Z" })) {
+    assert.notDeepEqual(buildStamp([{ ...v6LoyaltyStamp, [field]: value }]).sourceState, beforeStamp.sourceState, field);
   }
 });
