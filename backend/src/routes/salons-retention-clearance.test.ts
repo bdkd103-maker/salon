@@ -82,7 +82,7 @@ for (const flag of ["clearanceId", "archiveId", "sourceState", "coverage", "forc
     const result = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
       headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` },
       payload: { [flag]: flag === "clearanceId" ? id : true } });
-    assert.equal(result.statusCode, 409);
+    assert.equal(result.statusCode, 400);
     assert.deepEqual(tables.salon, before);
   }));
 }
@@ -96,7 +96,7 @@ async function finalizedClearance(app: ReturnType<typeof Fastify>) {
 const revalidate = (app: ReturnType<typeof Fastify>, id: string, payload: any = {}, role = "ADMIN") =>
   request(app, `purge-clearance/${id}/revalidate`, payload, role);
 
-test("revalidation accepts evaluated-empty current evidence without changing Salon or enabling DELETE", async () => withApp(async app => {
+test("revalidation accepts evaluated-empty evidence without writes before a separate DELETE", async () => withApp(async app => {
   const id = await finalizedClearance(app);
   const before = structuredClone(tables.salon);
   writes = [];
@@ -107,7 +107,7 @@ test("revalidation accepts evaluated-empty current evidence without changing Sal
   assert.deepEqual(tables.salon, before);
   const deleted = await app.inject({ method: "DELETE", url: "/api/v1/salons/target",
     headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` } });
-  assert.equal(deleted.statusCode, 409);
+  assert.equal(deleted.statusCode, 200);
 }));
 for (const change of ["status", "addition", "removal"]) {
   test(`revalidation revokes clearance after Booking ${change}`, async () => withApp(async app => {
@@ -216,13 +216,128 @@ import { signAccessToken } from "../lib/jwt.js";
 import { salonRoutes } from "./salons.js";
 
 const db = prisma as any;
+const purgeOrder = ["queueEntry", "serviceVisit", "booking", "availabilitySlot", "staffPresenceLease", "staffPresence",
+  "staffMembership", "barber", "service", "loyaltyStamp", "loyaltyCustomer", "loyaltyCard", "analyticsEvent",
+  "offer", "review", "salonAvailabilitySubscription", "salonBoost", "salonLiveStatus", "salonMedia", "salon"];
+const purge = (app: ReturnType<typeof Fastify>, role = "ADMIN", salonId = "target", payload?: any) =>
+  app.inject({ method: "DELETE", url: `/api/v1/salons/${salonId}`,
+    headers: { authorization: `Bearer ${signAccessToken({ sub: role.toLowerCase(), role })}` },
+    ...(payload === undefined ? {} : { payload }) });
+
+async function seedPurgeDependents() {
+  const { Prisma } = await import("@prisma/client");
+  for (const name of purgeOrder.filter(n => n !== "salon")) {
+    const model = Prisma.dmmf.datamodel.models.find(m => m.name[0].toLowerCase() + m.name.slice(1) === name)!;
+    tables[name] = ["target", "sibling"].map(salonId => {
+      const row: any = Object.fromEntries(model.fields.filter(f => f.kind !== "object").map(f => [f.name,
+        !f.isRequired ? null : f.type === "DateTime" ? new Date("2026-01-01T00:00:00Z")
+          : f.type === "Boolean" ? true : ["Int", "Float", "Decimal"].includes(f.type) ? 1
+          : f.type === "Json" ? {} : f.kind === "enum" ? Prisma.dmmf.datamodel.enums.find(e => e.name === f.type)!.values[0].name
+          : `${salonId}-${name}-${f.name}`]));
+      if ("id" in row) row.id = `${salonId}-${name}`;
+      if ("salonId" in row) row.salonId = salonId;
+      if ("staffMembershipId" in row) row.staffMembershipId = `${salonId}-staffMembership`;
+      if ("cardId" in row) row.cardId = `${salonId}-loyaltyCard`;
+      if (name === "staffMembership") row.barberId = `${salonId}-barber`;
+      if (name === "serviceVisit") row.bookingId = `${salonId}-booking`;
+      if (name === "queueEntry") row.serviceVisitId = `${salonId}-serviceVisit`;
+      return row;
+    });
+  }
+}
+
+test("permanent DELETE removes target dependents in order and preserves messages, identities and history", async () => withApp(async app => {
+  await seedPurgeDependents();
+  tables.message = [{ id: "message", salonId: "target", senderId: "customer", receiverId: "owner", body: "Hello" },
+    { id: "other-message", salonId: "sibling", senderId: "customer", receiverId: "owner" }];
+  tables.user = [{ id: "owner" }, { id: "customer" }];
+  tables.userSubscription = [{ id: "subscription", userId: "owner" }];
+  tables.salonEnforcement = [{ id: "enforcement", salonId: "target" }];
+  tables.salonRetentionHold = [{ id: "released", salonId: "target", releasedAt: new Date() }];
+  await finalizedClearance(app);
+  const preserved = ["user", "userSubscription", "salonEnforcement", "salonArchive", "salonRetentionHold", "salonPurgeClearance"];
+  const before = structuredClone(tables);
+  const globalSalon = db.salon;
+  transactionCalls = 0;
+  db.salon = new Proxy({}, { get() { throw new Error("global salon access during purge"); } });
+  let result;
+  try { result = await purge(app); } finally { db.salon = globalSalon; }
+  assert.equal(result.statusCode, 200);
+  assert.deepEqual(result.json(), { deleted: true, salonId: "target" });
+  assert.equal(transactionCalls, 1, "readiness and deletes must share one transaction, not separate preflight and purge transactions");
+  assert.deepEqual(destructive, purgeOrder);
+  for (const name of purgeOrder) assert.deepEqual(tables[name], [before[name][1]], name);
+  for (const name of preserved) assert.deepEqual(tables[name], before[name], name);
+  assert.deepEqual(tables.message, [{ ...before.message[0], salonId: null }, before.message[1]]);
+  assert.deepEqual(tables.salonArchive[0].sourceState.messageProvenanceContent, [JSON.stringify(["message", "target"])]);
+  assert.equal((await purge(app)).statusCode, 404, "repeat deletion is explicitly not found");
+}));
+
+for (const mode of ["missing clearance", "hold", "revoked", "stale root", "stale provenance", "old archive", "missing archive",
+  "queue cross-salon", "booking barber cross-salon", "booking service cross-salon", "availability barber cross-salon", "latest revoked"]) {
+  test(`permanent DELETE refuses ${mode} with zero destructive mutations`, async () => withApp(async app => {
+    await seedPurgeDependents();
+    await finalizedClearance(app);
+    if (mode === "missing clearance") tables.salonPurgeClearance = [];
+    if (mode === "hold") tables.salonRetentionHold.push({ salonId: "target", releasedAt: null });
+    if (mode === "revoked") tables.salonPurgeClearance[0].revokedAt = new Date();
+    if (mode === "stale root") tables.salon[0].name = "changed";
+    if (mode === "stale provenance") tables.message.push({ id: "new", salonId: "target" });
+    if (mode === "old archive") tables.salonArchive[0].archiveVersion = 7;
+    if (mode === "missing archive") tables.salonArchive = [];
+    if (mode === "queue cross-salon") tables.queueEntry[1].serviceVisitId = "target-serviceVisit";
+    if (mode === "booking barber cross-salon") tables.booking[1].barberId = "target-barber";
+    if (mode === "booking service cross-salon") tables.booking[1].serviceId = "target-service";
+    if (mode === "availability barber cross-salon") tables.availabilitySlot[1].barberId = "target-barber";
+    if (mode === "latest revoked") tables.salonPurgeClearance.push({ ...tables.salonPurgeClearance[0], id: "newer", revokedAt: new Date() });
+    const before = structuredClone(tables.salon);
+    const result = await purge(app);
+    assert.equal(result.statusCode, 409);
+    if (mode.includes("cross-salon")) assert.match(result.json().error, /Cross-salon/);
+    assert.deepEqual(destructive, []);
+    assert.deepEqual(tables.salon, before);
+  }));
+}
+for (const role of ["OWNER", "CUSTOMER"]) {
+  test(`permanent DELETE forbids ${role} even with eligible evidence`, async () => withApp(async app => {
+    await finalizedClearance(app);
+    assert.equal((await purge(app, role)).statusCode, 403);
+    assert.deepEqual(destructive, []);
+  }));
+}
+for (const mode of ["service", "salon", "commit conflict"]) {
+  test(`permanent DELETE rolls back all mutations on ${mode}`, async () => withApp(async app => {
+    await seedPurgeDependents();
+    tables.message = [{ id: "message", salonId: "target" }];
+    await finalizedClearance(app);
+    const before = structuredClone(tables);
+    if (mode === "commit conflict") commitConflict = true;
+    else failDelete = mode;
+    const result = await purge(app);
+    assert.equal(result.statusCode, mode === "commit conflict" ? 409 : 500);
+    assert.ok(destructive.length > 1, "failure must occur after destructive work began");
+    assert.deepEqual(tables, before);
+    if (mode === "commit conflict") {
+      // A fresh request must revalidate changed source, never reuse earlier readiness.
+      commitConflict = false;
+      tables.salon[0].name = "committed concurrent change";
+      destructive = [];
+      assert.equal((await purge(app)).statusCode, 409);
+      assert.deepEqual(destructive, []);
+    }
+  }));
+}
 const original = { user: db.user, $transaction: db.$transaction, salon: db.salon };
 const originalSecret = process.env.JWT_ACCESS_SECRET;
 let tables: Record<string, any[]>;
 let writes: string[];
 let serial: number;
+let destructive: string[];
+let failDelete: string | undefined;
+let commitConflict: boolean;
+let transactionCalls: number;
 function delegate(model: string): any {
-  const matches = (row: any, where: any = {}) => Object.entries(where).every(([k, v]) => row[k] === v);
+  const matches = (row: any, where: any = {}) => Object.entries(where).every(([k, v]: [string, any]) => v && typeof v === "object" && "in" in v ? v.in.includes(row[k]) : row[k] === v);
   const rows = () => tables[model] ||= [];
   return {
     findMany: async ({ where, select }: any = {}) => structuredClone(rows().filter(row => matches(row, where)).map(row =>
@@ -244,6 +359,24 @@ function delegate(model: string): any {
       Object.assign(row, structuredClone(data));
       return structuredClone(row);
     },
+    deleteMany: async ({ where }: any) => {
+      destructive.push(model);
+      if (failDelete === model) throw new Error("injected deletion failure");
+      const removed = rows().filter(row => matches(row, where));
+      tables[model] = rows().filter(row => !matches(row, where));
+      return { count: removed.length };
+    },
+    delete: async ({ where }: any) => {
+      destructive.push(model);
+      if (failDelete === model) throw new Error("injected deletion failure");
+      const row = rows().find(row => matches(row, where));
+      assert.ok(row);
+      tables[model] = rows().filter(row => !matches(row, where));
+      if (model === "salon") for (const message of tables.message ?? []) {
+        if (message.salonId === row.id) message.salonId = null; // Model committed FK SET NULL only.
+      }
+      return row;
+    },
     updateMany: async ({ where, data }: any) => {
       const matching = rows().filter(row => matches(row, where));
       for (const row of matching) Object.assign(row, structuredClone(data));
@@ -255,6 +388,8 @@ function delegate(model: string): any {
 beforeEach(() => {
   process.env.JWT_ACCESS_SECRET = "retention-fixture-secret";
   serial = 0;
+  destructive = []; failDelete = undefined; commitConflict = false;
+  transactionCalls = 0;
   writes = [];
   tables = {
     salon: [{ ...rootSalon }, { ...rootSalon, id: "sibling" }],
@@ -267,9 +402,14 @@ beforeEach(() => {
     ["admin", "owner", "customer"].includes(where.id) ? { id: where.id, role: where.id.toUpperCase(), status: "ACTIVE" } : null };
   db.salon = delegate("salon");
   db.$transaction = async (run: any, options: any) => {
+    transactionCalls++;
     assert.equal(options.isolationLevel, "Serializable");
     const before = structuredClone(tables);
-    try { return await run(new Proxy({}, { get: (_, name) => delegate(String(name)) })); }
+    try {
+      const result = await run(new Proxy({}, { get: (_, name) => delegate(String(name)) }));
+      if (commitConflict) throw Object.assign(new Error("serialization conflict"), { code: "P2034" });
+      return result;
+    }
     catch (error) { tables = before; throw error; }
   };
 });
@@ -347,7 +487,7 @@ test("active holds block clearance", async () => withApp(async app => {
   assert.equal((await request(app, "purge-clearance")).statusCode, 409);
   assert.deepEqual(writes, []);
 }));
-test("clearance records independent archive evidence without mutating salon or allowing DELETE", async () => withApp(async app => {
+test("clearance records independent evidence and DELETE revokes it after archive tampering", async () => withApp(async app => {
   archive();
   const before = structuredClone(tables.salon);
   const result = await request(app, "purge-clearance");
@@ -370,7 +510,9 @@ test("clearance records independent archive evidence without mutating salon or a
     headers: { authorization: `Bearer ${signAccessToken({ sub: "admin", role: "ADMIN" })}` } });
   assert.equal(deletion.statusCode, 409);
   assert.deepEqual(tables.salon, before);
-  assert.deepEqual(writes, ["salonPurgeClearance"]);
+  assert.deepEqual(writes, ["salonPurgeClearance", "salonPurgeClearance"]);
+  assert.equal(tables.salonPurgeClearance[0].revocationReason, "Archive evidence changed");
+  assert.deepEqual(destructive, []);
 }));
 for (const flag of ["archiveSafe", "retentionSafe", "force", "confirmed", "actorUserId", "archiveId"]) {
   test(`clearance rejects client ${flag}`, async () => withApp(async app => {

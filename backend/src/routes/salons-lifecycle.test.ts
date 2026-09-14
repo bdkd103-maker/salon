@@ -21,6 +21,9 @@ function fixture(id: string, isActive = true) {
   return {
     id, ownerId: "owner-a", name: "Lifecycle Salon", slug: id, city: "Berlin",
     address: "Teststrasse 10", phone: "+49301234567", description: "Preserve this profile",
+    latitude: null, longitude: null, email: null, website: null, isWomenOnly: false, status: "OPEN",
+    bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true, rating: 0, reviewCount: 0,
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
     isActive, isVip: false, adminVip: false, classification: "REGULAR",
     openingTime: "09:00", closingTime: "18:00", workingDays: ["mon", "wed"],
     timeZone: "Europe/Berlin", createdAt: new Date("2026-01-01T00:00:00Z"),
@@ -66,9 +69,21 @@ beforeEach(() => {
       return structuredClone(row);
     },
   };
-  mock.$transaction = async (run: any) => {
+  const evidence: Record<string, any[]> = {};
+  const delegate = (name: string) => ({
+    findMany: async () => [], count: async () => 0,
+    findFirst: async () => evidence[name]?.at(-1) ?? null,
+    findUnique: async () => evidence[name]?.at(-1) ?? null,
+    create: async ({ data }: any) => {
+      const row = { id: "clearance", archiveId: "archive", revokedAt: null, ...structuredClone(data) };
+      (evidence[name] ||= []).push(row); return structuredClone(row);
+    },
+    deleteMany: async () => ({ count: 0 }),
+  });
+  mock.$transaction = async (run: any, options: any) => {
+    if (options) assert.equal(options.isolationLevel, "Serializable");
     const before = structuredClone(rows);
-    try { return await run({ salon: mock.salon, user: mock.user }); }
+    try { return await run(new Proxy({ salon: mock.salon, user: mock.user }, { get: (target: any, name: string) => target[name] ?? delegate(name) })); }
     catch (error) { rows = before; throw error; }
   };
 });
@@ -151,9 +166,17 @@ test("active listing excludes a persisted inactive salon without deleting it", a
   assert.ok(await prisma.salon.findUnique({ where: { id: "inactive" } }));
 }));
 
+async function eligible(app: ReturnType<typeof Fastify>) {
+  for (const action of ["archive/finalize", "purge-clearance"]) {
+    const result = await app.inject({ method: "POST", url: `/api/v1/salons/empty-salon/${action}`, headers: headers("admin", "ADMIN"), payload: {} });
+    assert.equal(result.statusCode, 201);
+  }
+}
+
 // B: proposed permanent-delete contract is DELETE /api/v1/salons/:id,
 // separate from the reversible PATCH { isActive } operation.
 test("ADMIN has a separate successful permanent DELETE operation", async () => withApp(async app => {
+  await eligible(app);
   const response = await app.inject({ method: "DELETE", url: "/api/v1/salons/empty-salon", headers: headers("admin", "ADMIN") });
   assert.ok([200, 204].includes(response.statusCode), `expected successful permanent DELETE, received ${response.statusCode}`);
 }));
@@ -170,6 +193,7 @@ for (const [role, userId] of [["OWNER", "owner-a"], ["CUSTOMER", "customer"]]) {
 }
 
 test("successful permanent DELETE removes the row from persistence and detail API", async () => withApp(async app => {
+  await eligible(app);
   const before = await app.inject({ method: "GET", url: "/api/v1/salons/empty-salon" });
   assert.equal(before.statusCode, 200, "fixture must be retrievable before deletion");
   const response = await app.inject({ method: "DELETE", url: "/api/v1/salons/empty-salon", headers: headers("admin", "ADMIN") });
@@ -180,6 +204,7 @@ test("successful permanent DELETE removes the row from persistence and detail AP
 }));
 
 test("permanent DELETE cannot silently become isActive=false", async () => withApp(async app => {
+  await eligible(app);
   const response = await app.inject({ method: "DELETE", url: "/api/v1/salons/empty-salon", headers: headers("admin", "ADMIN") });
   assert.ok([200, 204].includes(response.statusCode), `expected successful permanent DELETE, received ${response.statusCode}`);
   assert.deepEqual(deletions, ["empty-salon"], "permanent deletion must remove the row through persistence");

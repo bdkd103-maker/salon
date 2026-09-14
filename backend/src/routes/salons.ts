@@ -18,7 +18,7 @@ import { salonScheduleFields } from "../lib/salon-schedule.js";
 import { projectPublicLiveStatus, publicLiveStatusSelect } from "../lib/salon-live-status.js";
 import { normalizeSubscriptionPlan, SUBSCRIPTION_PLAN_ORDER } from "../lib/subscription-plan.js";
 import { loadSalonArchiveState } from "../lib/salon-archive-source.js";
-import { hasCurrentSalonArchiveCoverage, revalidateSalonPurgeClearance } from "../lib/salon-clearance-revalidation.js";
+import { evaluateSalonDeletionReadiness, hasCurrentSalonArchiveCoverage, revalidateSalonPurgeClearance } from "../lib/salon-clearance-revalidation.js";
 const intakeControlsPatchSchema = z.object({
   bookingIntakeEnabled: z.boolean().optional(),
   saloTicketIntakeEnabled: z.boolean().optional(),
@@ -330,20 +330,56 @@ export async function salonRoutes(app: any) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
-      const salon = await prisma.salon.findUnique({
-        where: { id: request.params.id },
-        select: { id: true },
-      });
-      if (!salon) {
-        return reply.code(404).send({ error: "Salon not found" });
+      if (!z.object({}).strict().safeParse(request.body ?? {}).success) {
+        return reply.code(400).send({ error: "Invalid payload" });
       }
 
-      // No trusted clearance mechanism exists yet; client claims cannot authorize purge.
-      return reply.code(409).send({
-        error: "Permanent deletion is blocked pending trusted archive/retention clearance.",
-      });
+      const salonId = request.params.id as string;
+      const result = await prisma.$transaction(async tx => {
+        const salon = await tx.salon.findUnique({ where: { id: salonId }, select: { id: true } });
+        if (!salon) return { status: 404, error: "Salon not found" } as const;
+        const readiness = await evaluateSalonDeletionReadiness(tx, salonId, user.id);
+        if (!readiness.ready) return {
+          status: readiness.status,
+          error: "error" in readiness ? readiness.error : "Deletion readiness failed",
+        } as const;
+
+        // The same Serializable snapshot supplies readiness, indirect ownership,
+        // and every delete. No preflight token or client-selected clearance is used.
+        const memberships = await tx.staffMembership.findMany({ where: { salonId }, select: { id: true } });
+        const cards = await tx.loyaltyCard.findMany({ where: { salonId }, select: { id: true } });
+        const staffMembershipId = { in: memberships.map(row => row.id) };
+        const cardId = { in: cards.map(row => row.id) };
+
+        await tx.queueEntry.deleteMany({ where: { salonId } });
+        await tx.serviceVisit.deleteMany({ where: { salonId } });
+        await tx.booking.deleteMany({ where: { salonId } });
+        await tx.availabilitySlot.deleteMany({ where: { salonId } });
+        await tx.staffPresenceLease.deleteMany({ where: { staffMembershipId } });
+        await tx.staffPresence.deleteMany({ where: { staffMembershipId } });
+        await tx.staffMembership.deleteMany({ where: { salonId } });
+        await tx.barber.deleteMany({ where: { salonId } });
+        await tx.service.deleteMany({ where: { salonId } });
+        await tx.loyaltyStamp.deleteMany({ where: { cardId } });
+        await tx.loyaltyCustomer.deleteMany({ where: { cardId } });
+        await tx.loyaltyCard.deleteMany({ where: { salonId } });
+        await tx.analyticsEvent.deleteMany({ where: { salonId } });
+        await tx.offer.deleteMany({ where: { salonId } });
+        await tx.review.deleteMany({ where: { salonId } });
+        await tx.salonAvailabilitySubscription.deleteMany({ where: { salonId } });
+        await tx.salonBoost.deleteMany({ where: { salonId } });
+        await tx.salonLiveStatus.deleteMany({ where: { salonId } });
+        await tx.salonMedia.deleteMany({ where: { salonId } });
+        // Message rows survive via SET NULL; V8 retains their original provenance.
+        // Independent history, shared Users/subscriptions and external blobs survive.
+        await tx.salon.delete({ where: { id: salonId } });
+        return { status: 200 } as const;
+      }, { isolationLevel: "Serializable" });
+      if ("error" in result) return reply.code(result.status).send({ error: result.error });
+      return { deleted: true, salonId };
     } catch (error) {
       if (reply.sent) return reply;
+      if ((error as any)?.code === "P2034") return reply.code(409).send({ error: "Concurrent lifecycle change; retry the request" });
       throw error;
     }
   });
