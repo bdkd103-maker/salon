@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+type ArchiveInput = Parameters<typeof buildCurrentSalonArchiveState>[0];
+type ArchiveRows<K extends keyof ArchiveInput> = NonNullable<ArchiveInput[K]>;
+type LoyaltyRow = ArchiveRows<"loyalty">[number];
 const rootSalon = {
   id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
   latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
@@ -68,7 +71,7 @@ test("loyalty child history is canonical, content-aware and card-scoped", () => 
   const customer = { id: "c", cardId: "a", customerId: "u", currentStamps: 2, totalVisits: 3, lastStampedAt: null, rewardRedeemedAt: null, createdAt: "2026-01-01T10:00:00Z", updatedAt: "2026-01-01T10:00:00Z" };
   const stamp = { id: "s", cardId: "a", customerId: "u", barberId: null, transactionId: "tx", stampAt: "2026-01-01T10:00:00Z", isValid: true, verificationToken: null, createdAt: "2026-01-01T10:00:00Z" };
   const base = { salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [] };
-  const build = (customers: object[], stamps: object[]) => buildSalonArchiveState({ ...base, loyalty: [{ ...card, customers, stamps }] });
+  const build = (customers: LoyaltyRow["customers"], stamps: LoyaltyRow["stamps"]) => buildSalonArchiveState({ ...base, loyalty: [{ ...card, customers, stamps }] });
   const before = build([customer], [stamp]);
   assert.deepEqual(build([customer, customer], [stamp, stamp]), before);
   assert.notDeepEqual(build([{ ...customer, currentStamps: 3 }], [stamp]).sourceState, before.sourceState);
@@ -269,7 +272,9 @@ for (const [key, category, contentKey, identity, row, changes] of nextCategories
     const conflict = { ...row, ...changes };
     const mixed = build([row, conflict]);
     assert.deepEqual(build([conflict, Object.fromEntries(Object.entries(row).reverse()), row]), mixed);
-    assert.equal(Reflect.get(mixed.sourceState, contentKey).length, 2);
+    const content = Reflect.get(mixed.sourceState, contentKey);
+    assert.ok(content);
+    assert.equal(content.length, 2);
     assert.equal(Reflect.get(mixed.coverage.counts, key), 1);
     assert.equal(mixed.coverage.emptyHistory, false);
     if (identity === "id") assert.equal(Reflect.get(build([row, { ...row, id: "b" }]).coverage.counts, key), 2);
@@ -323,12 +328,16 @@ for (const [key, category, contentKey, identity, row, changes] of workforceCateg
     const second = { ...row, [identity]: "b" };
     const expected = build([row, second]);
     assert.deepEqual(build([second, Object.fromEntries(Object.entries(row).reverse()), row]), expected);
-    assert.equal(Reflect.get(expected.sourceState, contentKey).length, 2);
+    const content = Reflect.get(expected.sourceState, contentKey);
+    assert.ok(content);
+    assert.equal(content.length, 2);
     assert.equal(Reflect.get(expected.coverage.counts, key), 2);
     assert.equal(expected.coverage.emptyHistory, false);
     const conflict = { ...row, ...changes };
     const mixed = build([row, conflict]);
-    assert.equal(Reflect.get(mixed.sourceState, contentKey).length, 2);
+    const mixedContent = Reflect.get(mixed.sourceState, contentKey);
+    assert.ok(mixedContent);
+    assert.equal(mixedContent.length, 2);
     assert.equal(Reflect.get(mixed.coverage.counts, key), 1);
     assert.deepEqual(build([conflict, row, conflict]), mixed);
   });
@@ -349,6 +358,7 @@ for (const [key, category, contentKey, identity, row, changes] of workforceCateg
         [field, field.endsWith("At") && typeof value === "string" ? new Date(value) : value]));
       assert.deepEqual(build([dates]), build([{ ...row, ...changes }]));
       const content = Reflect.get(build([dates]).sourceState, contentKey);
+      assert.ok(content);
       assert.ok(content[0].includes(".000Z"));
     });
   }
@@ -431,7 +441,9 @@ for (const [inputKey, category, contentKey, row, changes] of additionalCategorie
     assert.ok(expected.coverage.categories.includes(category));
     assert.equal(Reflect.get(expected.coverage.counts, inputKey), 2);
     assert.equal(expected.coverage.emptyHistory, false);
-    assert.equal(Reflect.get(expected.sourceState, contentKey).length, 2);
+    const content = Reflect.get(expected.sourceState, contentKey);
+    assert.ok(content);
+    assert.equal(content.length, 2);
     assert.notDeepEqual(build([row, { ...row, ...changes }]).sourceState, build([row]).sourceState,
       "conflicting same-ID content must not be silently discarded");
   });
@@ -454,8 +466,13 @@ import {
 } from "./salon-archive.js";
 
 // Existing tuple fixtures explicitly exercise the historical V1 contract.
-const buildSalonArchiveState = (input: Parameters<typeof buildCurrentSalonArchiveState>[0]) =>
-  buildCurrentSalonArchiveState(input, { archiveVersion: 1, payloadVersion: 1 });
+// V1 stores only boost id/salonId/status; do not fabricate current billing fields
+// in historical fixtures or weaken the production input type to admit them.
+type LegacyArchiveInput = Omit<ArchiveInput, "salonBoosts"> & {
+  salonBoosts?: Array<Pick<ArchiveRows<"salonBoosts">[number], "id" | "salonId" | "status">>;
+};
+const buildSalonArchiveState = (input: LegacyArchiveInput): ReturnType<typeof buildCurrentSalonArchiveState> =>
+  Reflect.apply(buildCurrentSalonArchiveState, undefined, [input, { archiveVersion: 1, payloadVersion: 1 }]);
 
 test("salon archive source state changes when Booking content changes with the same ID", () => {
   // Specify the required content-aware public contract alongside the current ID inputs.
@@ -640,7 +657,7 @@ for (const [key, content, row, legacyFields] of v2Cases) {
     assert.equal(Object.values(state.coverage.counts).reduce((a, b) => a + b, 0), 1);
   });
   test(`V1 ${key} stays historical and is never expanded or mutated`, () => {
-    const oldRow = Object.fromEntries(legacyFields.map(field => [field, row[field]]));
+    const oldRow = Object.fromEntries(legacyFields.map(field => [field, Reflect.get(row, field)]));
     const source = input([oldRow]);
     const copy = structuredClone(source);
     const old = buildCurrentSalonArchiveState(source, { archiveVersion: 1, payloadVersion: 1 });
@@ -976,7 +993,7 @@ test("V5 availability DateTime fields are canonicalized and nullable barberId is
 });
 
 test("V5 barber detects each meaningful field change", () => {
-  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, barbers: rows });
+  const build = (rows: ArchiveRows<"barbers">) => buildCurrentSalonArchiveState({ ...v5Base, barbers: rows });
   const before = build([v5Barber]);
   for (const [field, value] of Object.entries({ name: "Changed", specialty: "Color", isActive: false, createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(build([{ ...v5Barber, [field]: value }]).sourceState, before.sourceState, field);
@@ -984,7 +1001,7 @@ test("V5 barber detects each meaningful field change", () => {
 });
 
 test("V5 service detects each meaningful field change", () => {
-  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, services: rows });
+  const build = (rows: ArchiveRows<"services">) => buildCurrentSalonArchiveState({ ...v5Base, services: rows });
   const before = build([v5Service]);
   for (const [field, value] of Object.entries({ name: "Color", description: "New", durationMin: 45, price: "15.00", isActive: false, createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(build([{ ...v5Service, [field]: value }]).sourceState, before.sourceState, field);
@@ -992,7 +1009,7 @@ test("V5 service detects each meaningful field change", () => {
 });
 
 test("V5 availability detects each meaningful field change", () => {
-  const build = (rows: object[]) => buildCurrentSalonArchiveState({ ...v5Base, availability: rows });
+  const build = (rows: ArchiveRows<"availability">) => buildCurrentSalonArchiveState({ ...v5Base, availability: rows });
   const before = build([v5Availability]);
   for (const [field, value] of Object.entries({ barberId: "b1", startAt: "2026-02-01T10:00:00Z", endAt: "2026-02-01T11:00:00Z", status: "BOOKED", createdAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(build([{ ...v5Availability, [field]: value }]).sourceState, before.sourceState, field);
@@ -1156,17 +1173,17 @@ test("V6 loyalty DateTime fields are canonicalized and nullable verificationToke
 });
 
 test("V6 loyalty detects each meaningful field change", () => {
-  const buildCard = (card: object) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...card, customers: v6LoyaltyCard.customers, stamps: v6LoyaltyCard.stamps }] });
+  const buildCard = (card: LoyaltyRow) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...card, customers: v6LoyaltyCard.customers, stamps: v6LoyaltyCard.stamps }] });
   const beforeCard = buildCard(v6LoyaltyCard);
   for (const [field, value] of Object.entries({ isActive: false, requiredStamps: 9, rewardType: "FIXED_DISCOUNT", rewardTitle: "New", rewardText: "New", description: "Desc", createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(buildCard({ ...v6LoyaltyCard, [field]: value }).sourceState, beforeCard.sourceState, field);
   }
-  const buildCustomer = (cust: object[]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: cust, stamps: [] }] });
+  const buildCustomer = (cust: LoyaltyRow["customers"]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: cust, stamps: [] }] });
   const beforeCustomer = buildCustomer([v6LoyaltyCustomer]);
   for (const [field, value] of Object.entries({ currentStamps: 4, totalVisits: 6, lastStampedAt: "2026-02-01T00:00:00Z", rewardRedeemedAt: "2026-02-01T00:00:00Z", createdAt: "2026-02-01T00:00:00Z", updatedAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(buildCustomer([{ ...v6LoyaltyCustomer, [field]: value }]).sourceState, beforeCustomer.sourceState, field);
   }
-  const buildStamp = (stamps: object[]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps }] });
+  const buildStamp = (stamps: LoyaltyRow["stamps"]) => buildCurrentSalonArchiveState({ ...v6Base, loyalty: [{ ...v6LoyaltyCard, customers: [], stamps }] });
   const beforeStamp = buildStamp([v6LoyaltyStamp]);
   for (const [field, value] of Object.entries({ barberId: "b2", transactionId: "tx-2", stampAt: "2026-02-01T00:00:00Z", isValid: false, verificationToken: "tok-2", createdAt: "2026-02-01T00:00:00Z" })) {
     assert.notDeepEqual(buildStamp([{ ...v6LoyaltyStamp, [field]: value }]).sourceState, beforeStamp.sourceState, field);
@@ -1295,7 +1312,7 @@ test("V7 SalonBoost DateTime fields are canonicalized and nullable fields are pr
 });
 
 test("V7 SalonBoost detects each meaningful field change", () => {
-  const build = (boosts: object[]) => buildCurrentSalonArchiveState({ ...v7Base, salonBoosts: boosts });
+  const build = (boosts: ArchiveRows<"salonBoosts">) => buildCurrentSalonArchiveState({ ...v7Base, salonBoosts: boosts });
   const before = build([v7SalonBoost]);
   for (const [field, value] of Object.entries({
     status: "EXPIRED", durationDays: 14, startsAt: "2026-02-01T10:00:00Z", endsAt: "2026-02-15T10:00:00Z",
@@ -1386,7 +1403,7 @@ test("V7 Offer Decimal values use existing canonical representation", () => {
 });
 
 test("V7 Offer detects each meaningful field change", () => {
-  const build = (offers: object[]) => buildCurrentSalonArchiveState({ ...v7Base, offers: offers });
+  const build = (offers: ArchiveRows<"offers">) => buildCurrentSalonArchiveState({ ...v7Base, offers: offers });
   const before = build([v7Offer]);
   for (const [field, value] of Object.entries({
     title: "Winter Cut", description: "New desc", price: "30.00", isActive: false,

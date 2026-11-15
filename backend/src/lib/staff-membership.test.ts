@@ -6,7 +6,7 @@ import {
   resolveEffectiveStaffAccess,
 } from "./staff-membership.js";
 
-const activeMembership = {
+const activeMembership: NonNullable<Awaited<ReturnType<typeof resolveEffectiveStaffAccess>>> = {
   id: "membership-1",
   userId: "staff-1",
   salonId: "salon-1",

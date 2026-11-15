@@ -322,3 +322,34 @@ without changing rounding, defaults or authorization. One compiler regression
 failed before the patch; all four compiler/HTTP fixture tests pass afterward.
 Full generated-client TypeScript drops from 21 to 20 diagnostics, all in test
 files. No confirmed price-loss runtime defect is claimed.
+
+## TypeScript completion and browser investigation
+
+Service adapter commit: `34e477f`. All 21 original diagnostics are now resolved:
+one application contract mismatch and 20 test-code errors. Full isolated-client
+`node scripts/salo-checks.mjs typecheck` exits 0 with no diagnostics, unchanged
+strictness, include/exclude configuration and production archive/deletion logic.
+Test fixes derive fixture types from actual helper signatures, assert optional
+archive content exists, and use explicit test-only runtime boundaries for V1
+legacy boost input and deliberately untyped policy arguments. No assertions were
+removed or suppressed; the V1 wrapper always selects versions 1/1.
+
+The three affected suites pass before and after: archive 113, deletion policy 45,
+Staff membership 13 (171 tests). Execution uses the existing offline preload,
+a fresh engine-free generated Client only for Decimal/DMMF, and an import hook
+restricted to the eight reviewed fixture/helper files. No PrismaClient is
+constructed; source-loader database methods receive synthetic reader objects.
+Guard receipts contain no network/env-file attempts. The task-local harness and
+logs remain in ignored `.verification-test-build/typed-fixtures-*`; these suites
+are not silently added to the default 105-test safe runner or its pinned groups.
+
+Managed-browser investigation: inventory/native Chromium remain usable. After
+the tool reported an inactivity kernel reset, handles were reinitialized using
+its documented API. SALO DOM inspection still fails `Browser Use could not read
+requirements`. A script-free HTML control served by the same isolated frontend
+returns HTTP 200 and opens with the expected browser title, yet the identical
+DOM request fails there too. No application scripts, auth or DB code run on that
+control page. The error string is absent from application/tooling source.
+This isolates the failure outside SALO page logic; the exact managed-service
+dependency remains unknown. No safe repository correction is demonstrated.
+The SALO preview was restored; signed-in browser flows remain unverified.

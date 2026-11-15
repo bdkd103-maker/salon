@@ -40,12 +40,20 @@ Other commercial/scheduling assumptions below are observations or open questions
 | Capacitor Android/iOS | Implemented wrapper/config/native projects and push registration | Build/device/plugin compatibility, signing and store readiness unknown |
 | Native push delivery | Incomplete/unknown: device-token API and client hooks exist; no demonstrated FCM/APNs send lifecycle | Needs separately authorized test provider/device validation |
 | Canonical migration chain | Broken: QueueEntry FK precedes ServiceVisit creation | Separate clean-install baseline does not establish upgrade equivalence |
-| TypeScript/build health | Broken validation: full-project tsc fails; generated Prisma types incomplete | Bundling is distinct; no full build or client regeneration performed |
+| TypeScript/build health | Verified: fresh engine-free Client and full strict noEmit check pass with zero diagnostics after service adapter and test fixture repairs | Bundling, deployment and full runtime behavior are distinct; scoped finish still flags unmapped backend behavior coverage |
 | Audited validation runners | Verified locally V02: reviewed pins, checkout line-ending normalization, 10 workflow + 27 pure-unit tests pass; browser guard passes | Browser execution blocked by missing configured Edge (V03); no automatic fallback |
 
 ## Verification updates
 
-Current compiler follow-up: service PATCH explicitly adapts its persisted
+Latest compiler evidence: all 21 original diagnostics resolved; full
+isolated-client tsc exits 0. All 171 affected archive/deletion/membership tests
+pass under explicit import/env/network guards. The normal safe suite has 105
+passes; six intercepted Chromium suites pass. No compiler exclusions, production
+archive-policy changes or frozen hash rewrites. The real-browser DOM error also
+occurs on a script-free control page, so signed-in browser testing remains an
+environment blocker, not a demonstrated SALO page defect.
+
+Earlier compiler batch: service PATCH explicitly adapts its persisted
 Decimal price to the existing normalizer contract. Four focused compiler and
 in-memory HTTP regressions pass; full isolated-client TypeScript now has 20
 test-only diagnostics (previously 21 including salons.ts). Earlier counts below

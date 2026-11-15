@@ -16,10 +16,12 @@ authorization to migrate, deploy, access credentials or change product policy.
 | --- | --- | --- |
 | R01 | P1 / fixed locally | server.ts formerly trusted decoded JWT sub. Now uses existing verifyAccessToken; signature/expiry/claims validated before selecting user bucket, invalid headers use IP. Six regression tests pass; see batch log. |
 | M01 | P0 launch / blocked | 20260909231832 QueueEntry FK references ServiceVisit before 20260910130000 creates it. Requires approved migration strategy and disposable PostgreSQL install/upgrade validation; do not reorder history blindly. |
-| V01 | Tooling repaired; application debt remains | Isolated engine-free Prisma generation and temporary type mapping now work without .env/network/database access. One NodeNext test import fixed. Full tsc retains 21 real source/test diagnostics; see completion record. |
+| V01 | Resolved locally | Isolated generation/type mapping and all 21 original source/test diagnostics repaired in scoped batches. Full strict noEmit now exits 0; no production archive/deletion behavior changed. Historical failure counts remain in prior records. |
 | V02 | P1 / fixed locally | Four mismatched suites manually re-audited and explicitly pinned; byte-preserving CRLF normalization avoids checkout-only drift. Ten workflow and 27 audited pure-unit tests pass; browser guard passes. See V03 for browser execution. |
 | V03 | P2 / Cloud mode verified | Explicit system-chromium mode now passes all six intercepted suites in current and fresh Cloud checkouts. Legacy Edge default is preserved and still requires Edge. No implicit fallback, suite-pin change or OS installation. |
 | V04 | P2 / application type contract repaired locally | Service PATCH adapts persisted Decimal price before merging optional fields; explicit zero/string price and retained price are covered. Compiler regression red/green; full diagnostics fall from 21 to 20 test-only errors. No runtime price-loss defect demonstrated. |
+| V05 | P2 / test typing repaired locally | Remaining 20 fixture/assertion/legacy-boundary diagnostics fixed without suppressions or weaker compiler options. All 171 affected tests pass with env/network/import guards; full tsc has zero diagnostics. |
+| V06 | P2 / managed-browser environment blocker | DOM helper fails with the same requirements error on SALO and a script-free HTTP-200 control page. Inventory/native browser work. No safe repository fix demonstrated; restore managed browser service before claiming signed-in UI coverage. |
 | B01 | P1 / fixed locally | booking-time.ts formerly compared only clock minutes; now requires same salon-local date for daytime intervals. Nine tests pass including existing helper tests and route validator coverage; overnight helper branch preserved. |
 | B06 | P1 / fixed locally | Missing/unparseable timestamp components now return Invalid Date, reaching existing invalid-window validation. Twelve booking tests pass, including six in-memory POST requests returning 400 before overlap reads/writes. |
 | B07 | P1 / fixed locally | Impossible calendar dates and out-of-range clock fields no longer normalize into a different booking date/time. Fourteen booking tests pass, including leap-day/month-end boundaries and in-memory POST rejection before booking access. |
@@ -473,3 +475,39 @@ is not asserted. Local preservation commits are authorized, never push/merge.
   The one-line Decimal-to-Number adapter preserves those behaviors.
 - Full `node scripts/salo-checks.mjs typecheck` now has 20 test-only diagnostics;
   the application diagnostic in salons.ts is resolved. No database access.
+
+## Compiler batch V05 and browser investigation V06
+
+- Capture `.verification-test-build/quality-gate/b8ff0182-5f76-470b-89ee-b2c6bf4d00ba.json`:
+  three affected test files and these three documents. No production source,
+  tsconfig, schema, historical SQL, integrity code or suite pins changed.
+- Reproduced the 20 remaining diagnostics after V04. Fixed overly broad object
+  fixture types, nullable revocation timestamps, optional archive-content
+  assertions, and explicit test-only legacy/untyped call boundaries. V1 boost
+  fixtures keep their minimal historical content, without fabricated billing data
+  or changes to the strict current production input contract.
+- PASS: full guarded Client generation plus strict noEmit: exit 0, zero errors.
+- PASS: 113 archive, 45 deletion-policy and 13 membership tests before and after.
+  Task-local loader maps Prisma to the freshly generated engine-free Client for
+  Decimal/schema metadata, permits only the eight reviewed source/test files and
+  four required Node builtins, and runs with offline-tool-guard.cjs. No Client
+  instance/DB transport; injected transaction readers are synthetic. Guard logs
+  show no env-file or network attempts. Existing default suite mappings/pins are
+  unchanged. Harness location is in `.verification-test-build/typed-fixtures-current.txt`.
+- V06: documented browser troubleshooting followed; tool inactivity reset was
+  handled by reinitialization, not environment modification. Inventory and native
+  navigation work. DOM inspection fails on SALO and a script-free control page
+  with the same `Browser Use could not read requirements` error. The control
+  returns HTTP 200 and has the expected browser title; no SALO JS/auth/DB code.
+  Application/tooling source does not contain that error. Exact provider cause
+  unknown; no repository workaround, security bypass or dependency reinstall.
+- Remaining: B08 guest-booking decision, Staff mutation permissions, B02 booking
+  conflict race, remaining holiday/timezone/overnight policies, managed-browser
+  restoration and frozen release integrity. Zero TypeScript diagnostics do not
+  certify these independent behaviors or staging readiness.
+- Final PASS: 105 default safe tests, six intercepted Chromium suites, four skill
+  metadata/reference checks, CI YAML/safety checks, bounded source secret scan
+  with zero findings, and scoped fast/review gates. Scoped finish is BLOCKED
+  only by unmapped backend behavior coverage; its full TypeScript check passes.
+  The 171 separately guarded fixture tests are additional evidence, not a runner
+  mapping waiver. Frozen integrity still exits 2 CANONICAL_HASH_MISMATCH.
