@@ -8,10 +8,21 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const units = Object.freeze([
-  { group: 'service', test: 'backend/src/lib/service-visit.test.ts', helper: 'backend/src/lib/service-visit.ts', hash: '1717a39c1cfd04a67f0ac0cc7f1a9bcfb6d6edb2dadf46d06ee54cd94197ee6c' },
-  { group: 'presence', test: 'backend/src/lib/staff-presence.test.ts', helper: 'backend/src/lib/staff-presence.ts', hash: '2f2551b8038e7b8c8a577b89ca006a2b8764f401660b24f3eacf4cc6dd3cd9b2' },
-  { group: 'loyalty', test: 'backend/src/lib/loyalty.test.ts', helper: 'backend/src/lib/loyalty.ts', hash: '82f207bd27ca217a7574f6897f9ad89428dbe0f29e71015c1996d09b2028e833' },
+  // Re-audited 2026-11-15: pure helpers plus read-only service migration checks.
+  { group: 'service', test: 'backend/src/lib/service-visit.test.ts', helper: 'backend/src/lib/service-visit.ts', hash: '629de59495c404fd2ebbe9ce14bf37462342d1b2814f8129078d217751864673' },
+  { group: 'presence', test: 'backend/src/lib/staff-presence.test.ts', helper: 'backend/src/lib/staff-presence.ts', hash: 'e83041f98c17fdc510d4e00901c2ee0a8d995cdce0780dd91641e051c2270040' },
+  { group: 'loyalty', test: 'backend/src/lib/loyalty.test.ts', helper: 'backend/src/lib/loyalty.ts', hash: 'c0cd34b9aee913774a089d58cefc72a38825420f4c372105f3b38c4d6a12fc82' },
 ].map(Object.freeze));
+// Git checkouts may convert line endings. Canonicalize only CRLF, preserving
+// all other bytes so changes still require deliberate isolation review.
+export function sourceDigest(bytes) {
+  const canonical = [];
+  for (let i = 0; i < bytes.length; i++) {
+    if (bytes[i] === 13 && bytes[i + 1] === 10) continue;
+    canonical.push(bytes[i]);
+  }
+  return createHash('sha256').update(Buffer.from(canonical)).digest('hex');
+}
 const denied = () => { throw new Error('BLOCKED: pure-unit import/network/environment boundary'); };
 const permittedFiles = new Set(units.flatMap(unit => [unit.test, unit.helper]).map(file => path.join(root, file)));
 const permittedBuiltins = new Set(['node:assert/strict', 'node:test', 'node:fs']);
@@ -33,7 +44,7 @@ export function check(group = 'all') {
       let target = root;
       for (const part of file.split('/')) { target = path.join(target, part); if (fs.lstatSync(target).isSymbolicLink()) denied(); }
     }
-    const hash = createHash('sha256').update(fs.readFileSync(path.join(root, unit.test))).digest('hex');
+    const hash = sourceDigest(fs.readFileSync(path.join(root, unit.test)));
     if (hash !== unit.hash) throw new Error(`BLOCKED: re-audit changed unit suite ${unit.test}`);
   }
   return selected;

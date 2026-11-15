@@ -17,7 +17,8 @@ authorization to migrate, deploy, access credentials or change product policy.
 | R01 | P1 / fixed locally | server.ts formerly trusted decoded JWT sub. Now uses existing verifyAccessToken; signature/expiry/claims validated before selecting user bucket, invalid headers use IP. Six regression tests pass; see batch log. |
 | M01 | P0 launch / blocked | 20260909231832 QueueEntry FK references ServiceVisit before 20260910130000 creates it. Requires approved migration strategy and disposable PostgreSQL install/upgrade validation; do not reorder history blindly. |
 | V01 | P0 verification / blocked | Full-project tsc fails, including generated Prisma type gaps and unrelated existing errors. Establish migrated-schema/client compatibility locally through separately scoped generation review, then repair real remaining compiler failures. |
-| V02 | P1 / blocked | Browser admin-session and pure-unit service-visit suites fail pinned hashes. Audit each changed suite/import/network boundary before any digest update; no blanket allowlist refresh. |
+| V02 | P1 / fixed locally | Four mismatched suites manually re-audited and explicitly pinned; byte-preserving CRLF normalization avoids checkout-only drift. Ten workflow and 27 audited pure-unit tests pass; browser guard passes. See V03 for browser execution. |
+| V03 | P2 / environment blocked | The six browser suites configure headless Microsoft Edge; Edge is absent in this Cloud image. System Chromium exists but is not silently substituted. No browser installation or configured-mode change performed. |
 | B01 | P1 / fixed locally | booking-time.ts formerly compared only clock minutes; now requires same salon-local date for daytime intervals. Nine tests pass including existing helper tests and route validator coverage; overnight helper branch preserved. |
 | B06 | P1 / fixed locally | Missing/unparseable timestamp components now return Invalid Date, reaching existing invalid-window validation. Twelve booking tests pass, including six in-memory POST requests returning 400 before overlap reads/writes. |
 | B02 | P1 / confirmed code race | bookings.ts checks overlaps before its creation/update transaction, with no matching exclusion constraint in schema/SQL. Concurrent writers can pass the count. Needs concurrency model, capacity rules and isolated DB evidence; not fixed by moving count alone. |
@@ -172,5 +173,43 @@ modified runtime/frontend files, three regression files and three knowledge
 documents. Manual review found no additional actionable regression in this
 batch; the known integration/compiler/test-runner limits above remain visible.
 Only exact reviewed paths will be staged. No hooks, signing credentials, push
-or merge are required. A bounded staged-source secret scan and the 27-test
-regression suite will run before commit; scan scope/results will be reported.
+or merge are required. The 27-test regression suite passed again. A bounded
+pattern scan of the full staged contents of all 11 files returned zero findings
+(private keys, AWS/GitHub/provider token formats, signed JWTs, password-bearing
+DB URLs and literal secret assignments). No dedicated scanner was installed.
+This did not scan history or ignored files or prove the absence of all secrets.
+Commit: `c5cbf3e8207b5e8376219caea5f1bf78c76b3e71`; working tree was clean
+immediately afterward. Nothing was pushed or merged.
+
+## Batch V02 - restore audited test execution
+
+- Scope capture:
+  `.verification-test-build/quality-gate/5c8cb3b8-549f-47f1-874e-99f2174db438.json`.
+  Files: the two audited runners, workflow regression tests and these three docs.
+- Reproduction: workflow suite failed one of eight tests at the stale service
+  digest. Browser guard also rejected admin-session. Presence/loyalty pinned
+  digests matched CRLF bytes but not this checkout's LF bytes.
+- Manual isolation re-audit: service suite imports only node:test/assert/fs and
+  its pure helper; fs reads one named migration SQL, never applies it. Presence
+  and loyalty suites import only test/assert and pure helpers. Service's helper
+  has only a type import. Admin-session imports test assertions/fs/path/Playwright;
+  reads named static assets, uses fresh browser contexts and synthetic login
+  fixtures, fulfills every API and aborts all other requests. The runner still
+  blocks network fallthrough, WebSockets and service workers. No new imports or
+  test groups were permitted and no application credentials were read.
+- Explicitly updated only these four reviewed pins. Both runners now hash
+  canonical LF bytes: only CR immediately before LF is removed. Lone CR,
+  whitespace, code changes and distinct invalid UTF-8 bytes still hash differently.
+- New regressions exercise line-ending portability, other-byte rejection and
+  browser guard checks without browser launch. Existing network/DB/import denial,
+  arbitrary-group and source-scope regressions remain intact.
+- PASS: `env -i PATH="$PATH" node --test tests/development-workflow.test.mjs`
+  (10 tests), and `env -i PATH="$PATH" node scripts/test-backend-unit.mjs`
+  (service 10, presence 14, loyalty 3; 27 tests). Both allowlist checks pass.
+- Browser execution is still BLOCKED by V03; no browser mode fallback or system
+  install performed. Review of pins is a trusted-code audit, not an OS sandbox.
+- Fast gate PASS; scope and workflow checks PASS. Finish gate FAIL because its
+  six browser-suite launches report missing `msedge` at
+  `/opt/microsoft/msedge/msedge`. No browser process reached test execution.
+  This is the recorded environment blocker, not six demonstrated app failures.
+  No suggested installation command was run.

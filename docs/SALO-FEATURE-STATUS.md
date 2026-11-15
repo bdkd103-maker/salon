@@ -41,7 +41,7 @@ Other commercial/scheduling assumptions below are observations or open questions
 | Native push delivery | Incomplete/unknown: device-token API and client hooks exist; no demonstrated FCM/APNs send lifecycle | Needs separately authorized test provider/device validation |
 | Canonical migration chain | Broken: QueueEntry FK precedes ServiceVisit creation | Separate clean-install baseline does not establish upgrade equivalence |
 | TypeScript/build health | Broken validation: full-project tsc fails; generated Prisma types incomplete | Bundling is distinct; no full build or client regeneration performed |
-| Audited validation runners | Blocked: admin-session and service-visit suites differ from pinned hashes | Re-audit isolation; never blindly replace hashes |
+| Audited validation runners | Verified locally V02: reviewed pins, checkout line-ending normalization, 10 workflow + 27 pure-unit tests pass; browser guard passes | Browser execution blocked by missing configured Edge (V03); no automatic fallback |
 
 ## Verification updates
 
@@ -59,3 +59,10 @@ checking pass. Full-project TypeScript still fails; finish gate reports BLOCKED
 and both audited suite guards reject their existing mismatched hashes. No
 browser/native/database suite success is claimed. Exact commands and gaps are
 recorded in the engineering backlog.
+
+Preservation/update: prior fixes and these documents were reviewed, scanned
+(zero bounded staged-source findings) and committed locally as `c5cbf3e`.
+V02's subsequent isolation re-audit restores the allowlist guards and pure-unit
+runner; historical hash-blocked results above remain previous-task evidence.
+Full-project compiler failures remain unresolved. No database/native/browser
+execution success is inferred from the restored guards.

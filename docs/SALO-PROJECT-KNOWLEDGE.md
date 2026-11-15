@@ -211,3 +211,17 @@ checking pass. Fast scope/syntax and review checks pass; the finish gate is
 BLOCKED and full-project TypeScript fails. Existing browser/pure-unit hash
 mismatches are confirmed with guard checks only. The backlog records commands,
 red/green counts, current limits and next dependencies for each completed batch.
+
+## Preservation and validation follow-up
+
+The owner subsequently authorized local commits only. Reviewed fixes/docs/tests
+were preserved in `c5cbf3e8207b5e8376219caea5f1bf78c76b3e71` after 27 passing
+regressions and zero findings in an 11-file staged-source pattern scan. Ignored
+files/history were excluded; this was not an exhaustive secret audit.
+
+V02 isolation review found genuine stale service/admin-session pins and
+CRLF-dependent presence/loyalty pins. Reviewed versions are explicitly repinned;
+only CRLF is canonicalized for hashing, without decoding/altering other bytes.
+Ten workflow and 27 audited pure-unit tests now pass. Browser guard checks pass,
+but actual suites configure headless Microsoft Edge, absent here; no fallback
+to available system Chromium was performed. Full-project tsc still fails.
