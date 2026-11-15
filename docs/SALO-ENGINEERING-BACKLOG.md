@@ -19,6 +19,7 @@ authorization to migrate, deploy, access credentials or change product policy.
 | V01 | Tooling repaired; application debt remains | Isolated engine-free Prisma generation and temporary type mapping now work without .env/network/database access. One NodeNext test import fixed. Full tsc retains 21 real source/test diagnostics; see completion record. |
 | V02 | P1 / fixed locally | Four mismatched suites manually re-audited and explicitly pinned; byte-preserving CRLF normalization avoids checkout-only drift. Ten workflow and 27 audited pure-unit tests pass; browser guard passes. See V03 for browser execution. |
 | V03 | P2 / Cloud mode verified | Explicit system-chromium mode now passes all six intercepted suites in current and fresh Cloud checkouts. Legacy Edge default is preserved and still requires Edge. No implicit fallback, suite-pin change or OS installation. |
+| V04 | P2 / application type contract repaired locally | Service PATCH adapts persisted Decimal price before merging optional fields; explicit zero/string price and retained price are covered. Compiler regression red/green; full diagnostics fall from 21 to 20 test-only errors. No runtime price-loss defect demonstrated. |
 | B01 | P1 / fixed locally | booking-time.ts formerly compared only clock minutes; now requires same salon-local date for daytime intervals. Nine tests pass including existing helper tests and route validator coverage; overnight helper branch preserved. |
 | B06 | P1 / fixed locally | Missing/unparseable timestamp components now return Invalid Date, reaching existing invalid-window validation. Twelve booking tests pass, including six in-memory POST requests returning 400 before overlap reads/writes. |
 | B07 | P1 / fixed locally | Impossible calendar dates and out-of-range clock fields no longer normalize into a different booking date/time. Fourteen booking tests pass, including leap-day/month-end boundaries and in-memory POST rejection before booking access. |
@@ -456,3 +457,19 @@ is not asserted. Local preservation commits are authorized, never push/merge.
   booking mutations and the remaining B04 schedule/holiday rules; resume real
   signed-in UI checks once browser automation is available. B02 concurrency
   remains unresolved and is not fixed by these read/day-validation patches.
+
+## Compiler batch V04: service price contract
+
+- Local preservation: `b54ff62` contains the six reviewed booking-fix files;
+  101 safe tests passed again, bounded source scan zero findings, no push.
+- Capture `.verification-test-build/quality-gate/022e3df9-9b59-4018-a997-e8764ae5ab24.json`;
+  scope salons.ts, new service-price regression, safe suite entrypoint and
+  three knowledge documents. The normalizer and Prisma/schema remain unchanged.
+- Reproduction: service-price regression's in-memory TypeScript program fails
+  TS2345 before the adapter; three runtime fixtures already pass. Afterward all
+  four pass. No test assertions or compiler options were weakened.
+- Expected behavior: partial updates retain persisted price, explicit zero or
+  valid string price overrides it, and existing normalization stays identical.
+  The one-line Decimal-to-Number adapter preserves those behaviors.
+- Full `node scripts/salo-checks.mjs typecheck` now has 20 test-only diagnostics;
+  the application diagnostic in salons.ts is resolved. No database access.

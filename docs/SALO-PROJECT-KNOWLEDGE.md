@@ -311,3 +311,14 @@ was found; no copy or authentication behavior was changed. Decide whether to
 retain account-required booking and correct DE/EN/AR copy/entry flow, or approve
 a separately specified guest workflow including identity, consent, cancellation
 access and abuse prevention. Do not infer that policy from existing marketing copy.
+
+## TypeScript follow-up: service price adapter
+
+Booking fixes are preserved in local commit `b54ff62`. The first compiler batch
+converts the persisted Prisma Decimal price to Number before merging a partial
+service update. Explicit request price, including zero, still wins; normalization
+already converted prices with Number, so this repairs the declared input contract
+without changing rounding, defaults or authorization. One compiler regression
+failed before the patch; all four compiler/HTTP fixture tests pass afterward.
+Full generated-client TypeScript drops from 21 to 20 diagnostics, all in test
+files. No confirmed price-loss runtime defect is claimed.

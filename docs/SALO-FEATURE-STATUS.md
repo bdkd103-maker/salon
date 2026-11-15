@@ -45,6 +45,12 @@ Other commercial/scheduling assumptions below are observations or open questions
 
 ## Verification updates
 
+Current compiler follow-up: service PATCH explicitly adapts its persisted
+Decimal price to the existing normalizer contract. Four focused compiler and
+in-memory HTTP regressions pass; full isolated-client TypeScript now has 20
+test-only diagnostics (previously 21 including salons.ts). Earlier counts below
+remain historical evidence. Booking fixes were committed locally as `b54ff62`.
+
 Latest runtime-fix batch (2026-11-15, starting HEAD `1f8f12e`): all 101 safe
 tests and six intercepted system-Chromium suites pass. A reverified disposable
 PostgreSQL 16 cluster passes 18 post-fix real HTTP assertions, including Staff
