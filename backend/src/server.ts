@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import dotenv from "dotenv";
+import { verifyAccessToken } from "./lib/jwt.js";
 
 import { analyticsRoutes } from "./routes/analytics.js";
 import { authRoutes } from "./routes/auth.js";
@@ -74,10 +75,11 @@ async function buildServer() {
     timeWindow: "1 minute",
     keyGenerator: (request: any) => {
       const auth = request.headers?.authorization;
-      if (auth?.startsWith("Bearer ") && auth.length > 20) {
+      if (typeof auth === "string" && auth.startsWith("Bearer ")) {
         try {
-          const payload = JSON.parse(Buffer.from(auth.split(".")[1], "base64").toString());
-          if (payload?.sub) return `user:${payload.sub}`;
+          // Unverified claims must never select or rotate a user's bucket.
+          const payload = verifyAccessToken(auth.slice("Bearer ".length));
+          return `user:${payload.sub}`;
         } catch {}
       }
       return request.ip;

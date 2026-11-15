@@ -11672,7 +11672,8 @@
       const todayKey = normalizeSalonDayKey(nowParts.dayKey);
       const previousDayKey = getAdjacentSalonDayKey(todayKey, -1);
       const previousIntervals = (scheduleInfo.schedule[previousDayKey] || []).filter((interval) => interval.crossesMidnight && nowParts.minutes < interval.endMinutes);
-      const todayIntervals = scheduleInfo.schedule[todayKey] || [];
+      // Today's overnight intervals start this evening; only yesterday's can carry into this morning.
+      const todayIntervals = (scheduleInfo.schedule[todayKey] || []).filter((interval) => !interval.crossesMidnight || nowParts.minutes >= interval.startMinutes);
       const matchingPrevious = previousIntervals.find((interval) => isSalonOpenForMinutes(nowParts.minutes, interval));
       const matchingToday = todayIntervals.find((interval) => isSalonOpenForMinutes(nowParts.minutes, interval));
       const activeInterval = matchingPrevious || matchingToday || null;
