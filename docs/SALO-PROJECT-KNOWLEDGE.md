@@ -12,7 +12,8 @@ This is a code-based map, not production certification. Sources include
 `AGENTS.md`, `.github/copilot-instructions.md`, local development/review skills,
 package scripts, server registration and route families, runtime helpers,
 frontend scripts, Prisma schema/migration SQL, existing tests and release docs.
-No application server, database, mail provider or real credentials were used.
+The original source audit used no application server, database, mail provider
+or real credentials. Later disposable runtime evidence is recorded below.
 No complete visual, native, concurrency or end-to-end audit is claimed.
 
 Owner requirements: SALO serves Germany with Customer, Owner, Staff and Admin
@@ -62,8 +63,9 @@ an approved product rule. Feature evidence is tracked in
 auth version. ACTIVE is normally required; logout, consent and self-deletion
 have restricted-account exceptions. `lib/staff-membership.ts` additionally
 checks user/barber/salon consistency. Not every route uses the same helper;
-authorization must be verified route by route. In particular, booking access
-currently uses ownerId even for STAFF, unlike staff operations.
+authorization must be verified route by route. Booking listing now uses active,
+unrevoked StaffMembership for STAFF; booking mutations retain their earlier
+owner-id check pending a separate permission decision.
 
 ## Database relationships and integrity
 
@@ -119,9 +121,11 @@ COMPLETED/CANCELLED/NO_SHOW, with admin bypass. Customer mutations are limited
 to their own PENDING/CONFIRMED bookings and cancellation/current status.
 PATCH performs scheduling validation even for status-only updates; whether this
 should block cancellation/completion after schedule changes needs clarification.
-Current booking validation rejects all weekends and a fixed 2026 holiday list,
-uses client/default Berlin timezone, and rejects overnight salon configuration.
-Those rules differ from the weekly schedule/live-status model.
+Booking validation now honors a nonempty persisted workingDays list, including
+configured Saturday/Sunday and closed weekdays. Missing/empty legacy schedules
+retain weekday acceptance and weekend rejection. The fixed 2026 holiday list,
+client/default Berlin timezone and overnight-configuration rejection remain;
+these still differ from the full weekly schedule/live-status model.
 
 Queue active states are WAITING/CALLED. Starting links a visit; terminal queue
 states do not imply completed service. ServiceVisit completion and booking
@@ -263,3 +267,47 @@ errors remain documented in the backlog. The frozen preparation refusal stays
 enforced as a separate release gate. All three workflows are now syntactically
 valid: ordinary read-only PR checks and permanently disabled manual release
 placeholders. Local config is ready for publication review, not yet pushed.
+
+## Verified runtime booking corrections (2026-11-15)
+
+Starting checkout: clean `1f8f12e427261969a031fc9b508f54a0105e2ed8`,
+`salo-cloud-work`, verified SALO origin and required snapshot ancestry.
+
+- Owner request: investigate the three demonstrated runtime issues, repair
+  clear contracts, preserve authentication when guest policy is unclear.
+- Code contract for Staff reads: GET `/bookings` already admits STAFF;
+  `owner-team.ts` queue reads use ACTIVE/unrevoked salon membership, and schema
+  constraints bind membership user/salon/barber. The listing now uses that
+  persisted membership predicate instead of requiring Staff to own the salon.
+  It does not grant membership-based PATCH/DELETE permissions or add a Staff UI.
+- Code contract for configured days: `salon-schedule.ts` accepts all seven day
+  keys, Owner configuration persists them, and opening-state helpers use them.
+  Booking validation now checks the explicit day list in the existing booking
+  timezone. No holiday list, missing-schedule fallback, clock/DST/overnight rule,
+  conflict strategy or cancellation rule was redefined.
+- Evidence: 15 new isolated source/Fastify regression tests (8 red before the
+  fix, all green after), 14 existing booking tests, and 18 passing real HTTP
+  assertions against the patched backend with synthetic PostgreSQL data.
+  Real checks include cross-salon Staff read isolation, Saturday creation,
+  Owner confirmation, Customer cancellation and unchanged guest/Staff denials.
+- Runtime boundary: original disposable PostgreSQL 16 cluster identity was
+  reverified; network none, tmpfs data, no published ports or existing volumes,
+  synthetic roles only. Backend uses an explicit disposable Unix-socket DSN,
+  sanitized process environment and guards against .env/outbound Node access.
+  A fresh source copy preserves the earlier runtime snapshot. Schema-derived
+  initialization is not release-baseline or custom migration-constraint proof.
+- Full safe suite: 101 tests pass. Six intercepted Chromium suites pass.
+  Browser DOM automation still fails `Browser Use could not read requirements`;
+  signed-in Customer/Owner/Staff/Admin UI flows remain unverified. API results
+  and intercepted fixtures do not substitute for those end-to-end flows.
+- Full isolated-client TypeScript still has 21 previously recorded diagnostics
+  outside the changed booking route. Frozen preparation still requires its
+  separate integrity gate; no historical SQL/schema/profile changed.
+
+Guest booking remains an owner decision (B08). The visible bookingTip says no
+registration, but the submit handler requires a Customer session and complete
+profile before calling the authenticated API. No authoritative guest policy
+was found; no copy or authentication behavior was changed. Decide whether to
+retain account-required booking and correct DE/EN/AR copy/entry flow, or approve
+a separately specified guest workflow including identity, consent, cancellation
+access and abuse prevention. Do not infer that policy from existing marketing copy.

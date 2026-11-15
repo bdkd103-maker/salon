@@ -24,8 +24,9 @@ authorization to migrate, deploy, access credentials or change product policy.
 | B07 | P1 / fixed locally | Impossible calendar dates and out-of-range clock fields no longer normalize into a different booking date/time. Fourteen booking tests pass, including leap-day/month-end boundaries and in-memory POST rejection before booking access. |
 | B02 | P1 / confirmed code race | bookings.ts checks overlaps before its creation/update transaction, with no matching exclusion constraint in schema/SQL. Concurrent writers can pass the count. Needs concurrency model, capacity rules and isolated DB evidence; not fixed by moving count alone. |
 | S01 | P1 / blocked cutover | owner-team.ts creates ACTIVE staff with emailVerified true and links existing STAFF by email without consent. Dormant invitation foundation is not a fix. Define consent/linking/recovery policy, migration/client rollout and staged cutover tests. |
-| B03 | P1 / owner questions | Booking STAFF access uses salon.ownerId=user.id, despite active-membership-based operations elsewhere. Which booking operations may STAFF perform? Avoid granting access until specified. |
-| B04 | P1 / owner questions | Booking validation hardcodes weekends, 2026 holidays, client/default timezone and rejects overnight configs. Weekly schedules support other days/timezones. Define authoritative schedule, German state holidays and overnight/DST policy. |
+| B03 | P1 / read defect fixed locally; mutation decision open | GET already admits STAFF but filtered by salon ownership. Now scopes reads by persisted ACTIVE/unrevoked membership, matching queue access. Foreign/inactive/revoked membership excluded. No membership-based PATCH/DELETE access added; those permissions still require owner specification. |
+| B04 | P1 / configured-day defect fixed locally; remaining policy open | Explicit nonempty workingDays now overrides blanket weekend rejection and excludes configured closed weekdays. Legacy empty/missing fallback and holiday rules preserved. German state holidays, authoritative timezone, overnight/DST and missing-schedule policy remain owner decisions. |
+| B08 | P1 / reproduced; owner decision required | bookingTip promises no registration; Customer session/profile gate opens login before authenticated POST. Decide account-required booking with corrected DE/EN/AR copy/upfront flow versus a separately specified guest workflow. No auth bypass or invented guest policy. |
 | B05 | P1 / owner questions | PATCH status-only mutations still validate current schedule/overlaps; may block cancellation/completion after schedule changes. Define status-only acceptance and historical-booking policy before changing it. |
 | A01 | P1 / owner question | Logout revokes refresh Sessions but not issued access JWTs (15-minute expiry). Define immediate logout invalidation requirement before adding DB writes/version changes. |
 | E01 | P2 / incomplete by design | SMART ETA has no staff-service capability relation; walk-ins without assigned duration produce unknown ETA. Define requirements before adding models or invented durations. |
@@ -404,3 +405,54 @@ scripts/quality-gate.mjs, backend/src/lib/queue-entry.test.ts, and the two
 disabled release workflows. All previous 15 setup paths remain included.
 Ordinary offline cloud application development is supported; release readiness
 is not asserted. Local preservation commits are authorized, never push/merge.
+
+## Runtime defect batch B03/B04/B08 (2026-11-15)
+
+- Verified clean SALO checkout `1f8f12e` on `salo-cloud-work`, origin and required
+  ancestry before editing. Scope capture:
+  `.verification-test-build/quality-gate/6dd3198f-10ea-4637-be27-6220be18f55b.json`.
+  Scope: booking route, new runtime-regression suite, safe suite entrypoint and
+  these three knowledge documents. No frontend/schema/migration/profile changes.
+- Reproduction: `env -i PATH="$PATH" node --test tests/booking-runtime-regression.test.mjs`
+  produced 8 failures / 7 passes before implementation. Source is evaluated
+  without app imports; in-memory Fastify inject, Zod and a synthetic relational
+  store only. No Prisma, dotenv, socket listener, provider or environment read.
+- B03 root cause: OWNER and STAFF shared salon.ownerId predicate. GET now uses
+  active/unrevoked StaffMembership for Staff, retaining OWNER and ADMIN scopes
+  and contact-only related User selection. No write permissions are broadened.
+- B04 root cause: validator ignored workingDays and rejected Sat/Sun globally.
+  The persisted seven-day schedule contract now governs explicit nonempty
+  configurations; absent/empty schedules retain the previous fallback. Existing
+  holiday, duration, clock, timezone, overlap and mutation logic is preserved.
+- B08 reproduced by prior browser submission and traced through bookingTip,
+  index.html bookingForm gate and authenticated POST. No approved guest rule
+  exists in reviewed requirements. No copy/auth change; the owner decision is
+  recorded above instead of treating marketing text as authorization policy.
+- PASS: 15 new tests, 14 prior booking tests, 101 total safe tests via
+  `env -i PATH="$PATH" node scripts/salo-checks.mjs test`. The new suite was
+  manually reviewed for isolation and explicitly added to the fixed safe list;
+  no existing suite hashes or guards were rewritten.
+- PASS: `env -i PATH="$PATH" node scripts/salo-checks.mjs browser --browser system-chromium`:
+  six intercepted browser suites. These are fixtures, not live signed-in UI.
+- PASS: 18 real HTTP/content assertions after restarting only the identified
+  task-owned backend from a fresh patched source copy. Original disposable PG16
+  identity/system id and isolation reverified before connection. Includes all
+  four logins/CORS, Staff own/foreign salon booking reads, Saturday create,
+  Owner confirm, Customer cancel, overlap rejection and preserved guest/Staff
+  write denials. Only synthetic data in the task-created cluster was used.
+- BLOCKED: signed-in browser automation still reports
+  `Browser Use could not read requirements`; no full UI success claimed.
+- FAIL: full isolated-client tsc exits 2 with the same 21 documented diagnostics
+  in salon-archive.test.ts (18), salon-deletion-policy.test.ts (1),
+  staff-membership.test.ts (1), salons.ts (1); none names bookings.ts.
+- Release-only blocker: CANONICAL_HASH_MISMATCH remains separate; no baseline,
+  canonical SQL, schema, frozen hashes or permanent executor changed.
+- PASS: scoped fast gate, whitespace/syntax checks and bounded changed-source
+  secret scan (zero findings). Scoped finish exits 1: the known 21 full-project
+  TypeScript errors are FAIL, and automatic booking-route coverage mapping is
+  BLOCKED. The explicit 29 booking regressions and 18 disposable HTTP checks
+  supply narrower evidence; no runner mapping or failing gate was waived.
+- Next safe work after review: owner decision on B08; separately specify Staff
+  booking mutations and the remaining B04 schedule/holiday rules; resume real
+  signed-in UI checks once browser automation is available. B02 concurrency
+  remains unresolved and is not fixed by these read/day-validation patches.

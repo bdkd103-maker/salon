@@ -18,16 +18,16 @@ Other commercial/scheduling assumptions below are observations or open questions
 
 | Feature | Classification and actual evidence | Limits / next evidence |
 | --- | --- | --- |
-| Customer discovery, women-only surface | Implemented: index/women pages, public salon projection, filters, services/media/reviews | API/browser integration, geolocation denial and responsive rendering unknown in this task |
+| Customer discovery, women-only surface | Implemented; prior disposable runtime browser check displayed synthetic men/women salons from the real API | Complete filtering, responsive/mobile and signed-in account transitions remain unverified |
 | Profiles and favorites | Implemented: profile and favorites routes, per-user filters, unique user/salon relation | Persistence and account/session browser transitions not rerun |
 | Customer email registration/reset | Implemented: challenge, purpose/role checks, provider transport and route tests | Real email delivery unknown; no provider contacted |
-| Login/refresh/auth status | Implemented: Argon2, signed tokens, persisted status/role/authVersion checks and conditional refresh rotation | Session integration unknown; logout access-token lifetime policy unresolved |
+| Login/refresh/auth status | Implemented; all four synthetic role logins and CORS verified against disposable runtime | Signed-in browser/refresh integration unknown; logout access-token lifetime policy unresolved |
 | Global rate limiting | Verified locally R01: six tests, including in-memory Fastify 429 enforcement; fixed unsigned-sub bucket selection | Uses existing signature/expiry/claim verifier; no persisted-account authorization added to rate limiter |
-| Bookings | Implemented: creation/update/cancellation/statuses and overlap checks; containment, malformed-input and calendar/clock rejection verified locally B01/B06/B07 (14 booking tests) | Race between overlap count and write; weekend/holiday/timezone/cancellation policy questions; grammar/DST/offset/year edge cases remain |
-| Owner dashboard/salon configuration | Implemented: dashboard, services/media/extras/intake controls/schedule routes and UI | No full owner browser flow or persisted API contract validation here |
+| Bookings | Implemented; B03 read-only Staff membership scoping and B04 configured-day validation fixed locally; 29 isolated booking tests and 18 disposable-runtime HTTP assertions pass | Overlap race, holiday/timezone/overnight/cancellation policies and Staff mutation permissions remain; guest promise conflicts with authentication (B08) |
+| Owner dashboard/salon configuration | Implemented; dashboard HTTP read and Saturday booking confirmation verified in disposable runtime | Full Owner browser flow and configuration writes remain unverified |
 | Team management | Implemented: provision/list/update/revoke, salon access checks | Existing-user linking and verified-account creation need consent/security cutover |
 | Staff invitation/recovery | Incomplete: dormant StaffInvitation/version/purpose foundation, documented no enabled invitation/acceptance routes | Migration/Prisma rollout, consent and recovery acceptance criteria required |
-| Staff operations / SMART Core | Implemented: membership checks, lease-confirmed duty, service visits, occupancy | Full concurrency/persistence unknown; booking STAFF access differs from operations |
+| Staff operations / SMART Core | Implemented: membership checks, lease-confirmed duty, service visits, occupancy; Staff booking reads now follow active/unrevoked membership | Full concurrency unknown; membership-based booking mutations remain undecided; signed-in browser flow unverified |
 | SALO Ticket / live queue | Implemented: ticket reuse, walk-in, transition helper, visit start and mine/owner views | SQL partial indexes/transactions not exercised; migrations block clean install |
 | SMART ETA | Implemented: pure engine and real-data adapter with unknown fallback | Capability mapping absent; unknown-duration walk-ins intentionally cannot promise ETA |
 | Opening-state overnight schedule | Verified locally H01: nine new regression tests across backend/root/www; 18 existing hours tests passed previously | Retained uncommitted fix; no deployed validation |
@@ -44,6 +44,21 @@ Other commercial/scheduling assumptions below are observations or open questions
 | Audited validation runners | Verified locally V02: reviewed pins, checkout line-ending normalization, 10 workflow + 27 pure-unit tests pass; browser guard passes | Browser execution blocked by missing configured Edge (V03); no automatic fallback |
 
 ## Verification updates
+
+Latest runtime-fix batch (2026-11-15, starting HEAD `1f8f12e`): all 101 safe
+tests and six intercepted system-Chromium suites pass. A reverified disposable
+PostgreSQL 16 cluster passes 18 post-fix real HTTP assertions, including Staff
+read isolation, configured Saturday booking/confirmation/cancellation and
+unchanged authorization denials. This validates the named API behavior, not
+complete Owner/Staff/Admin/Customer browser workflows. Browser DOM automation
+still returns `Browser Use could not read requirements`. The 21 existing full
+TypeScript errors and frozen release integrity blocker remain. Historical
+source-only and tooling-only results below describe their respective batches.
+
+B08 remains **broken copy / unknown product requirement**: the booking UI
+promises no registration but opens login on submission. Owner must decide
+account-required booking with corrected localized copy/entry flow versus a
+specified guest workflow. Authentication and existing copy are preserved.
 
 R01 completed: five of six tests failed at base, all six pass after the scoped
 server fix. Invalid/expired/forged tokens use IP fallback; legitimate tokens

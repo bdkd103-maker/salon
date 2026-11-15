@@ -99,7 +99,15 @@ function validateBookingWindow(salon: any, startAt: Date, endAt: Date, timeZone:
     return "Selected time is outside salon opening hours";
   }
 
-  if (isWeekend(startAt, timeZone) || isHoliday(startAt, timeZone)) {
+  // An explicit salon schedule takes precedence over the legacy weekend rule.
+  // Keep the existing fallback for older salons without configured days.
+  const workingDays = salon.workingDays;
+  const dayKey = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" })
+    .format(startAt).toLowerCase();
+  const isClosedDay = Array.isArray(workingDays) && workingDays.length > 0
+    ? !workingDays.includes(dayKey)
+    : isWeekend(startAt, timeZone);
+  if (isClosedDay || isHoliday(startAt, timeZone)) {
     return "Selected day is unavailable";
   }
 
@@ -142,7 +150,9 @@ export async function bookingRoutes(app: any) {
       }
 
       const bookings = await prisma.booking.findMany({
-        where: user.role === "ADMIN" ? {} : { salon: { ownerId: user.id } },
+        where: user.role === "ADMIN" ? {} : user.role === "STAFF"
+          ? { salon: { staffMemberships: { some: { userId: user.id, status: "ACTIVE", revokedAt: null } } } }
+          : { salon: { ownerId: user.id } },
         orderBy: { startAt: "asc" },
         include: {
           salon: true, service: true, barber: true,

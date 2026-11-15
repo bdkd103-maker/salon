@@ -124,7 +124,7 @@ export async function main(args) {
   }
   if (command === 'test') {
     validateSkills();
-    const a = run(['--test', 'tests/ai-tooling.test.mjs', 'tests/development-workflow.test.mjs', 'tests/booking-window-regression.test.mjs', 'tests/rate-limit-key-regression.test.mjs', 'tests/salon-hours-regression.test.mjs']);
+    const a = run(['--test', 'tests/ai-tooling.test.mjs', 'tests/development-workflow.test.mjs', 'tests/booking-window-regression.test.mjs', 'tests/booking-runtime-regression.test.mjs', 'tests/rate-limit-key-regression.test.mjs', 'tests/salon-hours-regression.test.mjs']);
     const b = run(['scripts/test-backend-unit.mjs']);
     return a || b;
   }
