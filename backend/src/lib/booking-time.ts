@@ -53,9 +53,20 @@ export function parseWallClockInTimeZone(dateTimeLocal: string, timeZone: string
     .replace(/[+-]\d{2}:\d{2}$/, "")
     .replace(/[+-]\d{2}$/, "");
   const [datePart, timePart] = normalized.split("T");
+  if (!datePart || !timePart) return new Date(NaN);
   const [year, month, day] = datePart.split("-").map(Number);
   const [hour, minute, second = 0] = timePart.split(":").map(Number);
+  if (![year, month, day, hour, minute].every(Number.isInteger)
+    || !Number.isFinite(second) || month < 1 || month > 12 || day < 1 || day > 31
+    || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second >= 60) {
+    return new Date(NaN);
+  }
   const utcLike = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  // Let the route's invalid-window check reject malformed input before Intl
+  // formatting can throw. Valid wall-clock conversion remains unchanged.
+  if (Number.isNaN(utcLike.getTime())) return utcLike;
+  // Date.UTC normalizes impossible dates (e.g. September 31) into another day.
+  if (utcLike.getUTCMonth() !== month - 1 || utcLike.getUTCDate() !== day) return new Date(NaN);
   const offsetMinutes = getTimeZoneOffsetMinutes(utcLike, timeZone);
   return new Date(utcLike.getTime() - offsetMinutes * 60_000);
 }
@@ -101,17 +112,19 @@ export function isWithinOperatingHours(
   const start = parseWallClockInTimeZone(startLocal, timeZone);
   const end = parseWallClockInTimeZone(endLocal, timeZone);
 
-  const startInZone = formatInTimeZone(start, timeZone).slice(11, 16);
-  const endInZone = formatInTimeZone(end, timeZone).slice(11, 16);
+  const startInZone = formatInTimeZone(start, timeZone);
+  const endInZone = formatInTimeZone(end, timeZone);
 
   const openMinutes = toMinutes(opening);
   const closeMinutes = toMinutes(closing);
-  const startMinutes = toMinutes(startInZone);
-  const endMinutes = toMinutes(endInZone);
+  const startMinutes = toMinutes(startInZone.slice(11, 16));
+  const endMinutes = toMinutes(endInZone.slice(11, 16));
 
   if (closeMinutes <= openMinutes) {
     return startMinutes >= openMinutes || endMinutes <= closeMinutes;
   }
 
-  return startMinutes >= openMinutes && endMinutes <= closeMinutes;
+  // A daytime opening interval cannot contain a booking spanning closed nights.
+  return startInZone.slice(0, 10) === endInZone.slice(0, 10)
+    && startMinutes >= openMinutes && endMinutes <= closeMinutes;
 }

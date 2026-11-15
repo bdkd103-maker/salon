@@ -15,10 +15,21 @@ export const suites = Object.freeze([
   ['tests/staff-authorization.spec.js', 'd0d1b60fec360a04d514aebf52fc52cd04529b3021a43616f2bbd460edbfa5b7'],
   ['tests/staff-logout.spec.js', '991c17ba6f772e68ce26e4a2e9e1dae8e96e9230d6625353999e1659e37830b4'],
   ['tests/owner-team-authorization.spec.js', '1c957d814217e58e7fd46fdf2644c4c380249a6c5c4e3bff958808405df82e2a'],
-  ['tests/admin-session.spec.js', 'f4812efea4c3822808def831cc8742c01746ef62a295e5d62a5663b5bc8bf11c'],
+  // Re-audited 2026-11-15: isolated contexts, synthetic credentials, intercepted APIs.
+  ['tests/admin-session.spec.js', '1462c5be1293026a2d42abf9eb43a0042a351c188ed0d3b295281778a3cbe7be'],
   ['tests/smart-busy-reminder.spec.js', '45733cc6409cc2bd3d3a2bf177171346cde31135c0ab8a4ca5eb4a18333bf7d4'],
   ['tests/staff-localization.spec.js', '6a3bb2b691e47f5f9d068c026a54f0416136397e18bfac6dfaaa5de67c7d0305'],
 ].map(([file, sha256]) => Object.freeze({ file, sha256 })));
+
+// Same byte-preserving CRLF normalization as the pure-unit runner.
+export function sourceDigest(bytes) {
+  const canonical = [];
+  for (let i = 0; i < bytes.length; i++) {
+    if (bytes[i] === 13 && bytes[i + 1] === 10) continue;
+    canonical.push(bytes[i]);
+  }
+  return createHash('sha256').update(Buffer.from(canonical)).digest('hex');
+}
 
 function verifySuite(suite) {
   let file = root;
@@ -27,7 +38,7 @@ function verifySuite(suite) {
     if (fs.lstatSync(file).isSymbolicLink()) throw new Error('Mock suite links are prohibited');
   }
   if (!fs.statSync(file).isFile()) throw new Error(`Missing mock suite: ${suite.file}`);
-  const actual = createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const actual = sourceDigest(fs.readFileSync(file));
   if (actual !== suite.sha256) throw new Error(`Mock isolation re-audit required: ${suite.file}`);
   return file;
 }

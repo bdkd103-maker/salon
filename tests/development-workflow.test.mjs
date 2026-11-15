@@ -3,7 +3,28 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { safeSource, compareScope, selectChecks, syntaxCheck, summarize, main } from '../scripts/quality-gate.mjs';
-import { check, resolveUnitImport } from '../scripts/test-backend-unit.mjs';
+import { check, resolveUnitImport, sourceDigest as unitDigest } from '../scripts/test-backend-unit.mjs';
+import { check as browserCheck, sourceDigest as browserDigest } from '../scripts/test-browser-mock.mjs';
+
+test('audited hashes tolerate checkout line endings but reject other byte changes', () => {
+  const lf = Buffer.from('const fixture = 1;\n// reviewed source\n');
+  const crlf = Buffer.from(lf.toString().replace(/\n/g, '\r\n'));
+  for (const digest of [unitDigest, browserDigest]) {
+    assert.equal(digest(lf), digest(crlf));
+    for (const changed of [Buffer.from('const fixture = 2;\n// reviewed source\n'), Buffer.concat([lf, Buffer.from(' ')]), Buffer.from('const fixture = 1;\r// reviewed source\n'), Buffer.from([0xff]), Buffer.from([0xfe])]) {
+      assert.notEqual(digest(changed), digest(lf));
+    }
+    assert.notEqual(digest(Buffer.from([0xff])), digest(Buffer.from([0xfe])), 'invalid UTF-8 bytes must not collapse');
+  }
+});
+
+test('reviewed mock browser allowlist passes without opening a browser', () => {
+  const result = browserCheck();
+  assert.equal(result.suites.length, 6);
+  assert.equal(result.auditedHashesMatch, true);
+  assert.equal(result.databaseRequired, false);
+  assert.equal(result.developmentServerRequired, false);
+});
 
 test('pure unit loader refuses network, database, environment and arbitrary modules', () => {
   const parent = new URL('../backend/src/lib/service-visit.test.ts', import.meta.url).href;
