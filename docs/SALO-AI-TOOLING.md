@@ -5,6 +5,12 @@ tooling-only batch. No production source, schema, historical migration, frozen
 profile or checksum is changed. Local commits are now authorized; push, merge
 and deployment remain prohibited without separate approval.
 
+Current validation follow-up (2026-11-15): local commits `b54ff62` preserve the
+Staff/configured-day booking fixes, `34e477f` repairs the service price input
+contract, and `d940c39` repairs the remaining test fixture types. Full strict
+isolated-client TypeScript now passes with zero diagnostics. Historical setup
+limitations below are updated where superseded; no release blocker is waived.
+
 ## Skills and source of truth
 
 The four supported repository skill directories contain SKILL.md with name and
@@ -151,14 +157,33 @@ protection/required-check settings require a separately approved push and GitHub
 settings review. Failing compiler/integrity checks are deliberately visible and
 must not be waived to claim release readiness.
 
-## Known application/integrity blockers
+## Current validation and remaining blockers
 
 Fresh Client generation resolves generated-type/tooling failures. The queue
 test's extensionless import was fixed to .js for NodeNext, and its eight pure
-transition tests run in isolation. Full tsc retains 21 unrelated diagnostics:
-18 in salon-archive.test.ts and one each in salon-deletion-policy.test.ts,
-staff-membership.test.ts and routes/salons.ts:942. No exclusions, strictness
-relaxations or continue-on-error hide this application/test type debt.
+transition tests run in isolation. All 21 subsequently recorded diagnostics
+are repaired: service PATCH converts persisted Decimal before merging optional
+input, and archive/deletion/membership fixtures retain their runtime assertions
+with accurate types and explicit legacy/untyped boundaries. Full strict noEmit
+passes; no exclusions, strictness relaxations or continue-on-error were added.
+The default safe suite includes four compiler/HTTP service-price regressions.
+
+All 171 affected archive/deletion/membership tests also pass in a separately
+reviewed task-local harness with a fixed eight-file import graph, fresh
+engine-free Client for Decimal/DMMF only, and offline-tool-guard.cjs. No Client
+is constructed, readers are synthetic, and receipts show no env/network attempts.
+Harness/log artifacts are ignored under `.verification-test-build/typed-fixtures-*`;
+these suites are not part of the fixed default runner. The scoped finish gate
+still reports unmapped backend behavior coverage as BLOCKED; explicit fixture
+evidence is not a mapping waiver. Do not run arbitrary persistence suites unguarded.
+
+Six intercepted system-Chromium suites pass. Managed real-browser DOM inspection
+still fails `Browser Use could not read requirements` on SALO and a script-free
+HTTP-200 control page. Native navigation and inventory work; documented
+reinitialization after the tool's inactivity reset did not resolve it. This is
+outside demonstrated SALO page logic; exact provider dependency is unknown.
+No repository/security/configuration workaround is justified by this evidence.
+Signed-in end-to-end browser workflows remain unverified.
 Step 04 exact-byte integrity fails CANONICAL_HASH_MISMATCH: twelve migrations
 are provably newline-only differences; schema raw bytes remain unresolved.
 The frozen profile, baseline and historical migrations are not changed here.
@@ -166,6 +191,6 @@ SubscriptionPlan label sets match but PostgreSQL/Prisma declaration ordering
 differs; no real PostgreSQL validation is claimed. See the engineering backlog
 for owner approval dependencies and the setup validation record.
 
-Ordinary cloud development is supported: four referenced skills, 86 safe tests,
-six intercepted browser suites, offline Client generation, full type diagnostics,
+Ordinary cloud development is supported: four referenced skills, 105 safe tests,
+six intercepted browser suites, offline Client generation, passing full types,
 scanning and scoped gates. This does not establish release/database readiness.
