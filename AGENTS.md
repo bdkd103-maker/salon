@@ -39,6 +39,21 @@ SALO SMART SALON is a multi-salon booking, queue, and salon management platform.
 - Other agents may provide read-only reviews.
 - Do not start parallel write operations against the same files.
 
+## Repository Agent Skills
+
+Use these repository-scoped skills by name or read their SKILL.md directly:
+
+- [salo-project-expert](.agents/skills/salo-project-expert/SKILL.md): architecture, workflows and owner requirements.
+- [salo-bug-hunter](.agents/skills/salo-bug-hunter/SKILL.md): reproduce defects, narrow fixes and regression tests.
+- [salo-feature-developer](.agents/skills/salo-feature-developer/SKILL.md): approved integration, authorization and localization.
+- [salo-quality-gate](.agents/skills/salo-quality-gate/SKILL.md): safe tests, isolated types, scans and reporting.
+
+See [SALO AI tooling](docs/SALO-AI-TOOLING.md) for commands and client reload
+guidance. Existing salo-development/salo-review skills remain available.
+Metadata validation does not prove a client UI has reloaded. Ordinary offline
+checks need no database. Frozen Step 04 integrity is a separate release gate;
+never bypass it. All safety and approval rules below remain in force.
+
 ## Workflow
 1. Inspect the repository in read-only mode first.
 2. Identify the root cause and the smallest likely fix.

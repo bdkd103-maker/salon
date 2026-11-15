@@ -276,7 +276,9 @@ export function getSalonOperatingState(
   const nowParts = getZonedNowParts(now, scheduleInfo.timeZone);
   const previousDayKey = getAdjacentDayKey(nowParts.dayKey, -1);
   const previousIntervals = scheduleInfo.schedule[previousDayKey].filter((interval) => interval.crossesMidnight && nowParts.minutes < interval.endMinutes);
-  const todayIntervals = scheduleInfo.schedule[nowParts.dayKey];
+  // Today's overnight intervals start this evening; their early-morning
+  // portion belongs to tomorrow. Only yesterday can carry into this morning.
+  const todayIntervals = scheduleInfo.schedule[nowParts.dayKey].filter((interval) => !interval.crossesMidnight || nowParts.minutes >= interval.startMinutes);
   const activeInterval = previousIntervals.find((interval) => isOpenForMinutes(nowParts.minutes, interval))
     || todayIntervals.find((interval) => isOpenForMinutes(nowParts.minutes, interval))
     || null;

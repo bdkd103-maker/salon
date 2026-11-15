@@ -1,0 +1,45 @@
+name: SALO safe pull-request checks
+on:
+  pull_request:
+    branches: [salo-cloud-development]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: salo-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [test, browser, typecheck]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm ci --prefix backend --ignore-scripts --no-audit --no-fund
+      - run: node scripts/salo-checks.mjs config
+      - run: node scripts/salo-checks.mjs scan --base ${{ github.event.pull_request.base.sha || github.sha }}
+      - if: matrix.check == 'browser'
+        run: node node_modules/playwright/cli.js install chromium
+      - run: node scripts/salo-checks.mjs ${{ matrix.check }}
+  release-integrity:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: node scripts/salo-checks.mjs integrity

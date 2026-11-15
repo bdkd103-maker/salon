@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   getQueueTransition,
   isActiveSaloTicketStatus,
-} from "./queue-entry";
+} from "./queue-entry.js";
 
 test("WAITING can be called", () => {
   assert.equal(getQueueTransition("WAITING", "CALL"), "CALLED");

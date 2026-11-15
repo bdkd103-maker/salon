@@ -1,5 +1,16 @@
 # SALO local development workflow
 
+The consolidated AI tooling entrypoint and four reusable skills are documented
+in [SALO-AI-TOOLING.md](SALO-AI-TOOLING.md). Node 24 is required. Root `npm test`
+now runs the reviewed safe suite instead of the placeholder. For Cloud browser
+validation explicitly select `node scripts/salo-checks.mjs browser --browser system-chromium`;
+the scoped finish gate also accepts `--browser system-chromium`; default Edge
+mode is preserved. No automatic browser substitution, environment loading or DB startup.
+
+Use `salo-checks.mjs config`, `skills`, `scan`, `typecheck` and `integrity`
+for the documented standalone checks. TypeScript and frozen-artifact failures
+remain visible; the new entrypoint does not replace source-scope capture/review.
+
 This is development tooling, not release/deployment automation. SALO's current
 behavior is incomplete and unverified. Define acceptance criteria per task;
 passing mocks do not prove real API, database, concurrency or end-to-end behavior.

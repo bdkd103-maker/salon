@@ -96,7 +96,8 @@ test("policy operational allowlist is explicit and never traverses owners or sib
 test("policy client arguments cannot replace trusted classification or clear blockers", () => {
   const { evaluate } = policyApi();
   const expected = evaluate();
-  assert.deepEqual(evaluate({ force: true, classifications: {}, blockingModels: [] }), expected);
+  // Deliberately pass untyped caller data to the zero-argument server API.
+  assert.deepEqual(Reflect.apply(evaluate, undefined, [{ force: true, classifications: {}, blockingModels: [] }]), expected);
 });
 
 // Complete persisted V2 fixtures for policy proof.

@@ -938,7 +938,7 @@ if (user.role === "OWNER") {
         return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
       }
 
-      const merged = { ...service, ...parsed.data };
+      const merged = { ...service, price: Number(service.price), ...parsed.data };
       const normalized = normalizeServiceInput(merged);
       const nextService = await prisma.service.update({
         where: { id: request.params.serviceId },

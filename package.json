@@ -6,7 +6,15 @@
   "scripts": {
     "dev": "bash scripts/dev-frontend.sh",
     "dev:env": "bash scripts/dev-up.sh",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/salo-checks.mjs test",
+    "test:tooling": "node --test tests/ai-tooling.test.mjs tests/development-workflow.test.mjs",
+    "test:browser:cloud": "node scripts/salo-checks.mjs browser --browser system-chromium",
+    "quality:skills": "node scripts/salo-checks.mjs skills",
+    "quality:config": "node scripts/salo-checks.mjs config",
+    "quality:scan": "node scripts/salo-checks.mjs scan",
+    "quality:types": "node scripts/salo-checks.mjs typecheck",
+    "quality:prisma": "node scripts/salo-checks.mjs prisma",
+    "quality:integrity": "node scripts/salo-checks.mjs integrity",
     "test:browser:mock": "node scripts/test-browser-mock.mjs",
     "test:backend:unit": "node scripts/test-backend-unit.mjs",
     "test:workflow": "node --test tests/development-workflow.test.mjs",
@@ -36,7 +44,9 @@
   },
   "homepage": "https://github.com/bdkd103-maker/salon#readme",
   "devDependencies": {
-    "playwright": "^1.62.1"
+    "@prisma/internals": "5.22.0",
+    "playwright": "^1.62.1",
+    "yaml": "2.8.2"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
