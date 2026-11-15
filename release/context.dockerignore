@@ -1,0 +1,21 @@
+# Defense in depth on top of the generated context's exact file allowlist.
+**/.env
+**/.env.*
+**/.git
+**/.aws
+**/.ssh
+**/.codex
+**/node_modules
+**/dist
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.db
+**/*.sqlite
+**/*.log
+**/*.tmp
+**/*.temp
+**/.tmp*
+tests
+backend/test

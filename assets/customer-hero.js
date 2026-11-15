@@ -25,8 +25,15 @@
   intentButtons.forEach(button => {
     button.addEventListener("click", () => {
       selectIntent(button);
+      const intent = button.dataset.heroIntent || "";
+      window.dispatchEvent(new CustomEvent("salo:hero-intent", { detail: { intent } }));
       const targetSelector = button.dataset.heroTarget;
-      if (!targetSelector) return;
+      if (!targetSelector) {
+        if (intent === "now") {
+          document.querySelector("#salonDirectory")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
       document.querySelector(targetSelector)?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });

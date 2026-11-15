@@ -35,7 +35,7 @@ export function isLegacySalonArchiveV7Contract(contract: ArchiveContract) {
 // V8 stores an explicit scalar snapshot; additions require a reviewed contract.
 const SALON_FIELDS = [
   "id", "ownerId", "name", "slug", "city", "address", "latitude", "longitude", "phone", "email", "website",
-  "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "status",
+  "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "isVerified", "status",
   "bookingIntakeEnabled", "saloTicketIntakeEnabled", "walkInIntakeEnabled", "rating", "reviewCount",
   "openingTime", "closingTime", "workingDays", "timeZone", "createdAt", "updatedAt",
 ] as const;

@@ -83,9 +83,9 @@ const { chromium } = require('playwright');
       }, { salons: pageSalons, experience: file === 'index.html' ? 'men' : 'women' });
       await page.route('**/*', route => {
         const url = new URL(route.request().url());
-        if (url.hostname !== 'cards.test') return route.abort();
         if (url.pathname === '/api/v1/salons') return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ salons: pageSalons }) });
         if (url.pathname.startsWith('/api/')) return route.fulfill({ contentType: 'application/json', body: '{}' });
+        if (url.hostname !== 'cards.test') return route.abort();
         const relative = decodeURIComponent(url.pathname.slice(1));
         const target = path.join(root, relative);
         if (!target.startsWith(root) || !fs.existsSync(target) || !fs.statSync(target).isFile()) return route.abort();

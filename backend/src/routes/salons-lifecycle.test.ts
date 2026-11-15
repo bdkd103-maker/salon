@@ -21,7 +21,7 @@ function fixture(id: string, isActive = true) {
   return {
     id, ownerId: "owner-a", name: "Lifecycle Salon", slug: id, city: "Berlin",
     address: "Teststrasse 10", phone: "+49301234567", description: "Preserve this profile",
-    latitude: null, longitude: null, email: null, website: null, isWomenOnly: false, status: "OPEN",
+    latitude: null, longitude: null, email: null, website: null, isWomenOnly: false, isVerified: false, status: "OPEN",
     bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true, rating: 0, reviewCount: 0,
     updatedAt: new Date("2026-01-01T00:00:00Z"),
     isActive, isVip: false, adminVip: false, classification: "REGULAR",

@@ -123,7 +123,7 @@ const copy = {
       check(`${language} selected language`, await page.locator('html').getAttribute('lang'), language);
       for (const [selector, key] of [
         ['.admin-workspace-copy > .eyebrow', 'workspace'], ['#newWomenSalonButton', 'women'],
-        ['#adminOpenInbox', 'inbox'], ['#adminIntakeControls + .admin-editor-grid > .admin-editor-card:first-child > h3', 'basic'],
+        ['#adminOpenInbox', 'inbox'],         ['#adminIntakeControls + #adminExtrasControls + .admin-editor-grid > .admin-editor-card:first-child > h3', 'basic'],
         ['label[for="salonSearch"]', 'search'], ['label[for="salonStatusFilter"]', 'status'],
         ['#salonStatusFilter option[value="closed"]', 'closed'], ['#salonCityFilter option[value="all"]', 'cities'],
       ]) check(`${language} static ${key}`, await text(selector), c[key]);

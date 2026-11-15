@@ -3,6 +3,7 @@ import { createHash, createHmac, randomBytes, randomInt, randomUUID, timingSafeE
 import { hashPassword } from "./auth.js";
 import { OTP_LIFETIME_MS, RESEND_COOLDOWN_MS, serializable } from "./registration-verification.js";
 import { VerificationError, getEmailConfig, sendPasswordResetEmail, validateEmailConfig } from "./verification-email.js";
+import { CUSTOMER_PASSWORD_RESET, passwordResetPurposeMatchesRole } from "./credential-proof-purpose.js";
 
 const RESET_PROOF_LIFETIME_MS = 10 * 60_000;
 const invalid = () => new VerificationError(400, "PASSWORD_RESET_INVALID", "Password reset is invalid, expired, or already used. Please request a new code.");
@@ -74,12 +75,13 @@ export function createCustomerPasswordReset(db: any, options: Options = {}) {
       }
 
       await tx.passwordReset.updateMany({
-        where: { userId: user.id, usedAt: null, invalidatedAt: null },
+        where: { userId: user.id, purpose: CUSTOMER_PASSWORD_RESET, usedAt: null, invalidatedAt: null },
         data: { invalidatedAt: at, codeDigest: null },
       });
       const current = {
         id: challengeId,
         userId: user.id,
+        purpose: CUSTOMER_PASSWORD_RESET,
         tokenHash: tokenHash(randomBytes(32).toString("hex")),
         codeDigest: null as string | null,
         generation: 1,
@@ -124,7 +126,7 @@ export function createCustomerPasswordReset(db: any, options: Options = {}) {
       await limit(tx, "send-ip", ip, 20, 60 * 60_000, at);
       await limit(tx, "resend-challenge", challengeId, 1, RESEND_COOLDOWN_MS, at);
       const previous = await tx.passwordReset.findUnique({ where: { id: challengeId } });
-      if (!previous || previous.usedAt || previous.invalidatedAt || previous.verifiedAt || previous.attemptCount >= 5) return null;
+      if (!previous || !passwordResetPurposeMatchesRole(previous, "CUSTOMER") || previous.usedAt || previous.invalidatedAt || previous.verifiedAt || previous.attemptCount >= 5) return null;
       const user = await tx.user.findUnique({ where: { id: previous.userId } });
       if (!user || String(user.role || "").toUpperCase() !== "CUSTOMER" || String(user.status || "").toUpperCase() !== "ACTIVE") return null;
       await limit(tx, "send-hour", user.email, 5, 60 * 60_000, at);
@@ -170,7 +172,9 @@ export function createCustomerPasswordReset(db: any, options: Options = {}) {
     const result = await serializable<any>(db, async tx => {
       await limit(tx, "confirm-ip", ip, 50, 60 * 60_000, at);
       const challenge = await tx.passwordReset.findUnique({ where: { id: challengeId } });
-      if (!challenge || challenge.invalidatedAt || challenge.usedAt || challenge.verifiedAt || challenge.deliveryState !== "ACCEPTED" || challenge.expiresAt <= at || challenge.attemptCount >= 5 || !challenge.codeDigest) return null;
+      if (!challenge || !passwordResetPurposeMatchesRole(challenge, "CUSTOMER") || challenge.invalidatedAt || challenge.usedAt || challenge.verifiedAt || challenge.deliveryState !== "ACCEPTED" || challenge.expiresAt <= at || challenge.attemptCount >= 5 || !challenge.codeDigest) return null;
+      const user = await tx.user.findUnique({ where: { id: challenge.userId } });
+      if (!user || user.role !== "CUSTOMER" || user.status !== "ACTIVE") return null;
       const matches = timingSafeEqual(Buffer.from(challenge.codeDigest, "hex"), Buffer.from(otpDigest(challenge, code), "hex"));
       if (!matches) {
         await tx.passwordReset.update({ where: { id: challenge.id }, data: { attemptCount: { increment: 1 } } });
@@ -195,16 +199,16 @@ export function createCustomerPasswordReset(db: any, options: Options = {}) {
     const passwordHash = await hash(password);
     return serializable<any>(db, async tx => {
       const challenge = await tx.passwordReset.findUnique({ where: { id } });
-      if (!challenge || challenge.invalidatedAt || challenge.usedAt || !challenge.verifiedAt || challenge.expiresAt <= at || challenge.tokenHash !== tokenHash(secret)) throw invalid();
+      if (!challenge || !passwordResetPurposeMatchesRole(challenge, "CUSTOMER") || challenge.invalidatedAt || challenge.usedAt || !challenge.verifiedAt || challenge.expiresAt <= at || challenge.tokenHash !== tokenHash(secret)) throw invalid();
       const user = await tx.user.findUnique({ where: { id: challenge.userId } });
       if (!user || String(user.role || "").toUpperCase() !== "CUSTOMER" || String(user.status || "").toUpperCase() !== "ACTIVE") throw invalid();
       const consumed = await tx.passwordReset.updateMany({
-        where: { id, tokenHash: tokenHash(secret), usedAt: null, invalidatedAt: null, expiresAt: { gt: at } },
+        where: { id, purpose: CUSTOMER_PASSWORD_RESET, tokenHash: tokenHash(secret), usedAt: null, invalidatedAt: null, expiresAt: { gt: at } },
         data: { usedAt: at, tokenHash: tokenHash(randomBytes(32).toString("hex")) },
       });
       if (consumed.count !== 1) throw invalid();
       await tx.passwordReset.updateMany({
-        where: { userId: user.id, id: { not: id }, usedAt: null, invalidatedAt: null },
+        where: { userId: user.id, purpose: CUSTOMER_PASSWORD_RESET, id: { not: id }, usedAt: null, invalidatedAt: null },
         data: { invalidatedAt: at, codeDigest: null, tokenHash: tokenHash(randomBytes(32).toString("hex")) },
       });
       await tx.user.update({ where: { id: user.id }, data: { passwordHash } });

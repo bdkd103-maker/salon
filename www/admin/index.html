@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SALO &mdash; Administration</title>
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../assets/salon-intake-controls.js" defer></script>
+  <script src="../assets/salon-extras.js" defer></script>
+  <script src="./admin.js" defer></script>
+  <link rel="stylesheet" href="../assets/salo-brand-lockup.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <section id="login" class="login-layout">
+    <div class="login-story">
+      <a class="brand" href="../index.html"><span class="salo-brand-lockup"><img class="salo-official-logo" src="../assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span><span>ADMIN PANEL</span></a>
+      <div>
+        <p class="eyebrow">STYLE. PEOPLE. COMMUNITY.</p>
+        <h1>More Than<br>a Salon.</h1>
+        <p>Manage your salon network, keep operations moving, and stay close to your customers.</p>
+      </div>
+      <small>SALO &middot; ADMIN PANEL</small>
+    </div>
+    <div class="login-card">
+      <div class="login-emblem"><span class="salo-brand-lockup"><img class="salo-official-logo" src="../assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span></div>
+      <p class="eyebrow">SALO ADMIN</p><h2>Welcome Back</h2>
+      <p class="muted">Sign in to manage SALO</p>
+      <form id="login-form">
+        <label class="input-icon"><span class="input-icon-svg" data-icon="mail"></span><input name="email" type="email" placeholder="Email address" autocomplete="username" required></label>
+        <label class="input-icon"><span class="input-icon-svg" data-icon="lock"></span><input name="password" type="password" placeholder="Password" autocomplete="current-password" minlength="8" required><button type="button" class="toggle-pw" aria-label="Show password"><span data-icon="eye"></span></button></label>
+        <div class="login-meta"><label class="check"><input type="checkbox" name="remember">Remember me</label><a href="../index.html">Forgot password?</a></div>
+        <button class="primary login-submit" type="submit"><span data-icon="lock"></span>Login to Admin <span aria-hidden="true">&rarr;</span></button>
+        <p id="login-status" role="alert"></p>
+      </form>
+      <div class="login-divider"><span>SALO ADMIN PANEL</span></div>
+      <div class="login-features">
+        <div class="login-feature"><span data-icon="home"></span><strong>Manage</strong><small>Your Business</small></div>
+        <div class="login-feature"><span data-icon="users"></span><strong>Grow</strong><small>Your Community</small></div>
+        <div class="login-feature"><span data-icon="diamond"></span><strong>Beautify</strong><small>The Future</small></div>
+      </div>
+      <small class="login-copy">&copy; <span data-year></span> SALO. All rights reserved.</small>
+      <a class="login-motto" href="../index.html">More Than a Salon</a>
+    </div>
+  </section>
+  <div id="workspace" class="workspace" hidden>
+    <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Close navigation" hidden></button>
+    <aside id="sidebar" aria-label="Admin sidebar">
+      <button id="close-sidebar" class="icon-button" type="button" aria-label="Close navigation">&times;</button>
+      <a class="brand sidebar-brand" href="../index.html" aria-label="SALO Home"><span class="brand-emblem"><span class="salo-brand-lockup"><img class="salo-official-logo" src="../assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span></span><span>ADMIN PANEL</span></a>
+      <nav aria-label="Admin navigation">
+        <a href="#overview">Dashboard</a><a href="#salons">Salons</a>
+        <a href="#partners">Partners</a><a href="#bookings">Bookings</a>
+        <a href="#messages">Messages</a><a href="#promotions">Promotions</a>
+        <a href="#global-offers">Global Offers</a><a href="#subscriptions">Subscriptions</a>
+        <a href="#loyalty">Loyalty</a><a href="#shop">Shop</a>
+        <a href="#orders">Orders</a><a href="#notifications">Notifications</a>
+        <a href="#legal">Legal</a><a href="#settings">Settings</a>
+      </nav>
+      <div class="sidebar-footer"><button id="logout" type="button"><span data-icon="logout"></span>Sign out</button><p class="brand-motto">More Than a Salon</p><small>&copy; <span data-year></span> SALO. All rights reserved.</small></div>
+    </aside>
+    <div class="main">
+      <header>
+        <div class="header-brand"><button id="menu-toggle" class="icon-button" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><span data-icon="menu"></span></button><a href="#overview" class="wordmark"><span class="salo-brand-lockup"><img class="salo-official-logo" src="../assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span></a><span class="header-divider"></span><span>Admin Panel</span><h1 id="page-title" class="sr-only">Dashboard</h1></div>
+        <div class="header-actions">
+          <button id="refresh" class="icon-button" type="button" aria-label="Refresh" title="Refresh server data"><span data-icon="refresh"></span></button>
+          <a class="icon-button" href="#notifications" aria-label="View notifications" title="Notifications"><span data-icon="bell"></span></a>
+          <a class="profile" href="#settings" aria-label="Administrator account"><span class="avatar" data-icon="user"></span><span><span id="identity"></span><small id="identity-role"></small></span><span class="profile-chevron" aria-hidden="true">⌄</span></a>
+        </div>
+      </header>
+      <p id="notice" role="status" aria-live="polite" hidden></p>
+      <main id="content" tabindex="-1"></main>
+      <footer><span>&copy; <span data-year></span> SALO. All rights reserved.</span><span class="brand-motto">More Than a Salon</span></footer>
+    </div>
+  </div>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-top">
+      <h2 id="dialog-title"></h2>
+      <button type="button" id="close-dialog" aria-label="Close dialog">&times;</button>
+    </div>
+    <div id="dialog-content"></div><p id="dialog-status" role="alert"></p>
+  </dialog>
+</body>
+</html>

@@ -187,7 +187,7 @@ async function cleanup(fx: FX) {
     safe(P.salon.deleteMany({ where: { id: fx.salonId } })),
     safe(P.salon.deleteMany({ where: { id: fx.siblingSalonId } })),
     safe(P.userSubscription.deleteMany({ where: { userId: { in: [fx.adminId, fx.ownerId, fx.customerId] } } })),
-    safe(P.user.deleteMany({ where: { id: { in: [fx.ownerId] } } })),
+    safe(P.user.deleteMany({ where: { id: { in: [fx.ownerId, fx.adminId, fx.customerId] } } })),
   ]);
 }
 

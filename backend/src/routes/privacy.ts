@@ -11,20 +11,31 @@ const consentSchema = z.object({
 export async function privacyRoutes(app: any) {
   app.get("/api/v1/privacy/consent", async (request: any, reply: any) => {
     try {
-      const user = await requireUserFromAuthHeader(request, reply);
-      const consent = await prisma.notification.findFirst({
+      const user = await requireUserFromAuthHeader(request, reply, { allowRestrictedAccount: true });
+      const notifications = await prisma.notification.findMany({
         where: { userId: user.id, type: "gdpr" },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       });
+
+      let consent = false;
+      for (const n of notifications) {
+        const meta = n.metadata as { consent?: unknown } | null | undefined;
+        if (meta && typeof meta.consent === "boolean") {
+          consent = meta.consent;
+          break;
+        }
+      }
 
       return { consent: Boolean(consent) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
 
   app.post("/api/v1/privacy/consent", async (request: any, reply: any) => {
     try {
-      const user = await requireUserFromAuthHeader(request, reply);
+      const user = await requireUserFromAuthHeader(request, reply, { allowRestrictedAccount: true });
       const parsed = consentSchema.safeParse(request.body);
 
       if (!parsed.success) {
@@ -43,6 +54,7 @@ export async function privacyRoutes(app: any) {
 
       return { ok: true };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

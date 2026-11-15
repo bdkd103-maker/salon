@@ -5,7 +5,7 @@ import { requireUserFromAuthHeader } from "../lib/auth.js";
 import { buildAnalyticsSummary, buildDateRangeSummary, normalizeEventType } from "../lib/analytics.js";
 
 const analyticsEventSchema = z.object({
-  salonId: z.string().trim().min(1).optional().or(z.literal("")),
+  salonId: z.string().trim().min(1),
   eventType: z.string().trim().min(1),
   source: z.string().trim().max(80).optional().or(z.literal("")),
   metadata: z.record(z.any()).optional(),
@@ -14,7 +14,7 @@ const analyticsEventSchema = z.object({
 export async function analyticsRoutes(app: any) {
   app.post("/api/v1/analytics/events", async (request: any, reply: any) => {
     try {
-      const user = request.headers.authorization ? await requireUserFromAuthHeader(request, reply).catch(() => null) : null;
+      const user = await requireUserFromAuthHeader(request, reply);
       const parsed = analyticsEventSchema.safeParse(request.body ?? {});
 
       if (!parsed.success) {
@@ -23,14 +23,19 @@ export async function analyticsRoutes(app: any) {
 
       const payload = parsed.data;
       const eventType = normalizeEventType(payload.eventType);
-      if (!payload.salonId) {
-        return { ok: true, created: false, reason: "No salon id" };
+      // Discovery does not require ownership or a prior customer relationship.
+      const salon = await prisma.salon.findUnique({
+        where: { id: payload.salonId },
+        select: { id: true },
+      });
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
       }
 
       const event = await prisma.analyticsEvent.create({
         data: {
           salonId: payload.salonId,
-          userId: user?.id ?? null,
+          userId: user.id,
           eventType,
           source: payload.source || "app",
           metadata: payload.metadata ?? {},
@@ -38,8 +43,10 @@ export async function analyticsRoutes(app: any) {
       });
 
       return { ok: true, event };
-    } catch (error: any) {
-      return reply.code(500).send({ error: error?.message || "Failed to track analytics event" });
+    } catch {
+      // The authentication helper sends its own 401 before throwing.
+      if (reply.sent) return reply;
+      return reply.code(500).send({ error: "Failed to track analytics event" });
     }
   });
 
@@ -98,6 +105,7 @@ export async function analyticsRoutes(app: any) {
         },
       };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

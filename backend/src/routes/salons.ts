@@ -1,3 +1,4 @@
+import { projectPublicSalon } from "../lib/public-salon.js";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
@@ -28,6 +29,27 @@ const intakeControlsPatchSchema = z.object({
 });
 
 const salonClassificationSchema = z.enum(["REGULAR", "PREMIUM"]).optional();
+
+// Owner-configurable amenities/extras. Order is the canonical display order.
+export const SALON_EXTRAS_CATALOG = [
+  "coffee",
+  "otherDrinks",
+  "wifi",
+  "parking",
+  "cashPayment",
+  "cardPayment",
+  "applePay",
+  "googlePay",
+  "wheelchairAccess",
+] as const;
+
+const salonExtrasSchema = z.object({
+  extras: z.array(z.enum(SALON_EXTRAS_CATALOG)),
+}).strict();
+
+function canonicalSalonExtras(values: readonly string[]) {
+  return SALON_EXTRAS_CATALOG.filter((key) => values.includes(key));
+}
 
 const salonEnforcementSchema = z.object({
   reason: z.string().trim().min(1),
@@ -208,6 +230,19 @@ async function refreshSalonRatingAggregate(db: any, salonId: string) {
 }
 
 export async function salonRoutes(app: any) {
+  app.get("/api/v1/admin/salons", async (request: any, reply: any) => {
+    const user = await requireUserFromAuthHeader(request, reply);
+    if (user.role !== "ADMIN") return reply.code(403).send({ error: "Forbidden" });
+    const salons = await prisma.salon.findMany({
+      include: {
+        owner: { select: { id: true, fullName: true, email: true } },
+        services: true, barbers: true, offers: true, media: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return { salons: decorateSalonList(salons) };
+  });
+
   app.post("/api/v1/salons/:id/purge-clearance/:clearanceId/revalidate", async (request: any, reply: any) => {
     try {
       const user = await requireUserFromAuthHeader(request, reply);
@@ -603,6 +638,68 @@ if (user.role === "OWNER") {
     }
   });
 
+  app.get("/api/v1/salons/:salonId/extras", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      requireRole(user, ["OWNER", "ADMIN"], reply);
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.salonId },
+        select: withStalePrismaTypes({ id: true, ownerId: true }),
+      }) as any;
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const record = await prisma.salonExtras.findUnique({
+        where: { salonId: salon.id },
+      }) as any;
+      return { extras: canonicalSalonExtras(Array.isArray(record?.extras) ? record.extras : []) };
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log.error(error);
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/v1/salons/:salonId/extras", async (request: any, reply: any) => {
+    try {
+      const user = await requireUserFromAuthHeader(request, reply);
+      requireRole(user, ["OWNER", "ADMIN"], reply);
+
+      const salon = await prisma.salon.findUnique({
+        where: { id: request.params.salonId },
+        select: withStalePrismaTypes({ id: true, ownerId: true }),
+      }) as any;
+      if (!salon) {
+        return reply.code(404).send({ error: "Salon not found" });
+      }
+      if (user.role !== "ADMIN" && salon.ownerId !== user.id) {
+        return reply.code(403).send({ error: "Forbidden" });
+      }
+
+      const parsed = salonExtrasSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      }
+
+      const extras = canonicalSalonExtras(parsed.data.extras);
+      const record = await prisma.salonExtras.upsert({
+        where: { salonId: salon.id },
+        update: { extras },
+        create: { salonId: salon.id, extras },
+      }) as any;
+      return { extras: canonicalSalonExtras(Array.isArray(record?.extras) ? record.extras : extras) };
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log.error(error);
+      return reply.code(500).send({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/v1/salons", async () => {
     const salons = await prisma.salon.findMany({
       where: { isActive: true },
@@ -621,7 +718,7 @@ if (user.role === "OWNER") {
 
     const now = Date.now();
     return { salons: decorateSalonList(salons).map((salon) => ({
-      ...salon,
+      ...projectPublicSalon(salon),
       liveStatus: projectPublicLiveStatus(salon.liveStatus, now),
     })) };
   });
@@ -631,6 +728,7 @@ if (user.role === "OWNER") {
       where: { isActive: true },
       include: {
         liveStatus: { select: publicLiveStatusSelect },
+        salonExtras: { select: { extras: true } },
         barbers: true,
         offers: {
           orderBy: { createdAt: "desc" },
@@ -651,7 +749,7 @@ if (user.role === "OWNER") {
     }
 
     return { salon: {
-      ...decorateSalonList(salons).find((entry: any) => entry.id === request.params.id),
+      ...projectPublicSalon(decorateSalonList(salons).find((entry: any) => entry.id === request.params.id)),
       liveStatus: projectPublicLiveStatus(salon.liveStatus),
     } };
   });
@@ -734,6 +832,7 @@ if (user.role === "OWNER") {
         salon: result.salon,
       };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -761,6 +860,7 @@ if (user.role === "OWNER") {
 
       return { services: services.map(serializeService) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -800,6 +900,7 @@ if (user.role === "OWNER") {
 
       return { service: serializeService(service) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -852,6 +953,7 @@ if (user.role === "OWNER") {
 
       return { service: serializeService(nextService) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -879,6 +981,7 @@ if (user.role === "OWNER") {
       await prisma.service.delete({ where: { id: request.params.serviceId } });
       return { deleted: true, serviceId: request.params.serviceId };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -906,6 +1009,7 @@ if (user.role === "OWNER") {
 
       return { offers: offers.map(serializeOffer) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -951,6 +1055,7 @@ if (user.role === "OWNER") {
 
       return { offer: serializeOffer(offer) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -996,6 +1101,7 @@ if (user.role === "OWNER") {
 
       return { offer: serializeOffer(nextOffer) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -1019,6 +1125,7 @@ if (user.role === "OWNER") {
       await prisma.offer.delete({ where: { id: request.params.offerId } });
       return { deleted: true, offerId: request.params.offerId };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -1200,6 +1307,7 @@ if (user.role === "OWNER") {
 
       return { salon: serializeSalon(salon) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

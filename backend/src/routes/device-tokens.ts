@@ -40,6 +40,7 @@ export async function deviceTokenRoutes(app: any) {
 
       return { ok: true, token };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -58,6 +59,7 @@ export async function deviceTokenRoutes(app: any) {
 
       return { ok: true };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

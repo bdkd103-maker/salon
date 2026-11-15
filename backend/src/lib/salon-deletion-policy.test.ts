@@ -84,7 +84,7 @@ test("policy operational allowlist is explicit and never traverses owners or sib
   const before = { id: "sibling", salonId: "sibling", ownerId: "owner" };
   const snapshot = structuredClone(before);
   const allowed = Object.entries(evaluate().classifications).filter(([, value]) => value === "DELETE_WITH_SALON").map(([name]) => name).sort();
-  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "Offer", "QueueEntry", "Review", "Salon", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
+  assert.deepEqual(allowed, ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "CustomerFavorite", "LoyaltyCard", "LoyaltyCustomer", "LoyaltyStamp", "Offer", "QueueEntry", "Review", "Salon", "SalonAvailabilitySubscription", "SalonBoost", "SalonExtras", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership", "StaffPresence", "StaffPresenceLease"]);
   for (const model of allowed) {
     assert.equal(owned(model, before, "target"), false);
     assert.equal(owned(model, model === "Salon" ? { id: "target" } : { salonId: "target" }, "target"), true);
@@ -206,17 +206,18 @@ test("Salon root inventory qualifies with V8 evidence and controlled Message det
   const model = Prisma.dmmf.datamodel.models.find(m => m.name === "Salon")!;
   assert.deepEqual(model.fields.filter(f => f.kind !== "object").map(f => f.name).sort(), [
     "id", "ownerId", "name", "slug", "city", "address", "latitude", "longitude", "phone", "email", "website",
-    "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "status",
+    "description", "isVip", "adminVip", "classification", "isWomenOnly", "isActive", "isVerified", "status",
     "bookingIntakeEnabled", "saloTicketIntakeEnabled", "walkInIntakeEnabled", "rating", "reviewCount",
     "openingTime", "closingTime", "workingDays", "timeZone", "createdAt", "updatedAt",
   ].sort());
   const edges = historicalEdges();
   assert.deepEqual(edges.filter(e => e.from === "Salon"), [edge("Salon", "User", ["ownerId"], ["id"], "Cascade")]);
-  const children = ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "LoyaltyCard", "Offer", "QueueEntry",
-    "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership"];
+  const children = ["AnalyticsEvent", "AvailabilitySlot", "Barber", "Booking", "CustomerFavorite", "LoyaltyCard", "Offer", "QueueEntry",
+    "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonExtras", "SalonLiveStatus", "SalonMedia", "Service", "ServiceVisit", "StaffMembership"];
   assert.deepEqual(sortedEdges(edges.filter(e => e.to === "Salon")), sortedEdges([
     ...children.map(name => edge(name, "Salon", ["salonId"], ["id"], "Cascade")),
     edge("Message", "Salon", ["salonId"], ["id"], "SetNull"),
+    edge("StaffInvitation", "Salon", ["salonId"], ["id"], "Restrict"),
   ]));
   for (const child of children) assert.equal(policyApi().classify(child), "DELETE_WITH_SALON");
   for (const name of ["SalonEnforcement", "SalonArchive", "SalonRetentionHold", "SalonPurgeClearance"])
@@ -245,11 +246,16 @@ test("dependent-first ordering covers every classified FK and preserves independ
   // retention, archive and cross-salon guards must pass before any future writes.
   const order = ["QueueEntry", "ServiceVisit", "Booking", "AvailabilitySlot", "StaffPresenceLease", "StaffPresence",
     "StaffMembership", "Barber", "Service", "LoyaltyStamp", "LoyaltyCustomer", "LoyaltyCard", "AnalyticsEvent",
-    "Offer", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "Salon"];
+    "Offer", "Review", "SalonAvailabilitySubscription", "SalonBoost", "SalonLiveStatus", "SalonMedia", "CustomerFavorite", "SalonExtras", "Salon"];
   const { classify, evaluate } = policyApi();
   const children = Object.keys(evaluate().classifications).filter(name => name !== "Salon" && classify(name) === "DELETE_WITH_SALON");
   assert.deepEqual(order.filter(name => name !== "Salon").sort(), children.sort());
   for (const e of historicalEdges().filter(e => order.includes(e.to))) {
+    if (e.from === "StaffInvitation") {
+      assert.equal(classify(e.from), "SURVIVE_AS_INDEPENDENT_HISTORY");
+      assert.equal(e.action, "Restrict");
+      continue; // Rows block physical deletion; never cascade consent history.
+    }
     if (e.from === "Message") {
       assert.equal(classify(e.from), "SURVIVE_AS_INDEPENDENT_HISTORY");
       assert.equal(e.action, "SetNull");
@@ -414,7 +420,7 @@ test("historical policy leaves unrelated classifications and shared identities u
 const rootSalon = {
   id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
   latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
-  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, isVerified: false, status: "OPEN",
   bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
   rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),

@@ -452,7 +452,7 @@ const v2Membership = {"id": "m", "salonId": "target", "userId": "owner", "barber
 const rootSalon = {
   id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
   latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
-  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, isVerified: false, status: "OPEN",
   bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
   rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),

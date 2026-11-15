@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 
 (async () => {
   const root = path.resolve(__dirname, '..');
-  const files = ['index.html', 'women.html', 'assets/customer-header.css', 'assets/customer-header.js'];
+  const files = ['index.html', 'women.html', 'assets/customer-header.css', 'assets/customer-header.js', 'assets/salo-brand-lockup.css', 'assets/salo-official-logo.webp'];
   for (const file of files) assert.deepEqual(fs.readFileSync(path.join(root, file)), fs.readFileSync(path.join(root, 'www', file)));
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   let layouts = 0;
@@ -15,11 +15,12 @@ const { chromium } = require('playwright');
       const page = await browser.newPage();
       await page.route('**/*', route => {
         const url = new URL(route.request().url());
-        if (url.hostname !== 'header.test') return route.abort();
         if (url.pathname.startsWith('/api/')) return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ salons: [] }) });
+        if (url.hostname !== 'header.test') return route.abort();
         const relative = url.pathname.slice(1);
         if ([...files, 'assets/customer-registration.js', 'assets/customer-password-reset.js'].includes(relative)) {
-          return route.fulfill({ contentType: relative.endsWith('.css') ? 'text/css' : relative.endsWith('.js') ? 'text/javascript' : 'text/html', body: fs.readFileSync(path.join(root, relative)) });
+          const type = relative.endsWith('.css') ? 'text/css' : relative.endsWith('.js') ? 'text/javascript' : relative.endsWith('.webp') ? 'image/webp' : 'text/html';
+          return route.fulfill({ contentType: type, body: fs.readFileSync(path.join(root, relative)) });
         }
         return route.abort();
       });

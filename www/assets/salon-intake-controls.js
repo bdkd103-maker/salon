@@ -4,7 +4,7 @@
     de: {
       title: 'Annahmekanäle', labels: ['Bookings / Termine', 'SALO Ticket', 'Walk-in'],
       note: 'Ausschalten stoppt nur neue Annahmen. Bestehende Buchungen, Tickets und laufende Behandlungen bleiben bestehen.',
-      walkIn: 'Walk-in: Diese Einstellung wird gespeichert. Eine manuelle Walk-in-Annahme ist noch nicht verfügbar.',
+      walkIn: 'Walk-in: Diese Einstellung stoppt neue Walk-in-Behandlungen. Laufende Behandlungen bleiben bestehen.',
       on: 'Ein', off: 'Aus', unknown: 'Noch nicht geladen', loading: 'Wird geladen …', saving: 'Wird gespeichert …',
       saved: 'Gespeichert.', loadError: 'Die Annahmekanäle konnten nicht geladen werden.',
       saveError: 'Die Änderung wurde nicht gespeichert. Bitte erneut versuchen.', retry: 'Erneut versuchen',
@@ -12,7 +12,7 @@
     en: {
       title: 'Intake controls', labels: ['Bookings / Appointments', 'SALO Ticket', 'Walk-in'],
       note: 'Turning a channel off stops new intake only. Existing bookings, tickets and ongoing services continue.',
-      walkIn: 'Walk-in: This setting is saved. Manual walk-in intake is not available yet.',
+      walkIn: 'Walk-in: Turning this off blocks new walk-in service starts. Existing visits continue.',
       on: 'On', off: 'Off', unknown: 'Not loaded', loading: 'Loading …', saving: 'Saving …',
       saved: 'Saved.', loadError: 'Intake controls could not be loaded.',
       saveError: 'The change was not saved. Please try again.', retry: 'Try again',
@@ -20,14 +20,14 @@
     ar: {
       title: 'قنوات استقبال العملاء', labels: ['الحجوزات / المواعيد', 'SALO Ticket', 'Walk-in'],
       note: 'الإيقاف يمنع الاستقبال الجديد فقط. تبقى الحجوزات والتذاكر والخدمات الجارية كما هي.',
-      walkIn: 'Walk-in: يتم حفظ هذا الإعداد. الاستقبال اليدوي دون موعد غير متاح بعد.',
+      walkIn: 'Walk-in: يتم حفظ هذا الإعداد. الإيقاف يمنع بدء خدمات دون موعد الجديدة فقط.',
       on: 'مفعّل', off: 'متوقف', unknown: 'لم يتم التحميل', loading: 'جارٍ التحميل …', saving: 'جارٍ الحفظ …',
       saved: 'تم الحفظ.', loadError: 'تعذر تحميل إعدادات الاستقبال.',
       saveError: 'لم يتم حفظ التغيير. يرجى المحاولة مجدداً.', retry: 'إعادة المحاولة',
     },
   };
 
-  window.createSalonIntakeControls = function (root, { request, language, isCurrent }) {
+  window.createSalonIntakeControls = function (root, { request, language, isCurrent, copy }) {
     let salonId = null;
     let version = 0;
     let confirmed = null;
@@ -63,7 +63,8 @@
     root.replaceChildren(heading, note, rows, walkIn, status, retry);
 
     function render() {
-      const text = translations[language()] || translations.en;
+      const baseText = translations[language()] || translations.en;
+      const text = copy ? Object.fromEntries(Object.keys(baseText).map(key => [key, key === "labels" ? fields.map((_, index) => copy("label" + index)) : copy(key)])) : baseText;
       root.hidden = !salonId;
       root.setAttribute('aria-busy', String(busy));
       heading.textContent = text.title;

@@ -13,6 +13,8 @@ model User {
   phone                     String?
   fullName                  String
   passwordHash              String?
+  authVersion               Int                             @default(0)
+  staffPasswordChangeRequired Boolean                       @default(false)
   role                      UserRole                        @default(CUSTOMER)
   status                    UserStatus                      @default(ACTIVE)
   emailVerified             Boolean                         @default(false)
@@ -37,10 +39,14 @@ model User {
   serviceVisitsCompleted    ServiceVisit[]                 @relation("ServiceVisitCompletedBy")
   serviceVisitsCancelled    ServiceVisit[]                 @relation("ServiceVisitCancelledBy")
   staffMemberships          StaffMembership[]
+  staffInvitationsInitiated StaffInvitation[]                @relation("StaffInvitationInitiator")
+  staffInvitationsIntended  StaffInvitation[]                @relation("StaffInvitationIntendedUser")
+  staffInvitationsAccepted  StaffInvitation[]                @relation("StaffInvitationAcceptedBy")
   staffPresenceChanges      StaffPresence[]                 @relation("StaffPresenceChangedBy")
   availabilitySubscriptions SalonAvailabilitySubscription[]
   sessions                  Session[]
   subscriptions             UserSubscription?
+  favorites                 CustomerFavorite[]
 queueEntries QueueEntry[]
 }
 
@@ -157,6 +163,7 @@ model Salon {
   adminVip                  Boolean                         @default(false)
   classification            SalonClassification             @default(REGULAR)
   isWomenOnly               Boolean                         @default(false)
+  isVerified                Boolean                         @default(false)
   isActive                  Boolean                         @default(true)
   status                    SalonStatus                     @default(OPEN)
   bookingIntakeEnabled    Boolean @default(true)
@@ -186,7 +193,19 @@ model Salon {
   liveStatus                SalonLiveStatus?
   staffMemberships          StaffMembership[]
   serviceVisits             ServiceVisit[]
+  staffInvitations          StaffInvitation[]
+  favorites                 CustomerFavorite[]
 queueEntries QueueEntry[]
+  salonExtras               SalonExtras?
+}
+
+// Owner-configured amenities/extras that are genuinely available at one salon.
+// Keys are validated against the supported catalog by the API before persistence.
+model SalonExtras {
+  salonId   String   @id
+  extras    String[] @default([])
+  updatedAt DateTime @updatedAt
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
 
 model SalonLiveStatus {
@@ -220,6 +239,7 @@ model SalonBoost {
 }
 
 model LoyaltyCard {
+  rewardActive   Boolean           @default(true)
   id             String            @id @default(uuid())
   salonId        String
   isActive       Boolean           @default(true)
@@ -252,6 +272,11 @@ model LoyaltyCustomer {
 }
 
 model LoyaltyStamp {
+  kind              String      @default("EARN")
+  amount            Int         @default(1)
+  sourceVisitId     String?
+  sourceBookingId   String?
+  rewardTitle       String?
   id                String      @id @default(uuid())
   cardId            String
   customerId        String
@@ -282,6 +307,60 @@ model Barber {
   staffMembership StaffMembership?
 
   @@unique([id, salonId])
+}
+
+// Pending consent is separate from User/StaffMembership creation.
+model StaffInvitation {
+  id                   String                  @id @default(uuid())
+  salonId              String
+  initiatedByUserId    String
+  destinationEmail     String
+  intendedUserId       String?
+  fullName             String
+  phone                String?
+  barberName           String
+  secretDigest         String?
+  generation           Int                     @default(1)
+  expiresAt            DateTime
+  status               StaffInvitationStatus   @default(PENDING)
+  deliveryState        StaffInvitationDelivery @default(PENDING)
+  providerMessageId    String?
+  acceptedAt           DateTime?
+  revokedAt            DateTime?
+  declinedAt           DateTime?
+  consumedAt           DateTime?
+  acceptedByUserId      String?
+  sendCount            Int                     @default(0)
+  resendCount          Int                     @default(0)
+  lastSendAt           DateTime?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  salon                Salon                   @relation(fields: [salonId], references: [id], onDelete: Restrict)
+  initiatedBy          User                    @relation("StaffInvitationInitiator", fields: [initiatedByUserId], references: [id], onDelete: Restrict)
+  intendedUser         User?                   @relation("StaffInvitationIntendedUser", fields: [intendedUserId], references: [id], onDelete: SetNull)
+  acceptedBy           User?                   @relation("StaffInvitationAcceptedBy", fields: [acceptedByUserId], references: [id], onDelete: SetNull)
+
+  // Partial pending uniqueness is enforced in the additive SQL migration.
+  @@index([salonId, status])
+  @@index([destinationEmail, expiresAt])
+  @@index([initiatedByUserId])
+  @@index([intendedUserId])
+  @@index([acceptedByUserId])
+}
+
+enum StaffInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+  EXPIRED
+}
+
+enum StaffInvitationDelivery {
+  PENDING
+  ACCEPTED
+  FAILED
+  UNKNOWN
 }
 
 model StaffMembership {
@@ -467,6 +546,7 @@ model Offer {
   description    String?
   price          Decimal?  @db.Decimal(10, 2)
   isActive       Boolean   @default(true)
+  type           String    @default("REGULAR")
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   availableSlots Int?
@@ -490,6 +570,20 @@ model Review {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, salonId])
+}
+
+// Private customer favorites. Ownership is always derived from the authenticated
+// session (JWT subject); no request body can transfer favorite ownership.
+model CustomerFavorite {
+  id        String   @id @default(uuid())
+  userId    String
+  salonId   String
+  createdAt DateTime @default(now())
+  salon     Salon    @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, salonId])
+  @@index([userId, createdAt])
 }
 
 model Message {
@@ -531,6 +625,7 @@ model Session {
 model PasswordReset {
   id                String    @id @default(uuid())
   userId            String
+  purpose           String    @default("CUSTOMER_PASSWORD_RESET")
   tokenHash         String
   codeDigest        String?
   generation        Int       @default(1)
@@ -558,9 +653,13 @@ model Notification {
   body      String
   type      String
   isRead    Boolean  @default(false)
+  readAt    DateTime?
+  eventKey  String?  @unique
   metadata  Json?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
 }
 
 model AnalyticsEvent {
@@ -740,4 +839,114 @@ model VerificationRateLimitBucket {
   expiresAt DateTime
 
   @@index([expiresAt])
+}
+
+model LegalContent {
+  id              String   @id @default(uuid())
+  impressum       String   @default("")
+  datenschutz     String   @default("")
+  agb             String   @default("")
+  imprintOwnerName    String @default("")
+  imprintCompanyName  String @default("")
+  imprintStreet       String @default("")
+  imprintCity         String @default("")
+  imprintCountry      String @default("")
+  imprintEmail        String @default("")
+  imprintPhone        String @default("")
+  imprintRepresentative String @default("")
+  imprintRegister     String @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PartnerRequest {
+  id              String   @id @default(uuid())
+  salonName       String
+  contactName     String
+  contactEmail    String
+  contactPhone    String?
+  city            String
+  message         String?
+  status          String   @default("PENDING")
+  rejectReason    String?
+  reviewedByUserId String?
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Singleton platform-wide settings row (id = "platform"). Admin-only read/write.
+model PlatformSettings {
+  id                           String   @id
+  siteName                     String   @default("SALO")
+  supportEmail                 String   @default("")
+  defaultLocale                String   @default("ar")
+  customerRegistrationEnabled  Boolean  @default(true)
+  salonApplicationsEnabled     Boolean  @default(true)
+  bookingGloballyEnabled       Boolean  @default(true)
+  saloTicketGloballyEnabled    Boolean  @default(true)
+  walkInGloballyEnabled        Boolean  @default(true)
+  staffStatusLiveEnabled       Boolean  @default(true)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+}
+
+model GlobalOffer {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  priceText   String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Brand {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  brandId         String?
+  name            String
+  description     String?
+  imageUrl        String?
+  retailPrice     Decimal? @db.Decimal(10, 2)
+  wholesalePrice  Decimal? @db.Decimal(10, 2)
+  isActive        Boolean  @default(true)
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  brand           Brand?   @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  orderItems      OrderItem[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  status      String      @default("PENDING")
+  totalCents  Int         @default(0)
+  currency    String      @default("EUR")
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  priceCents Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }

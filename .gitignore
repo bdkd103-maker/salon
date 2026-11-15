@@ -14,3 +14,18 @@ test-results/
 .verification-test-build/
 backend/.verification-test-build/
 backend/.npm-cache/
+
+# Local diagnostics and browser captures (preserve on disk, never publish).
+.tmp*
+.playwright-mcp/
+.vscode/mcp.json
+backend/check-admin-password.ts
+backend/scripts/create-admin.ts
+*.dump
+*.backup
+*.sqlite
+*.sqlite3
+*.db
+*.pem
+*.p12
+*.pfx

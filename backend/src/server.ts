@@ -9,10 +9,19 @@ import { authRoutes } from "./routes/auth.js";
 import { bookingRoutes } from "./routes/bookings.js";
 import { dashboardRoutes } from "./routes/dashboard.js";
 import { deviceTokenRoutes } from "./routes/device-tokens.js";
+import { favoriteRoutes } from "./routes/favorites.js";
 import { loyaltyRoutes } from "./routes/loyalty.js";
 import { privacyRoutes } from "./routes/privacy.js";
 import { salonRoutes } from "./routes/salons.js";
 import { queueRoutes } from "./routes/queue.js";
+import { legalRoutes } from "./routes/legal.js";
+import { partnerRequestRoutes } from "./routes/partner-requests.js";
+import { salonVerificationRoutes } from "./routes/salon-verification.js";
+import { globalOfferRoutes } from "./routes/global-offers.js";
+import { shopRoutes } from "./routes/shop.js";
+import { staffStatusRoutes } from "./routes/staff-status.js";
+import { ownerTeamRoutes } from "./routes/owner-team.js";
+import { platformSettingsRoutes } from "./routes/platform-settings.js";
 dotenv.config();
 
 const allowedLocalOrigins = new Set([
@@ -21,6 +30,15 @@ const allowedLocalOrigins = new Set([
   "http://localhost:4000",
   "http://127.0.0.1:4000",
 ]);
+
+// Production frontends must be listed explicitly, e.g.
+// CORS_ORIGINS="https://app.example.com,https://www.example.com"
+const configuredOrigins = (process.env.CORS_ORIGINS ?? "")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+for (const origin of configuredOrigins) allowedLocalOrigins.add(origin);
 
 const codespacesFrontendOriginPattern = /^https:\/\/(?:8000-[a-z0-9][a-z0-9-]*|[a-z0-9][a-z0-9-]*-8000)\.(?:preview\.app\.github\.dev|app\.github\.dev|githubpreview\.dev)$/i;
 
@@ -54,6 +72,16 @@ async function buildServer() {
     global: true,
     max: 100,
     timeWindow: "1 minute",
+    keyGenerator: (request: any) => {
+      const auth = request.headers?.authorization;
+      if (auth?.startsWith("Bearer ") && auth.length > 20) {
+        try {
+          const payload = JSON.parse(Buffer.from(auth.split(".")[1], "base64").toString());
+          if (payload?.sub) return `user:${payload.sub}`;
+        } catch {}
+      }
+      return request.ip;
+    },
   });
 
   app.setErrorHandler((error: any, request: any, reply: any) => {
@@ -89,9 +117,18 @@ async function buildServer() {
   await bookingRoutes(app);
   await deviceTokenRoutes(app);
   await loyaltyRoutes(app);
+  await favoriteRoutes(app);
   await privacyRoutes(app);
+  await legalRoutes(app);
+  await partnerRequestRoutes(app);
+  await salonVerificationRoutes(app);
+  await globalOfferRoutes(app);
+  await shopRoutes(app);
   await dashboardRoutes(app);
   await analyticsRoutes(app);
+  await staffStatusRoutes(app);
+  await ownerTeamRoutes(app);
+  await platformSettingsRoutes(app);
 
   return app;
 }

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const names = ['getOwnerSubscriptionPlanLabel', 'getSubscriptionPlanOptions', 'formatPlanPrice', 'renderSubscriptionPlans'];
+const names = ['getOwnerSubscriptionPlanLabel', 'getSubscriptionPlanOptions', 'subscriptionPriceFor', 'formatPlanPrice', 'renderSubscriptionPlans'];
 function functions(html) {
   return names.map(name => {
     const start = html.indexOf(`    function ${name}(`);

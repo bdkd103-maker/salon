@@ -1,8 +1,10 @@
 import { createRegistrationVerification, serializable } from "../lib/registration-verification.js";
+import { getPlatformSettings } from "../lib/platform-settings.js";
 import { createCustomerPasswordReset } from "../lib/customer-password-reset.js";
 import { VerificationError } from "../lib/verification-email.js";
 import { normalizeGermanPhone } from "../lib/german-phone.js";
 import { z } from "zod";
+import argon2 from "argon2";
 
 import { prisma } from "../lib/prisma.js";
 import { createSessionForUser, hashPassword, requireUserFromAuthHeader, sanitizeUser, verifyPassword } from "../lib/auth.js";
@@ -145,7 +147,13 @@ export async function authRoutes(
   app.post("/api/v1/auth/verification/request", async (request: any, reply: any) => {
     const parsed = requestSchema.safeParse(request.body);
     if (!parsed.success) return reply.code(400).send({ error: "Invalid email verification request." });
-    try { return reply.code(202).send(await verification.request(parsed.data.email, request.ip)); }
+    try {
+      const settings = await getPlatformSettings();
+      if (!settings.customerRegistrationEnabled) {
+        return reply.code(409).send({ error: "Customer registration is currently disabled", code: "REGISTRATION_DISABLED" });
+      }
+      return reply.code(202).send(await verification.request(parsed.data.email, request.ip));
+    }
     catch (error) { return sendVerificationError(error, reply); }
   });
   app.post("/api/v1/auth/verification/resend", async (request: any, reply: any) => {
@@ -163,6 +171,15 @@ export async function authRoutes(
   app.post("/api/v1/auth/register", async (request: any, reply: any) => {
     const parsed = registerSchema.safeParse(request.body);
     if (!parsed.success) return reply.code(400).send({ error: "Valid registration details and email verification are required.", details: parsed.error.flatten() });
+    try {
+      const settings = await getPlatformSettings();
+      if (!settings.customerRegistrationEnabled) {
+        return reply.code(409).send({ error: "Customer registration is currently disabled", code: "REGISTRATION_DISABLED" });
+      }
+    } catch (error) {
+      if (reply.sent) return reply;
+      return sendVerificationError(error, reply);
+    }
     const { fullName, email, password, phone, verificationToken } = parsed.data;
     const normalizedEmail = email.trim().toLowerCase();
     let normalizedPhone: string;
@@ -229,6 +246,7 @@ export async function authRoutes(
         return reply.code(403).send({ error: "Forbidden" });
       }
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
 
@@ -448,7 +466,7 @@ export async function authRoutes(
       const normalizedEmail = email.trim().toLowerCase();
       const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-      if (!user || !user.passwordHash) {
+      if (!user || user.status !== "ACTIVE" || !user.passwordHash) {
         return reply.code(401).send({ error: "Invalid credentials" });
       }
 
@@ -485,31 +503,63 @@ export async function authRoutes(
     }
 
     try {
-      const payload = verifyRefreshToken(parsed.data.refreshToken);
-      const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+      const { refreshToken } = parsed.data;
+      const payload = verifyRefreshToken(refreshToken);
 
-      if (!user) {
+      const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+      if (!user || user.status !== "ACTIVE") {
         return reply.code(401).send({ error: "Invalid refresh token" });
       }
 
-      const session = await prisma.session.findFirst({
-        where: {
-          userId: user.id,
-          revokedAt: null,
-          expiresAt: { gt: new Date() },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-
+      const session = await prisma.session.findUnique({ where: { id: payload.sid } });
       if (!session) {
+        return reply.code(401).send({ error: "Invalid refresh token" });
+      }
+
+      if (session.userId !== user.id) {
+        return reply.code(401).send({ error: "Invalid refresh token" });
+      }
+
+      if (session.revokedAt !== null) {
+        return reply.code(401).send({ error: "Session revoked" });
+      }
+
+      if (session.expiresAt <= new Date()) {
         return reply.code(401).send({ error: "Session expired" });
       }
 
-      const tokens = await createSessionForUser(user, request);
-      await prisma.session.update({
-        where: { id: session.id },
-        data: { revokedAt: new Date() },
-      });
+      const tokenValid = await argon2.verify(session.tokenHash, refreshToken);
+      if (!tokenValid) {
+        return reply.code(401).send({ error: "Invalid refresh token" });
+      }
+
+      const now = new Date();
+      let tokens;
+      try {
+        tokens = await prisma.$transaction(async (tx) => {
+          const revoked = await tx.session.updateMany({
+            where: {
+              id: session.id,
+              userId: user.id,
+              revokedAt: null,
+              expiresAt: { gt: now },
+              tokenHash: session.tokenHash,
+            },
+            data: { revokedAt: now },
+          });
+
+          if (revoked.count !== 1) {
+            throw Object.assign(new Error("Refresh token already used"), { statusCode: 401 });
+          }
+
+          return createSessionForUser(user, request, tx);
+        });
+      } catch (error: any) {
+        if (error?.statusCode === 401) {
+          return reply.code(401).send({ error: "Refresh token already used" });
+        }
+        return reply.code(401).send({ error: "Invalid refresh token" });
+      }
 
       return {
         user: sanitizeUser(user),
@@ -525,13 +575,14 @@ export async function authRoutes(
       const user = await requireUserFromAuthHeader(request, reply);
       return { user: sanitizeUser(user) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
 
   app.post("/api/v1/auth/logout", async (request: any, reply: any) => {
     try {
-      const user = await requireUserFromAuthHeader(request, reply);
+      const user = await requireUserFromAuthHeader(request, reply, { allowRestrictedAccount: true });
       await prisma.session.updateMany({
         where: { userId: user.id, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -539,13 +590,14 @@ export async function authRoutes(
 
       return { ok: true };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
 
   app.delete("/api/v1/auth/me", async (request: any, reply: any) => {
     try {
-      const user = await requireUserFromAuthHeader(request, reply);
+      const user = await requireUserFromAuthHeader(request, reply, { allowRestrictedAccount: true });
 
       await prisma.user.update({
         where: { id: user.id },
@@ -566,6 +618,7 @@ export async function authRoutes(
 
       return { ok: true };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

@@ -1,0 +1,7 @@
+.loyalty-account{margin-block:18px;padding:18px;border:1px solid #9b794444;border-radius:16px;min-width:0;overflow-wrap:anywhere}
+.loyalty-account progress{width:100%;accent-color:#b89157}
+.loyalty-history{display:grid;gap:10px;min-width:0}
+.loyalty-history article{display:grid;gap:5px;border-bottom:1px solid #9b794433;padding-block:10px;overflow-wrap:anywhere}
+#customerLoyalty button{padding:10px 16px;min-height:44px;border:1px solid #9b7944;border-radius:12px;background:#d8b575;color:#241d14;cursor:pointer}
+#customerLoyalty button:disabled{opacity:.5;cursor:default}
+#customerLoyalty,#ownerLoyaltyActivity{min-width:0;overflow-wrap:anywhere}

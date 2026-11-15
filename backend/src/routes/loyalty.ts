@@ -1,8 +1,11 @@
+import { redeemLoyalty } from "../lib/loyalty-ledger.js";
 import { z } from "zod";
 
 import { prisma } from "../lib/prisma.js";
 import { requireRole, requireUserFromAuthHeader } from "../lib/auth.js";
-import { buildStampTransactionId, getLoyaltyProgress } from "../lib/loyalty.js";
+import { verifyAccessToken } from "../lib/jwt.js";
+import { accessTokenVersionMatches } from "../lib/auth-version.js";
+import { getLoyaltyProgress } from "../lib/loyalty.js";
 
 const loyaltyCardSchema = z.object({
   salonId: z.string().trim().min(1),
@@ -11,37 +14,55 @@ const loyaltyCardSchema = z.object({
   rewardText: z.string().trim().min(1).max(240).optional(),
   description: z.string().trim().max(500).optional(),
   isActive: z.boolean().optional(),
+  rewardActive: z.boolean().optional(),
   rewardType: z.enum(["FREE_SERVICE", "PERCENTAGE_DISCOUNT", "FIXED_DISCOUNT"]).optional(),
 });
 
-const loyaltyStampSchema = z.object({
-  cardId: z.string().trim().min(1),
-  customerId: z.string().trim().min(1),
-  transactionId: z.string().trim().min(1).optional(),
-  verificationToken: z.string().trim().min(1).optional(),
-  barberId: z.string().trim().min(1).optional(),
-});
+/** Optional authentication: returns the caller when a valid access token is present, otherwise null. */
+async function resolveOptionalUser(request: any) {
+  const authorization = request?.headers?.authorization;
+  const headerValue = Array.isArray(authorization) ? authorization[0] : authorization;
+  if (!headerValue || !headerValue.startsWith("Bearer ")) return null;
+  try {
+    const payload = verifyAccessToken(headerValue.slice("Bearer ".length));
+    const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user || user.status !== "ACTIVE" || !accessTokenVersionMatches(payload, user)) return null;
+    return user;
+  } catch {
+    return null;
+  }
+}
 
 export async function loyaltyRoutes(app: any) {
   app.get("/api/v1/loyalty/cards/:salonId", async (request: any, reply: any) => {
     const { salonId } = request.params;
+    const caller = await resolveOptionalUser(request);
+    const salon = await prisma.salon.findUnique({ where: { id: salonId }, select: { ownerId: true } });
+
+    // The card summary is public (salon profile). The customer roster carries
+    // names, emails and phone numbers and stays limited to the salon owner/admin.
+    const canViewRoster =
+      !!caller &&
+      (caller.role === "ADMIN" || (caller.role === "OWNER" && salon?.ownerId === caller.id));
 
     const card = await prisma.loyaltyCard.findFirst({
       where: { salonId },
       orderBy: { createdAt: "desc" },
       include: {
-        customers: {
-          orderBy: { currentStamps: "desc" },
-          include: {
-            customer: {
-              select: { id: true, fullName: true, email: true, phone: true },
-            },
-          },
-        },
-        stamps: {
+        customers: canViewRoster
+          ? {
+              orderBy: { currentStamps: "desc" },
+              include: {
+                customer: {
+                  select: { id: true, fullName: true },
+                },
+              },
+            }
+          : false,
+        stamps: canViewRoster ? {
           select: { id: true, customerId: true, stampAt: true, isValid: true },
           orderBy: { stampAt: "desc" },
-        },
+        } : false,
       },
     });
 
@@ -49,7 +70,27 @@ export async function loyaltyRoutes(app: any) {
       return { card: null };
     }
 
-    const formattedCustomers = card.customers.map((customer) => ({
+    const baseCard = {
+      id: card.id,
+      salonId: card.salonId,
+      requiredStamps: card.requiredStamps,
+      rewardTitle: card.rewardTitle,
+      rewardText: card.rewardText,
+      description: card.description,
+      isActive: card.isActive,
+      rewardActive: card.rewardActive,
+      earningRule: "COMPLETED_VISIT",
+      rewardType: card.rewardType,
+      createdAt: card.createdAt,
+      updatedAt: card.updatedAt,
+    };
+
+    if (!canViewRoster) {
+      return { card: baseCard };
+    }
+
+    const roster = (card as any).customers ?? [];
+    const formattedCustomers = roster.map((customer: any) => ({
       id: customer.id,
       customerId: customer.customerId,
       currentStamps: customer.currentStamps,
@@ -61,19 +102,10 @@ export async function loyaltyRoutes(app: any) {
 
     return {
       card: {
-        id: card.id,
-        salonId: card.salonId,
-        requiredStamps: card.requiredStamps,
-        rewardTitle: card.rewardTitle,
-        rewardText: card.rewardText,
-        description: card.description,
-        isActive: card.isActive,
-        rewardType: card.rewardType,
-        createdAt: card.createdAt,
-        updatedAt: card.updatedAt,
+        ...baseCard,
         customers: formattedCustomers,
         totalStamps: card.stamps.filter((stamp) => stamp.isValid !== false).length,
-        rewardsCompleted: formattedCustomers.filter((customer) => Number(customer.currentStamps ?? 0) >= Number(card.requiredStamps ?? 0)).length,
+        rewardsCompleted: formattedCustomers.filter((customer: any) => Number(customer.currentStamps ?? 0) >= Number(card.requiredStamps ?? 0)).length,
       },
     };
   });
@@ -83,13 +115,13 @@ export async function loyaltyRoutes(app: any) {
       const user = await requireUserFromAuthHeader(request, reply);
       const card = await prisma.loyaltyCard.findUnique({
         where: { id: request.params.cardId },
-        include: { customers: true },
       });
 
       if (!card) {
         return reply.code(404).send({ error: "Loyalty card not found" });
       }
 
+      requireRole(user, ["CUSTOMER"], reply);
       const customerRecord = await prisma.loyaltyCustomer.findUnique({
         where: { cardId_customerId: { cardId: card.id, customerId: user.id } },
       });
@@ -107,8 +139,9 @@ export async function loyaltyRoutes(app: any) {
           progress,
         },
       };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+    } catch (error:any) {
+      if (reply.sent) return reply;
+      return reply.code(error.statusCode || 500).send({ error: error.statusCode ? error.message : "Loyalty operation failed" });
     }
   });
 
@@ -129,19 +162,21 @@ export async function loyaltyRoutes(app: any) {
         },
       });
 
-      if (!salon && user.role !== "ADMIN") {
+      if (!salon) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
-      const existing = await prisma.loyaltyCard.findFirst({
-        where: { salonId: parsed.data.salonId, isActive: true },
+      const card = await prisma.$transaction(async tx => {
+        await tx.$queryRaw`SELECT "id" FROM "Salon" WHERE "id" = ${parsed.data.salonId} FOR UPDATE`;
+      const existing = await tx.loyaltyCard.findFirst({
+        where: { salonId: parsed.data.salonId },
       });
 
       if (existing) {
-        return reply.code(409).send({ error: "Loyalty card already exists for this salon" });
+        throw Object.assign(new Error("Loyalty card already exists for this salon"), {statusCode:409});
       }
 
-      const card = await prisma.loyaltyCard.create({
+      return tx.loyaltyCard.create({
         data: {
           salonId: parsed.data.salonId,
           requiredStamps: parsed.data.requiredStamps ?? 8,
@@ -149,13 +184,16 @@ export async function loyaltyRoutes(app: any) {
           rewardText: parsed.data.rewardText ?? "Free haircut",
           description: parsed.data.description ?? null,
           isActive: parsed.data.isActive ?? true,
+          rewardActive: parsed.data.rewardActive ?? true,
           rewardType: parsed.data.rewardType ?? "FREE_SERVICE",
         },
       });
 
+      });
       return { card };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+    } catch (error:any) {
+      if (reply.sent) return reply;
+      return reply.code(error.statusCode || 500).send({ error: error.statusCode ? error.message : "Loyalty operation failed" });
     }
   });
 
@@ -189,91 +227,48 @@ export async function loyaltyRoutes(app: any) {
           rewardText: payload.data.rewardText ?? card.rewardText,
           description: payload.data.description ?? card.description,
           isActive: payload.data.isActive ?? card.isActive,
+          rewardActive: payload.data.rewardActive ?? card.rewardActive,
           rewardType: payload.data.rewardType ?? card.rewardType,
           updatedAt: new Date(),
         },
       });
 
       return { card: updated };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+    } catch (error:any) {
+      if (reply.sent) return reply;
+      return reply.code(error.statusCode || 500).send({ error: error.statusCode ? error.message : "Loyalty operation failed" });
     }
   });
 
-  app.post("/api/v1/loyalty/stamps", async (request: any, reply: any) => {
-    try {
-      const user = await requireUserFromAuthHeader(request, reply);
-      requireRole(user, ["OWNER", "ADMIN", "STAFF"], reply);
+  app.post("/api/v1/loyalty/stamps", async (request:any, reply:any) => {
+    const user = await requireUserFromAuthHeader(request,reply);
+    requireRole(user,["OWNER","ADMIN","STAFF"],reply);
+    return reply.code(409).send({error:"Stamps are earned only by completing a qualifying visit"});
+  });
 
-      const parsed = loyaltyStampSchema.safeParse(request.body ?? {});
-      if (!parsed.success) {
-        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
-      }
+  app.get("/api/v1/loyalty/me", async (request:any, reply:any) => {
+    const user=await requireUserFromAuthHeader(request,reply);requireRole(user,["CUSTOMER"],reply);
+    reply.header("Cache-Control","no-store");
+    const accounts=await prisma.loyaltyCustomer.findMany({where:{customerId:user.id},include:{card:{include:{salon:{select:{id:true,name:true}}}}},orderBy:{updatedAt:"desc"}});
+    const history=await prisma.loyaltyStamp.findMany({where:{customerId:user.id},orderBy:{stampAt:"desc"},take:100});
+    return {accounts:accounts.map(a=>({card:{id:a.card.id,salonId:a.card.salonId,salonName:a.card.salon.name,isActive:a.card.isActive,rewardActive:a.card.rewardActive,requiredStamps:a.card.requiredStamps,rewardTitle:a.card.rewardTitle,rewardText:a.card.rewardText},progress:getLoyaltyProgress(a.currentStamps,a.card.requiredStamps),history:history.filter(h=>h.cardId===a.cardId).map(h=>({id:h.id,kind:h.kind,amount:h.amount,at:h.stampAt,rewardTitle:h.rewardTitle}))}))};
+  });
 
-      const { cardId, customerId, transactionId, verificationToken, barberId } = parsed.data;
-      const card = await prisma.loyaltyCard.findUnique({ where: { id: cardId } });
-      if (!card || !card.isActive) {
-        return reply.code(404).send({ error: "Loyalty card is not active" });
-      }
+  app.get("/api/v1/loyalty/cards/:id/activity",async(request:any,reply:any)=>{
+    const user=await requireUserFromAuthHeader(request,reply);requireRole(user,["OWNER","ADMIN"],reply);
+    const card=await prisma.loyaltyCard.findUnique({where:{id:request.params.id},include:{salon:{select:{ownerId:true}}}});
+    if(!card)return reply.code(404).send({error:"Card not found"});
+    if(user.role!=="ADMIN"&&card.salon.ownerId!==user.id)return reply.code(403).send({error:"Forbidden"});
+    reply.header("Cache-Control","no-store");
+    const history=await prisma.loyaltyStamp.findMany({where:{cardId:card.id},include:{customer:{select:{fullName:true}}},orderBy:{stampAt:"desc"},take:100});
+    return {history:history.map(h=>({id:h.id,kind:h.kind,amount:h.amount,at:h.stampAt,rewardTitle:h.rewardTitle,customerName:h.customer.fullName}))};
+  });
 
-      if (customerId === user.id) {
-        return reply.code(403).send({ error: "Customers cannot add their own stamp" });
-      }
-
-      const existingStamp = await prisma.loyaltyStamp.findFirst({
-        where: {
-          cardId,
-          customerId,
-          OR: [
-            { transactionId: transactionId ?? "" },
-            { verificationToken: verificationToken ?? "" },
-          ],
-        },
-      });
-
-      if (existingStamp) {
-        return reply.code(409).send({ error: "Duplicate stamp is not allowed" });
-      }
-
-      const stampId = transactionId ?? buildStampTransactionId();
-      const stamp = await prisma.loyaltyStamp.create({
-        data: {
-          cardId,
-          customerId,
-          barberId: barberId ?? null,
-          transactionId: stampId,
-          verificationToken: verificationToken ?? null,
-          stampAt: new Date(),
-          isValid: true,
-        },
-      });
-
-      let customerRecord = await prisma.loyaltyCustomer.findUnique({
-        where: { cardId_customerId: { cardId, customerId } },
-      });
-
-      if (!customerRecord) {
-        customerRecord = await prisma.loyaltyCustomer.create({
-          data: { cardId, customerId, currentStamps: 1, totalVisits: 1, lastStampedAt: new Date() },
-        });
-      } else {
-        customerRecord = await prisma.loyaltyCustomer.update({
-          where: { id: customerRecord.id },
-          data: {
-            currentStamps: customerRecord.currentStamps + 1,
-            totalVisits: customerRecord.totalVisits + 1,
-            lastStampedAt: new Date(),
-          },
-        });
-      }
-
-      return {
-        stamp,
-        customer: customerRecord,
-        progress: getLoyaltyProgress(customerRecord.currentStamps, card.requiredStamps),
-      };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
-    }
+  app.post("/api/v1/loyalty/cards/:id/redeem",async(request:any,reply:any)=>{
+    const user=await requireUserFromAuthHeader(request,reply);requireRole(user,["CUSTOMER"],reply);
+    const parsed=z.object({requestId:z.string().uuid()}).strict().safeParse(request.body);
+    if(!parsed.success)return reply.code(400).send({error:"Invalid redemption request"});
+    try{return await prisma.$transaction(tx=>redeemLoyalty(tx,request.params.id,user.id,parsed.data.requestId));}
+    catch(error:any){if(error.statusCode)return reply.code(error.statusCode).send({error:error.message});if(error.code==="P2002")return reply.code(409).send({error:"Redemption already processed"});throw error;}
   });
 }

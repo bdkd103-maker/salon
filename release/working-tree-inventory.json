@@ -1,0 +1,4618 @@
+{
+  "format": 1,
+  "deploymentReady": false,
+  "webDocumentRoot": "www",
+  "files": [
+    {
+      "path": "www/admin.html",
+      "sha256": "564b4bd2497707ce01eedae3d7072d58766ff172a10d81e96a3d69fddfc58c53"
+    },
+    {
+      "path": "www/admin/admin.css",
+      "sha256": "6b7c02a9d761d7eaa38767020c0a9c3943da74690e6d6067e9a790dc4b9ba5ad"
+    },
+    {
+      "path": "www/admin/admin.js",
+      "sha256": "b3b0491d60e006ffb21a66cec90cc938739c1b3b60864d64cb4ac421ba4c3392"
+    },
+    {
+      "path": "www/admin/index.html",
+      "sha256": "2a9307428be85e1fa5ed586d62292409b320a959b1ad0e38535acd95ca6ca6d7"
+    },
+    {
+      "path": "www/agb.html",
+      "sha256": "32b1a2e701ad03765825d3649e0d9294345f92cebcc503ab50d2eaeef73162a5"
+    },
+    {
+      "path": "www/assets/customer-header.css",
+      "sha256": "a3684201e35646c0af2f9bb4cbaceb3c8a42436724a7c0eb76bfd35798ed600c"
+    },
+    {
+      "path": "www/assets/customer-header.js",
+      "sha256": "6dd3b5227b91d825ceccb8440512a2d59ddd8c7272f1d0f78c1a9a84f1d799fc"
+    },
+    {
+      "path": "www/assets/customer-hero.css",
+      "sha256": "85403575f17ff19f7a6d93cd9a9a87cf6d0241a0b5aca79258f920eaf0379d21"
+    },
+    {
+      "path": "www/assets/customer-hero.js",
+      "sha256": "2bc25038250227d5d08113d090a3789f92d8140af3b4b64b535b99d28d0b504a"
+    },
+    {
+      "path": "www/assets/customer-password-reset.js",
+      "sha256": "6dddad1e523c501dc42ebccd36128d14c11fd1d53a7724cf847cc259973a0fde"
+    },
+    {
+      "path": "www/assets/customer-registration.js",
+      "sha256": "0e0e989ee7abc4c9ca2de34d11b46667e1e6174132fe031204e853440b6fb461"
+    },
+    {
+      "path": "www/assets/customer-salon-card.css",
+      "sha256": "82bdced5c2a75e49683a64af4c858af58615589a1d95a5d1d552b09a4516cb42"
+    },
+    {
+      "path": "www/assets/customer-salon-card.js",
+      "sha256": "f42bba43742a72c1cce493a8b8fd5694b1181fce84efaeee7f4d7b629834191b"
+    },
+    {
+      "path": "www/assets/loyalty.css",
+      "sha256": "91f70b7c73f861b43d8f6af56367a561a5eeac8d7958f3acccd615966566d8dd"
+    },
+    {
+      "path": "www/assets/loyalty.js",
+      "sha256": "7671520a3370a235192179a2e0306924e239819490f8e9146f64e79304034a0e"
+    },
+    {
+      "path": "www/assets/mens/1_org.jpg",
+      "sha256": "5eebb3a89699254412da9b18f5048a0093223aa307de41100052b20253f80b9a"
+    },
+    {
+      "path": "www/assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg",
+      "sha256": "5488b9a6f9a44b9c24d4c989a16c88bfebd44bf652ff8d366b115c84e1a7f597"
+    },
+    {
+      "path": "www/assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg",
+      "sha256": "ab14c6ce0d531150ff30ebf1dfec13feae4344aa72722b0b8b112300904b97c1"
+    },
+    {
+      "path": "www/assets/mens/intro_barberpole.jpg",
+      "sha256": "e45fd4e087aab3d602c09b251d41b910b8aa6dda6c0aa85c29af0c54c07487bf"
+    },
+    {
+      "path": "www/assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg",
+      "sha256": "b2df51c7a6ce778b0f245f9e01bcf8d5cd4e9bc4861fee1e067e31f752d095cf"
+    },
+    {
+      "path": "www/assets/mens/salo-clean-barber.png",
+      "sha256": "6de067af84a3ecf4ef812394b74f2a90b6f780f7c0540cd88d582ba9d4a6d615"
+    },
+    {
+      "path": "www/assets/notifications.css",
+      "sha256": "fff3a16ca2bdc19d3451034ffd4e4372961b6ca86f78fdd102a29a6316453db9"
+    },
+    {
+      "path": "www/assets/notifications.js",
+      "sha256": "9b1a99e93f4680490cd81701f04aa2824c2c71e7004f9dcdaa8b0b53e9a67d29"
+    },
+    {
+      "path": "www/assets/placeholders/README.md",
+      "sha256": "c52b55099ddae6de1c90457f2305bdefbfa0a4de5b9352abec7aeba8397dcd83"
+    },
+    {
+      "path": "www/assets/push.js",
+      "sha256": "37d6efcdf7b680b3b3f898e6a2f21dda7b59b647ac74db726d76ec782845d8eb"
+    },
+    {
+      "path": "www/assets/salo-brand-lockup.css",
+      "sha256": "05777765fbb9823767dd81dde4194cd37d5e54c9981ef0a1fa08ea29beb75e73"
+    },
+    {
+      "path": "www/assets/salo-official-logo.png",
+      "sha256": "cc1ee898092ea9371d9ad4274f5756db7e16e662b8220c2e827ab14f4ff4b544"
+    },
+    {
+      "path": "www/assets/salo-official-logo.webp",
+      "sha256": "319eff5fd038e2d5605c78718560eff122bcfef2786494a3f12e6eeb413c20ec"
+    },
+    {
+      "path": "www/assets/salo-salon-placeholder.svg",
+      "sha256": "84efd2dc015289df22f9ddce6497d465d153da4c0c92d2c2387dc5eed03d126e"
+    },
+    {
+      "path": "www/assets/salon-extras.js",
+      "sha256": "1cb95157443050f9faa92f9414b119559466c65808118888ff876c4d4c180352"
+    },
+    {
+      "path": "www/assets/salon-intake-controls.js",
+      "sha256": "e3062a1732866583165b807cc0a1a89f8d27c37518c21af23a930f6c64d9d5f0"
+    },
+    {
+      "path": "www/assets/smart-busy-reminder.js",
+      "sha256": "2090c81ceea1a89d5cfa523e58a9c705dee9894b49223359af7f1f33f956fb7f"
+    },
+    {
+      "path": "www/assets/smart-core.js",
+      "sha256": "b94340554d313f88c95a72c75d30d2ae1f198b9c6fdba3d7a64495d218ccf9d1"
+    },
+    {
+      "path": "www/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      "sha256": "b74ed3b1b1371a023d1e2406333e654a166655ef8f696836ace48ebe4482b5c6"
+    },
+    {
+      "path": "www/assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
+      "sha256": "a9132ea99ca8c15a3334b52516b2ad0528ab0f33b7b3299a4c88eb2f2dc0a854"
+    },
+    {
+      "path": "www/customer-profile.html",
+      "sha256": "4c6ba732be7cc0e829df833359c68fd1a96de73e1aab35662de52ead8565a363"
+    },
+    {
+      "path": "www/datenschutz.html",
+      "sha256": "f0c23396ac9fd69922250863431d61b1e36a11037063631b4b8210eb9912c380"
+    },
+    {
+      "path": "www/impressum.html",
+      "sha256": "4f91cf2e144af9c900d2b62a2e93643106e1087f8f60bff1b1b8890f02c3f571"
+    },
+    {
+      "path": "www/index.html",
+      "sha256": "1560e2400298fab04ea07eb0ff030b963216e4f69f984a287f3396438401f521"
+    },
+    {
+      "path": "www/women.html",
+      "sha256": "d5a20d670ed678eb9c96330ee855531a4037e6ec00dd5906bc710f39edbd5f43"
+    },
+    {
+      "path": "backend/src/lib/admin-dashboard.ts",
+      "sha256": "112db6404513c3582ef5398ee4f3af09602a720782548a533407e2cee83c7543"
+    },
+    {
+      "path": "backend/src/lib/analytics.ts",
+      "sha256": "32b8c0f62b1c756fffd9138bfc983b58df6f9a2dece95bf2e0a63160259859eb"
+    },
+    {
+      "path": "backend/src/lib/auth-version.ts",
+      "sha256": "46cbf0160b9499f0ffd3dd4d757ac6431190f853dad61a8a0945b1e8a95bb30b"
+    },
+    {
+      "path": "backend/src/lib/auth.ts",
+      "sha256": "d65c4ceec2494b75d17b432f0edf8d85dd48528b12fffded375a038c25e6edcc"
+    },
+    {
+      "path": "backend/src/lib/booking-time.ts",
+      "sha256": "7cab428698cc1d173977648ca97ebe8cf08b84519e279ccbe419ab0536e5378c"
+    },
+    {
+      "path": "backend/src/lib/boost.ts",
+      "sha256": "365ac12405ff6052d3ff36f197519e17c0ed47a60605191be698ab5557b84b60"
+    },
+    {
+      "path": "backend/src/lib/credential-proof-purpose.ts",
+      "sha256": "5501726771bbb06c266af381253490f57455b85eb6cf52bd2f3d68abf607b4f2"
+    },
+    {
+      "path": "backend/src/lib/customer-password-reset.ts",
+      "sha256": "08a4367d3c268a46c986bc77a7fba1f28b96f172aa681391d697bdc9e441c584"
+    },
+    {
+      "path": "backend/src/lib/german-phone.ts",
+      "sha256": "57b11e23fdf0e95f9d1e950709ff1c78ea9bf37f31d42a3cac46bbe0ec3afce5"
+    },
+    {
+      "path": "backend/src/lib/jwt.ts",
+      "sha256": "6bc18a5f52fb4be53a977dd75f86140ba6ca0d5abad7baf7725ed239d440d919"
+    },
+    {
+      "path": "backend/src/lib/loyalty-ledger.ts",
+      "sha256": "7a3b0f0250e7a0e6d07bc891288caa5c2431a4ace40979dc9ffa66ff5e81bd41"
+    },
+    {
+      "path": "backend/src/lib/loyalty.ts",
+      "sha256": "26e070345d901f05c8700d07a630dd3e9e7b944e4aa97264ef2c6c5371c0e68e"
+    },
+    {
+      "path": "backend/src/lib/notifications.ts",
+      "sha256": "32f9ccdfc4b5b9009e84af5d3f06a5c1932d2461d87bb6b3caf4f3292b7ac59f"
+    },
+    {
+      "path": "backend/src/lib/offer.ts",
+      "sha256": "9c5a23fb64d14687a694e99c1795c1f0f6c1aebd7e5bf465653c6ee488771692"
+    },
+    {
+      "path": "backend/src/lib/platform-settings.ts",
+      "sha256": "ade4710a33f301e3b92839ccb38cbc9e255835f4a6fad526be543b6bbd7244cb"
+    },
+    {
+      "path": "backend/src/lib/prisma.ts",
+      "sha256": "e0c5570101e958df8816ba5e33d71656f0bbaa7646995e360dbd90a5743834bc"
+    },
+    {
+      "path": "backend/src/lib/profile-completion.ts",
+      "sha256": "2a54e2bb19d73f87b86db389259912552fb4f574bdc3a4f5d5e59f6b16b2abea"
+    },
+    {
+      "path": "backend/src/lib/public-salon.ts",
+      "sha256": "0b48a5bd52449a155589de40e6ac11aa366181697d034f43369c2fab058dd97a"
+    },
+    {
+      "path": "backend/src/lib/push.ts",
+      "sha256": "bfa245b62aa26defdb1f41a0d88d802395c416c9ad46ca66360a68de2d28ed57"
+    },
+    {
+      "path": "backend/src/lib/queue-entry.ts",
+      "sha256": "afdfff6328bee83cd7b264d5581da5c065542631f7af07436705002e4a1a0fe1"
+    },
+    {
+      "path": "backend/src/lib/registration-verification.ts",
+      "sha256": "f6d800fb0d63bed2dac76481d153b2595172ac36acbf23a08e74016b15f55add"
+    },
+    {
+      "path": "backend/src/lib/salon-archive-source.ts",
+      "sha256": "2226a874d0f95cad07b1372f2a219ef1bd19d64c41823f3f9f6c71a8a337f53a"
+    },
+    {
+      "path": "backend/src/lib/salon-archive.ts",
+      "sha256": "fe9da5775d63146667d3e1b16e7150df092469b1f6875277b22c33d7f19cdf31"
+    },
+    {
+      "path": "backend/src/lib/salon-clearance-revalidation.ts",
+      "sha256": "9c2d87ef1e41203281cd6592b08d1aefac8475c1835489528f01bf84ca4722df"
+    },
+    {
+      "path": "backend/src/lib/salon-deletion-policy.ts",
+      "sha256": "6602720c61653aeb861540a34bd9f1e4baa0c12f033109e921837ed1452a197c"
+    },
+    {
+      "path": "backend/src/lib/salon-hours.ts",
+      "sha256": "1a94bcf0f20c4c0719da5ac98cf41aad9258f9e36bc898cda7689ab90e42bfec"
+    },
+    {
+      "path": "backend/src/lib/salon-live-status.ts",
+      "sha256": "b23dc03f24b8b5ea7294953cd16d832ea1635e6c91531bfecb0c5f9e1c3dc754"
+    },
+    {
+      "path": "backend/src/lib/salon-media.ts",
+      "sha256": "6af819d46a27a3554e0040fc0bee59d98a227871552b67d6a191c2cb65c9e376"
+    },
+    {
+      "path": "backend/src/lib/salon-schedule.ts",
+      "sha256": "868d2ae5a1e48b6490426c9036b29a0fd43367fc28b1714ff3e2ab0a2c9ecee2"
+    },
+    {
+      "path": "backend/src/lib/salon-vip.ts",
+      "sha256": "9ed2e35f75f8c943a9ae4bc4b9d4fc4fa8cfcec6c272f8e2a5e3f1f5622a8753"
+    },
+    {
+      "path": "backend/src/lib/service-visit.ts",
+      "sha256": "6fe3be429918c45160641ce409dcf6fdfe5b970f560879b4bfe24f520d37b5ce"
+    },
+    {
+      "path": "backend/src/lib/service.ts",
+      "sha256": "cd8eda8d000ee0dc08c94c13431bb3a622c3d6c12239e56c880b3a396e992614"
+    },
+    {
+      "path": "backend/src/lib/smart-wait-data.ts",
+      "sha256": "3c31d8e82f4b3a9df6f702653ba21b46b0def76c6cf0dd56f6d46195059dff00"
+    },
+    {
+      "path": "backend/src/lib/smart-wait.ts",
+      "sha256": "b80d2eac8ceaad09e53fe5dd1ddcd894739f9b66d5833233833c1ae32b8a43d3"
+    },
+    {
+      "path": "backend/src/lib/staff-invitation-email.ts",
+      "sha256": "52b3f3d7eb4a7952deb7492b4d8302d0b0377e110f9a32a4c0bc09969c282ae6"
+    },
+    {
+      "path": "backend/src/lib/staff-membership.ts",
+      "sha256": "04a5242ff35d4546a899958aa886f1e3b36af009a0dd260a6d4b6c81dfb9c246"
+    },
+    {
+      "path": "backend/src/lib/staff-onboarding.ts",
+      "sha256": "bb4ca3cdecedc3a63f962a8ea1f3f3e3c2364ea0e62fd5d7234987eab2ffca8c"
+    },
+    {
+      "path": "backend/src/lib/staff-presence.ts",
+      "sha256": "94b4e8a0094f3a0ce8304c916dae46f2050ced337ee50ef35e646febf9f81bbd"
+    },
+    {
+      "path": "backend/src/lib/subscription-plan.ts",
+      "sha256": "6627ed72667430a3377c252bb232f24972043675b5450870684f23ba875edca1"
+    },
+    {
+      "path": "backend/src/lib/verification-email.ts",
+      "sha256": "c3f08e204c3d8ad2a5a019b87484e22a8694af9a90978c61d53fd8ff75c0f1da"
+    },
+    {
+      "path": "backend/src/lib/versioning.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "backend/src/routes/analytics.ts",
+      "sha256": "df9a0f56d07143afceb60c36b691a633af26bc100f71870dd08b05107b9dbe88"
+    },
+    {
+      "path": "backend/src/routes/auth.ts",
+      "sha256": "1d2c9e70a0a6e8e6a08b3ff7f22c28e625139d1d7fdf18b0c4b11f62f1b226c4"
+    },
+    {
+      "path": "backend/src/routes/bookings.ts",
+      "sha256": "0cc9dc8140a6981a9178130e7c0f117187cf2e2ffe9ab285d965b22feb570519"
+    },
+    {
+      "path": "backend/src/routes/dashboard.ts",
+      "sha256": "305b46b27a9f542d1442bbdd3323ed20166fb24d7e590245a7557915ff63985c"
+    },
+    {
+      "path": "backend/src/routes/device-tokens.ts",
+      "sha256": "a0bacba73ac6484fc3ef35d0eb46556102a86ce28d9cdb633a127597429fc3a4"
+    },
+    {
+      "path": "backend/src/routes/favorites.ts",
+      "sha256": "fb9f0861aa0addb280f0a36ee318ddb4a9d99312c261365bb97410bf6dde135e"
+    },
+    {
+      "path": "backend/src/routes/global-offers.ts",
+      "sha256": "ff0ee948b0ffa91568ffb60c82b1ea872c6a4aac221b8d24264957e8e15ea599"
+    },
+    {
+      "path": "backend/src/routes/legal.ts",
+      "sha256": "05233e8cee8f0bf18914aa17d48f60e793796f11033efc5e9a92b2e9ebbbf38b"
+    },
+    {
+      "path": "backend/src/routes/loyalty.ts",
+      "sha256": "8685a3d8c6d5e522fada1453d2206d2625638ff84222b651cd626790c51c5135"
+    },
+    {
+      "path": "backend/src/routes/owner-team.ts",
+      "sha256": "bf2858a9457ccd717b32e39bf5052039ae3f919ed5e494d573fa001706c20911"
+    },
+    {
+      "path": "backend/src/routes/partner-requests.ts",
+      "sha256": "6fa20367fa03365d8bd63a64fea955a64f2f2abed7c4c02bb42cfcc8f9cd3157"
+    },
+    {
+      "path": "backend/src/routes/platform-settings.ts",
+      "sha256": "3099e73f714d5ad6a5f20c8d282ac06c077d9d8be662aa5e00f06cdb9866c520"
+    },
+    {
+      "path": "backend/src/routes/privacy.ts",
+      "sha256": "47a383d77464511be6075f258843c481c0b6bcd41f759836d407a6b446dac445"
+    },
+    {
+      "path": "backend/src/routes/queue.ts",
+      "sha256": "c0878223d83413aa89d3bc81f07f232d4cde5537f97d8b2de264541b9e2d28ea"
+    },
+    {
+      "path": "backend/src/routes/salon-verification.ts",
+      "sha256": "19924b05aed18a8e4d10e39bae782de2c3ba0bd735f19c451fb389426ad75311"
+    },
+    {
+      "path": "backend/src/routes/salons.ts",
+      "sha256": "59edadccf3038dcb7b67b0c2e4c18bd11a8fc1dd430d1cd4862800757bf6e73f"
+    },
+    {
+      "path": "backend/src/routes/shop.ts",
+      "sha256": "312d76159e6c6f93cc48d72174a3af29f0e281d0a928909ee992b0cef6173950"
+    },
+    {
+      "path": "backend/src/routes/staff-status.ts",
+      "sha256": "4fb30348ea92f63245a58c14210bb6754a733f28150e96705c564181e9e49638"
+    },
+    {
+      "path": "backend/src/server.ts",
+      "sha256": "8ec49d2586ef22c2f97fefbc1a47758dbf6db9cc2ef6d7e8a381b6b7ebe78a79"
+    },
+    {
+      "path": "backend/package.json",
+      "sha256": "9d0cca00dad60a82f52f53beef119f28bc606a150968d2376f34561943a98986"
+    },
+    {
+      "path": "backend/package-lock.json",
+      "sha256": "6f1ced699f6fceac4e5000bf4d8892344182be6521417e473ed67970ba37aa54"
+    },
+    {
+      "path": "backend/tsconfig.json",
+      "sha256": "4bc43c78e3d0843c614c65aed3e11c16202a23e828f772fde569bda9a9ee820a"
+    },
+    {
+      "path": "backend/typings/jsonwebtoken.d.ts",
+      "sha256": "ef9e74eb77a177cf09e3967f12b5bab43c88f3aa127903af47c22fcdcbdb6e0a"
+    },
+    {
+      "path": "backend/prisma/schema.prisma",
+      "sha256": "19c0550ef47f61630b26be41349a06c24efbc7b24d7fc5c2f3e3ece03692a998"
+    },
+    {
+      "path": "backend/prisma/migrations/20260828222701_init/migration.sql",
+      "sha256": "7fbf6ccbf58ad6a2ea996edfee78748e61ba41a3c9f0cd6f2bff07902e422281"
+    },
+    {
+      "path": "backend/prisma/migrations/20260830221410_current_schema/migration.sql",
+      "sha256": "8ab8bb1b0c87833ed23483a2d9c8e2cfd7d6100add20e490baeef0289610bada"
+    },
+    {
+      "path": "backend/prisma/migrations/20260903120000_salon_vip_classification_reviews/migration.sql",
+      "sha256": "a8d2af04fafec71e010c1e73ef9d1271a736ba45e8e19465c63523009ff65936"
+    },
+    {
+      "path": "backend/prisma/migrations/20260905120000_salon_schedule_timezone/migration.sql",
+      "sha256": "91c25754d89a3f5b6f3e130f2283dd6f23e970bd30336a35acd7fad74729b97c"
+    },
+    {
+      "path": "backend/prisma/migrations/20260906180000_customer_registration_verification/migration.sql",
+      "sha256": "537d4d790e9042fc3b28fcd6ceaad536ec3e9758e9563699c873cf2ef4703f72"
+    },
+    {
+      "path": "backend/prisma/migrations/20260907120000_customer_password_reset_challenge/migration.sql",
+      "sha256": "85ea25d67ba2938f84cb14fb1674415af69a85a987adf79ebf5100cb8c4fb6b6"
+    },
+    {
+      "path": "backend/prisma/migrations/20260909120000_salon_live_status/migration.sql",
+      "sha256": "dbb0f69ab5c760d0fd39f90a436adf49e1844e81513f6bb3d7f606be3971dd01"
+    },
+    {
+      "path": "backend/prisma/migrations/20260909130000_staff_membership_foundation/migration.sql",
+      "sha256": "6a68146370139ff6f4cdc078b28a504c0194d01e20502d585052360d03745825"
+    },
+    {
+      "path": "backend/prisma/migrations/20260909140000_staff_presence_foundation/migration.sql",
+      "sha256": "5b2333e8c7fd19a31536b3b2320df6dc018cf5d042ca956a9be07b9def4f4b24"
+    },
+    {
+      "path": "backend/prisma/migrations/20260909231832_queue_entry_foundation/migration.sql",
+      "sha256": "5893b6b89c9e67a6e03d1b7fa313573f94730c2f06a2b4e847491ba89a6911db"
+    },
+    {
+      "path": "backend/prisma/migrations/20260910120000_staff_presence_lease_index_name/migration.sql",
+      "sha256": "9b79e98409a87882cdd16733b6043a88062c7cb2b800a4289e6e60c4c3e667a6"
+    },
+    {
+      "path": "backend/prisma/migrations/20260910130000_service_visit_foundation/migration.sql",
+      "sha256": "bbc60a5f241c5bf5ffe72aba6b4e5333ca7827b3b48fbb8f5b6eb6a0a583454c"
+    },
+    {
+      "path": "backend/prisma/migrations/20260910134000_salon_intake_controls/migration.sql",
+      "sha256": "dec3f74712ba20665c30a75d23ad2a7aed5f521affe798ffe871542a9789ff6e"
+    },
+    {
+      "path": "backend/prisma/migrations/20260911120000_add_smart_subscription_plan/migration.sql",
+      "sha256": "e5a318f2e277b46077d3d593fbda91df16a5458379743cc6ce6364be86e402ce"
+    },
+    {
+      "path": "backend/prisma/migrations/20260912120000_add_salon_enforcement/migration.sql",
+      "sha256": "81c3d5095ae4a123fe7c317463ab2e2be6802658681ca0e31748b1716669415e"
+    },
+    {
+      "path": "backend/prisma/migrations/20260912150000_add_salon_archive/migration.sql",
+      "sha256": "7ac48c670fa3038c9baf209b8c587b3dbe245596e7d04ac6c71902cfb7b0d972"
+    },
+    {
+      "path": "backend/prisma/migrations/20260913120000_add_salon_retention_clearance/migration.sql",
+      "sha256": "ac327c745aeac7d005d51d33c3c4f278c89a6faad1ecda0eefd6691202408aa9"
+    },
+    {
+      "path": "backend/prisma/migrations/20260914120000_add_legal_content/migration.sql",
+      "sha256": "05d3974d55b54c44754f0e12b2ae96cf307d661b79ae9165cb9414a218b9b1dd"
+    },
+    {
+      "path": "backend/prisma/migrations/20260914130000_admin_features_expansion/migration.sql",
+      "sha256": "44a68a448488b73608facfe85a4a7978a1c58c002d109c5d89a67028b44562cb"
+    },
+    {
+      "path": "backend/prisma/migrations/20260915120000_add_platform_settings/migration.sql",
+      "sha256": "6a5fc2b73a86d4cf83e9893363787143e791d6280addc31ea812d659711edb1d"
+    },
+    {
+      "path": "backend/prisma/migrations/20260926120000_notification_read_state/migration.sql",
+      "sha256": "f713717af617012425d15a71120282e398dc031e6906652b8a5d713b68355499"
+    },
+    {
+      "path": "backend/prisma/migrations/20260927120000_add_customer_favorite/migration.sql",
+      "sha256": "87360b4c6d28e6aab14795f7a2b5de7e0f95242229cac385da5b19b5e9bdbce6"
+    },
+    {
+      "path": "backend/prisma/migrations/20260929120000_loyalty_ledger/migration.sql",
+      "sha256": "ae3eaeaccc4c40d06cffae2840f9467739ce572d1888fe0fc8d1d2ead1f71a3e"
+    },
+    {
+      "path": "backend/prisma/migrations/20260930120000_add_salon_extras/migration.sql",
+      "sha256": "1deda4e3882b0e85cdec6d51cfb15a3e7dbd408388d3857c9bb4b3be6d17e4af"
+    },
+    {
+      "path": "backend/prisma/migrations/20261114010000_staff_onboarding_foundation/migration.sql",
+      "sha256": "491a3a981ca51660c55665886be3d5e1b9b8bd4affc5b41507ddeb055442d0ac"
+    },
+    {
+      "path": "backend/prisma/migrations/migration_lock.toml",
+      "sha256": "693566b52c49db47a2b0901d12400aa3d710d13a49f4a2a154b80c0505ed737c"
+    },
+    {
+      "path": "release/Dockerfile",
+      "sha256": "6f93535b964acbaa5b5f98d55e9c289e6c74bfa6e965326ecbff53e8d67651c8"
+    },
+    {
+      "path": "release/context.dockerignore",
+      "sha256": "f3c2cb63b39c877528e7f677faf0e569a18958888419cf28311205cad01d7f3d"
+    },
+    {
+      "path": "release/manifest.json",
+      "sha256": "47fc4fdf4a10963f5c497f1a7103e6df9e96a6c3f6eb5c5d8e7c51cc724d8ec8"
+    }
+  ],
+  "migrations": {
+    "inventory": [
+      {
+        "path": "backend/prisma/migrations/20260828222701_init/migration.sql",
+        "sha256": "7fbf6ccbf58ad6a2ea996edfee78748e61ba41a3c9f0cd6f2bff07902e422281",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260830221410_current_schema/migration.sql",
+        "sha256": "8ab8bb1b0c87833ed23483a2d9c8e2cfd7d6100add20e490baeef0289610bada",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260903120000_salon_vip_classification_reviews/migration.sql",
+        "sha256": "a8d2af04fafec71e010c1e73ef9d1271a736ba45e8e19465c63523009ff65936",
+        "dataChanges": [
+          {
+            "operation": "UPDATE",
+            "table": "Salon"
+          }
+        ],
+        "requiresSpecialReview": true
+      },
+      {
+        "path": "backend/prisma/migrations/20260905120000_salon_schedule_timezone/migration.sql",
+        "sha256": "91c25754d89a3f5b6f3e130f2283dd6f23e970bd30336a35acd7fad74729b97c",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260906180000_customer_registration_verification/migration.sql",
+        "sha256": "537d4d790e9042fc3b28fcd6ceaad536ec3e9758e9563699c873cf2ef4703f72",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260907120000_customer_password_reset_challenge/migration.sql",
+        "sha256": "85ea25d67ba2938f84cb14fb1674415af69a85a987adf79ebf5100cb8c4fb6b6",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260909120000_salon_live_status/migration.sql",
+        "sha256": "dbb0f69ab5c760d0fd39f90a436adf49e1844e81513f6bb3d7f606be3971dd01",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260909130000_staff_membership_foundation/migration.sql",
+        "sha256": "6a68146370139ff6f4cdc078b28a504c0194d01e20502d585052360d03745825",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260909140000_staff_presence_foundation/migration.sql",
+        "sha256": "5b2333e8c7fd19a31536b3b2320df6dc018cf5d042ca956a9be07b9def4f4b24",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260909231832_queue_entry_foundation/migration.sql",
+        "sha256": "5893b6b89c9e67a6e03d1b7fa313573f94730c2f06a2b4e847491ba89a6911db",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260910120000_staff_presence_lease_index_name/migration.sql",
+        "sha256": "9b79e98409a87882cdd16733b6043a88062c7cb2b800a4289e6e60c4c3e667a6",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260910130000_service_visit_foundation/migration.sql",
+        "sha256": "bbc60a5f241c5bf5ffe72aba6b4e5333ca7827b3b48fbb8f5b6eb6a0a583454c",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260910134000_salon_intake_controls/migration.sql",
+        "sha256": "dec3f74712ba20665c30a75d23ad2a7aed5f521affe798ffe871542a9789ff6e",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260911120000_add_smart_subscription_plan/migration.sql",
+        "sha256": "e5a318f2e277b46077d3d593fbda91df16a5458379743cc6ce6364be86e402ce",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260912120000_add_salon_enforcement/migration.sql",
+        "sha256": "81c3d5095ae4a123fe7c317463ab2e2be6802658681ca0e31748b1716669415e",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260912150000_add_salon_archive/migration.sql",
+        "sha256": "7ac48c670fa3038c9baf209b8c587b3dbe245596e7d04ac6c71902cfb7b0d972",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260913120000_add_salon_retention_clearance/migration.sql",
+        "sha256": "ac327c745aeac7d005d51d33c3c4f278c89a6faad1ecda0eefd6691202408aa9",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260914120000_add_legal_content/migration.sql",
+        "sha256": "05d3974d55b54c44754f0e12b2ae96cf307d661b79ae9165cb9414a218b9b1dd",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260914130000_admin_features_expansion/migration.sql",
+        "sha256": "44a68a448488b73608facfe85a4a7978a1c58c002d109c5d89a67028b44562cb",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260915120000_add_platform_settings/migration.sql",
+        "sha256": "6a5fc2b73a86d4cf83e9893363787143e791d6280addc31ea812d659711edb1d",
+        "dataChanges": [
+          {
+            "operation": "INSERT INTO",
+            "table": "PlatformSettings"
+          }
+        ],
+        "requiresSpecialReview": true
+      },
+      {
+        "path": "backend/prisma/migrations/20260926120000_notification_read_state/migration.sql",
+        "sha256": "f713717af617012425d15a71120282e398dc031e6906652b8a5d713b68355499",
+        "dataChanges": [
+          {
+            "operation": "UPDATE",
+            "table": "Notification"
+          }
+        ],
+        "requiresSpecialReview": true
+      },
+      {
+        "path": "backend/prisma/migrations/20260927120000_add_customer_favorite/migration.sql",
+        "sha256": "87360b4c6d28e6aab14795f7a2b5de7e0f95242229cac385da5b19b5e9bdbce6",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260929120000_loyalty_ledger/migration.sql",
+        "sha256": "ae3eaeaccc4c40d06cffae2840f9467739ce572d1888fe0fc8d1d2ead1f71a3e",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20260930120000_add_salon_extras/migration.sql",
+        "sha256": "1deda4e3882b0e85cdec6d51cfb15a3e7dbd408388d3857c9bb4b3be6d17e4af",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      },
+      {
+        "path": "backend/prisma/migrations/20261114010000_staff_onboarding_foundation/migration.sql",
+        "sha256": "491a3a981ca51660c55665886be3d5e1b9b8bd4affc5b41507ddeb055442d0ac",
+        "dataChanges": [],
+        "requiresSpecialReview": false
+      }
+    ],
+    "issues": [
+      "Reference precedes table creation: ServiceVisit in backend/prisma/migrations/20260909231832_queue_entry_foundation/migration.sql"
+    ],
+    "limitation": "Static table/column/reference audit only; PostgreSQL execution, type/default/index equivalence and checksums against any existing database are not verified."
+  },
+  "changes": [
+    {
+      "status": " M",
+      "path": "admin.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "admin/index.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "android/app/capacitor.build.gradle",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "android/capacitor.settings.gradle",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "assets/customer-header.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "assets/customer-hero.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "assets/salon-intake-controls.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/.env.example",
+      "category": "sensitive-or-credential-tooling-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/prisma/schema.prisma",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/auth.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/booking-time.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/customer-password-reset.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/jwt.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/push.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/salon-archive.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/salon-archive.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/salon-deletion-policy.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/salon-deletion-policy.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/lib/verification-email.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/analytics.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/auth.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/bookings-intake-controls.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/bookings-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/bookings.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/dashboard.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/device-tokens.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/loyalty.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/privacy.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/queue.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/queue.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/salons-enforcement-archive.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/salons-lifecycle.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/salons-retention-clearance.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/salons.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/src/routes/subscription-plans.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "backend/src/server.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "backend/test/verify-real-postgres-delete.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "customer-profile.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "index.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "ios/App/CapApp-SPM/Package.swift",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/admin-translations.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/customer-header.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/customer-hero.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/customer-salon-card.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/salon-intake-controls.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "tests/subscription-plans.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "women.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": " M",
+      "path": "www/assets/customer-header.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "www/assets/customer-hero.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "www/assets/salon-intake-controls.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "www/customer-profile.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "www/index.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": " M",
+      "path": "www/women.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": ".tmp-admin-brand-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-admin-brand-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-admin-brand-final-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-admin-settings-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-backend-tests-err.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-backend-tests-final.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-backend-tests-out.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-backend-tests-rerun.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-card-mobile-overlay-before.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-compact-cards-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-compact-cards-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-compact-cards-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-compact-cards-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-compact-cards-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-4.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1366-5.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-4.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-1920-5.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-4.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-320-5.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-4.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-390-5.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-4.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-768-5.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-sheet-1366.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-sheet-1920.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-sheet-320.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-sheet-390.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-crop-sheet-768.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-current-home.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-customer-brand-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-customer-brand-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-email-dom.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-eta-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-customer-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-owner-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-server.pid",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-extras-verification.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alt-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-alternates.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-ar-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-de-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-en-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-sheet-1366.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-sheet-1920.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-sheet-320.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-sheet-390.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-feature-sheet-768.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-brand-fixed.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-top-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-top-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-top-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-top-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-final-top-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-frontend-tests-err.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-frontend-tests-out.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hdr-cur.html",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hdr-head.html",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hdr.js",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hdrdiff.js",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hdrreal.js",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-head-index.html",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-hero-assets.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-backend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-backend-run.cjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-discovery-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-fixed-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-frontend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-frontend-run.cjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-regression-before.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-ar-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-ar-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-ar-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-ar-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-ar-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-de-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-de-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-de-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-de-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-home-visual-de-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-linkcheck.js",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-login-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-login-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-login-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-login-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-login-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-workspace-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-workspace-1920.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-workspace-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-workspace-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-admin-workspace-768.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-1366-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-1366-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-1920-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-1920-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-320-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-320-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-390-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-390-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-768-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-customer-768-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-1366-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-1366-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-1920-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-1920-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-320-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-320-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-390-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-390-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-768-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-home-768-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-1366-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-1366-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-1920-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-1920-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-320-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-320-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-390-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-390-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-768-ar-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-lockup-women-768-de-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-ar-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1366-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1366-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1366-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1366-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1920-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1920-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1920-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-1920-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-320-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-320-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-320-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-320-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-390-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-390-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-390-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-390-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-768-0.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-768-1.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-768-2.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-de-768-3.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-final-rtl.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-sheet-1366.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-sheet-1920.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-sheet-320.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-sheet-390.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-logo-sheet-768.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-customer-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-owner-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-loyalty-verification.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-mirrcheck.js",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-0-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-1-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notification-2-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notifications-backend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notifications-backend-run.cjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notifications-frontend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-notifications-frontend-run.cjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-official-logo-check.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-opencode-server.pid",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-final-1366.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-final-1920.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-final-320.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-final-390.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-final-768.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-full-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-full-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-sheet-1366.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-sheet-1920.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-sheet-320.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-sheet-390.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-premium-sheet-768.jpg",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-reproduce-home-regression.cjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-run-backend-tests.ps1",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-run-frontend-tests.ps1",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-salo-backend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-salo-frontend-regression.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-salo-ui-audit.json",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-admin-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-admin-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-admin-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-customer-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-customer-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-customer-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-owner-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-owner-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-owner-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-staff-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-staff-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-staff-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-women-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-women-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-shared-logo-women-390.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-stderr.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-stdout.txt",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1366-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1366-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1366-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1920-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1920-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-1920-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-320-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-320-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-320-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-390-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-390-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-390-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-768-ar.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-768-de.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-ticket-768-en.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-women-brand-1366.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": ".tmp-women-brand-320.png",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "admin/admin.css",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "admin/admin.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "agb.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/loyalty.css",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/loyalty.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/notifications.css",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/notifications.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/salo-brand-lockup.css",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/salo-official-logo.png",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/salo-official-logo.webp",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/salon-extras.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/smart-busy-reminder.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "assets/smart-core.js",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-dbcheck.ts",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-dbstate.mjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-extras-dbcheck.ts",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-fav-dbcheck.mjs",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-mig-check.ts",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-queue-audit.ts",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/.tmp-setup-staff.ts",
+      "category": "temporary-or-diagnostic-review-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/check-admin-password.ts",
+      "category": "sensitive-or-credential-tooling-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/docs/staff-onboarding-foundation.md",
+      "category": "documentation-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260914120000_add_legal_content/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260914130000_admin_features_expansion/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260915120000_add_platform_settings/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260926120000_notification_read_state/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260927120000_add_customer_favorite/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260929120000_loyalty_ledger/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20260930120000_add_salon_extras/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/prisma/migrations/20261114010000_staff_onboarding_foundation/migration.sql",
+      "category": "schema-or-migration",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/scripts/create-admin.ts",
+      "category": "sensitive-or-credential-tooling-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/auth-version.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/credential-proof-purpose.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/loyalty-ledger.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/loyalty-ledger.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/notifications.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/platform-settings.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/public-salon.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/smart-wait-data.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/smart-wait.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/smart-wait.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/staff-invitation-email.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/staff-onboarding-foundation.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/lib/staff-onboarding.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/account-status-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/admin-salon-create-persistence.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/admin-salons.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/analytics-security.md",
+      "category": "documentation-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/analytics-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/auth-refresh.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/booking-visit-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/favorites.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/favorites.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/global-offers.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/legal.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/loyalty-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/messages-security.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/notifications.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/owner-team-provisioning.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/owner-team-queue-access.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/owner-team-reactivation.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/owner-team.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/partner-requests.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/partner-requests.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/platform-settings.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/platform-settings.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/privacy.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/salon-verification.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/salons-extras.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/salons-public-boundary.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/shop.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/smart-wait.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/staff-busy-reminder.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/staff-status.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/src/routes/staff-status.ts",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "backend/test/audit-served-ui.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/debug-booking.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/e2e-core-operations.test.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/run-foundation-tests.mjs",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/run-typescript.mjs",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/shot-desktop.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/shot-final.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/shot-verify.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/staff-onboarding-schema.test.mjs",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-extras-browser.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-homepage-regressions.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-live-admin-settings-homepage.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-live-favorites.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-live-profile-owner-fixes.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-live-women-staff.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-loyalty-browser.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-owner-session.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-extras.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-loyalty.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-notifications.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-postgres-create-salon.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-postgres-favorites.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-salo-ticket.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-smart-core.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-real-smart-wait.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "backend/test/verify-smart-wait-browser.ts",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "datenschutz.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "impressum.html",
+      "category": "application-or-build-input",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "release/Dockerfile",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "release/README.md",
+      "category": "documentation-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "release/context.dockerignore",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "release/manifest.json",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "release/working-tree-inventory.json",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "scripts/release-package.mjs",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "scripts/sync-frontend.ps1",
+      "category": "other-development-or-native-artifact-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/admin-platform-settings.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/admin-session.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/admin-workspace.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/customer-feature-hero-live.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/customer-geolocation-distance.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/owner-analytics-account.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/owner-architecture.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/owner-content-i18n.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/owner-team-authorization.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/release-package.test.mjs",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/salon-application.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/salon-extras.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/smart-busy-reminder.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/smart-busy-reminder.test.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/smart-busy-tabs.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/staff-authorization.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/staff-localization.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "tests/staff-logout.spec.js",
+      "category": "tests-or-verification-tools-excluded",
+      "inCandidate": false
+    },
+    {
+      "status": "??",
+      "path": "www/admin.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/admin/admin.css",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/admin/admin.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/admin/index.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/agb.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/loyalty.css",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/loyalty.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/mens/1_org.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/mens/intro_barberpole.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/notifications.css",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/notifications.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/placeholders/README.md",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/push.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/salo-brand-lockup.css",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/salo-official-logo.png",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/salo-official-logo.webp",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/salon-extras.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/smart-busy-reminder.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/smart-core.js",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/datenschutz.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    },
+    {
+      "status": "??",
+      "path": "www/impressum.html",
+      "category": "application-or-build-input",
+      "inCandidate": true
+    }
+  ],
+  "requiredAbsentFromCheckout": [
+    "admin/admin.css",
+    "admin/admin.js",
+    "agb.html",
+    "assets/loyalty.css",
+    "assets/loyalty.js",
+    "assets/notifications.css",
+    "assets/notifications.js",
+    "assets/salo-brand-lockup.css",
+    "assets/salo-official-logo.png",
+    "assets/salo-official-logo.webp",
+    "assets/salon-extras.js",
+    "assets/smart-busy-reminder.js",
+    "assets/smart-core.js",
+    "backend/prisma/migrations/20260914120000_add_legal_content/migration.sql",
+    "backend/prisma/migrations/20260914130000_admin_features_expansion/migration.sql",
+    "backend/prisma/migrations/20260915120000_add_platform_settings/migration.sql",
+    "backend/prisma/migrations/20260926120000_notification_read_state/migration.sql",
+    "backend/prisma/migrations/20260927120000_add_customer_favorite/migration.sql",
+    "backend/prisma/migrations/20260929120000_loyalty_ledger/migration.sql",
+    "backend/prisma/migrations/20260930120000_add_salon_extras/migration.sql",
+    "backend/prisma/migrations/20261114010000_staff_onboarding_foundation/migration.sql",
+    "backend/src/lib/auth-version.ts",
+    "backend/src/lib/credential-proof-purpose.ts",
+    "backend/src/lib/loyalty-ledger.ts",
+    "backend/src/lib/notifications.ts",
+    "backend/src/lib/platform-settings.ts",
+    "backend/src/lib/public-salon.ts",
+    "backend/src/lib/smart-wait-data.ts",
+    "backend/src/lib/smart-wait.ts",
+    "backend/src/lib/staff-invitation-email.ts",
+    "backend/src/lib/staff-onboarding.ts",
+    "backend/src/routes/favorites.ts",
+    "backend/src/routes/global-offers.ts",
+    "backend/src/routes/legal.ts",
+    "backend/src/routes/owner-team.ts",
+    "backend/src/routes/partner-requests.ts",
+    "backend/src/routes/platform-settings.ts",
+    "backend/src/routes/salon-verification.ts",
+    "backend/src/routes/shop.ts",
+    "backend/src/routes/staff-status.ts",
+    "datenschutz.html",
+    "impressum.html",
+    "release/Dockerfile",
+    "release/context.dockerignore",
+    "release/manifest.json",
+    "www/admin.html",
+    "www/admin/admin.css",
+    "www/admin/admin.js",
+    "www/admin/index.html",
+    "www/agb.html",
+    "www/assets/loyalty.css",
+    "www/assets/loyalty.js",
+    "www/assets/mens/1_org.jpg",
+    "www/assets/mens/barber-makes-hair-styling-with-hair-spray-after-haircut-barber-shop_926199-3661055.jpg",
+    "www/assets/mens/generatives-ki-bild-von-barber-lederstuehlen-mit-modernem-innenstil-im-barbershop_467541-2507.jpg",
+    "www/assets/mens/intro_barberpole.jpg",
+    "www/assets/mens/professional-barber-tools-laid-out-on-dark-wooden-surface.jpg",
+    "www/assets/notifications.css",
+    "www/assets/notifications.js",
+    "www/assets/placeholders/README.md",
+    "www/assets/push.js",
+    "www/assets/salo-brand-lockup.css",
+    "www/assets/salo-official-logo.png",
+    "www/assets/salo-official-logo.webp",
+    "www/assets/salon-extras.js",
+    "www/assets/smart-busy-reminder.js",
+    "www/assets/smart-core.js",
+    "www/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
+    "www/datenschutz.html",
+    "www/impressum.html"
+  ],
+  "requiredChangedFromCheckout": [
+    "admin.html",
+    "admin/index.html",
+    "assets/customer-header.js",
+    "assets/customer-hero.js",
+    "assets/salon-intake-controls.js",
+    "backend/prisma/schema.prisma",
+    "backend/src/lib/auth.ts",
+    "backend/src/lib/booking-time.ts",
+    "backend/src/lib/customer-password-reset.ts",
+    "backend/src/lib/jwt.ts",
+    "backend/src/lib/push.ts",
+    "backend/src/lib/salon-archive.ts",
+    "backend/src/lib/salon-deletion-policy.ts",
+    "backend/src/lib/verification-email.ts",
+    "backend/src/routes/analytics.ts",
+    "backend/src/routes/auth.ts",
+    "backend/src/routes/bookings.ts",
+    "backend/src/routes/dashboard.ts",
+    "backend/src/routes/device-tokens.ts",
+    "backend/src/routes/loyalty.ts",
+    "backend/src/routes/privacy.ts",
+    "backend/src/routes/queue.ts",
+    "backend/src/routes/salons.ts",
+    "backend/src/server.ts",
+    "customer-profile.html",
+    "index.html",
+    "women.html",
+    "www/assets/customer-header.js",
+    "www/assets/customer-hero.js",
+    "www/assets/salon-intake-controls.js",
+    "www/customer-profile.html",
+    "www/index.html",
+    "www/women.html"
+  ],
+  "baseline": {
+    "date": "2026-11-15",
+    "modified": 53,
+    "untracked": 568,
+    "total": 621
+  },
+  "createdFiles": [
+    "scripts/release-package.mjs",
+    "release/manifest.json",
+    "release/Dockerfile",
+    "release/context.dockerignore",
+    "release/README.md",
+    "release/working-tree-inventory.json",
+    "tests/release-package.test.mjs"
+  ],
+  "sourceCandidate": ".verification-test-build/release-157ec6f5-0ae3-4916-88b5-f43661be10f2",
+  "contextVerification": {
+    "manifestFiles": 134,
+    "contextPathsMatch": true,
+    "sourceDigestsMatch": true,
+    "sensitivePathsPresent": false,
+    "documentRoot": "www",
+    "runtimeImageProduced": false,
+    "deploymentReady": false
+  }
+}

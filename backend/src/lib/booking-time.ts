@@ -48,7 +48,11 @@ export function formatInTimeZone(date: Date, timeZone: string): string {
 }
 
 export function parseWallClockInTimeZone(dateTimeLocal: string, timeZone: string): Date {
-  const [datePart, timePart] = dateTimeLocal.split("T");
+  const normalized = dateTimeLocal
+    .replace(/Z$/i, "")
+    .replace(/[+-]\d{2}:\d{2}$/, "")
+    .replace(/[+-]\d{2}$/, "");
+  const [datePart, timePart] = normalized.split("T");
   const [year, month, day] = datePart.split("-").map(Number);
   const [hour, minute, second = 0] = timePart.split(":").map(Number);
   const utcLike = new Date(Date.UTC(year, month - 1, day, hour, minute, second));

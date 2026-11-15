@@ -6,7 +6,7 @@
     <title>Admin Portal</title>
     <script>
       (function redirectToAdminPortal() {
-        const targetUrl = new URL("./index.html?admin=1", window.location.href);
+        const targetUrl = new URL("./admin/", window.location.href);
         window.location.replace(targetUrl.toString());
       })();
     </script>

@@ -1,8 +1,10 @@
+import { earnCompletedBooking } from "../lib/loyalty-ledger.js";
 import { z } from "zod";
 
 import { prisma } from "../lib/prisma.js";
+import { getPlatformSettings } from "../lib/platform-settings.js";
 import { requireUserFromAuthHeader } from "../lib/auth.js";
-import { notifyBookingEvent } from "../lib/push.js";
+import { notifyOperationalEvent } from "../lib/notifications.js";
 import {
   isHoliday,
   isWithinOperatingHours,
@@ -32,6 +34,16 @@ const bookingUpdateSchema = z.object({
   timeZone: z.string().trim().min(1).optional(),
 });
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  PENDING: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["COMPLETED", "CANCELLED", "NO_SHOW"],
+};
+
+function isLegalStatusTransition(from: string, to: string): boolean {
+  if (from === to) return true;
+  return VALID_TRANSITIONS[from]?.includes(to) ?? false;
+}
+
 function canMutateBooking(
   user: { id: string; role: string },
   booking: { userId: string; status: string; salon: { ownerId: string } },
@@ -39,9 +51,9 @@ function canMutateBooking(
 ) {
   if (user.role === "ADMIN") return true;
   if (user.role === "OWNER" || user.role === "STAFF") {
-    // Match the persisted tenant boundary used by booking listing. There is
-    // currently no staff-membership relation that can grant additional access.
-    return booking.salon.ownerId === user.id;
+    if (booking.salon.ownerId !== user.id) return false;
+    if (requestedStatus !== undefined && !isLegalStatusTransition(booking.status, requestedStatus)) return false;
+    return true;
   }
   return user.role === "CUSTOMER"
     && booking.userId === user.id
@@ -140,6 +152,7 @@ export async function bookingRoutes(app: any) {
 
       return { bookings };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -155,6 +168,7 @@ export async function bookingRoutes(app: any) {
 
       return { bookings };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -174,6 +188,10 @@ export async function bookingRoutes(app: any) {
       const notes = payload.notes && payload.notes.trim() ? payload.notes.trim() : null;
       const timeZone = payload.timeZone || "Europe/Berlin";
 
+      const settings = await getPlatformSettings();
+      if (!settings.bookingGloballyEnabled) {
+        return reply.code(409).send({ error: "Booking intake is currently disabled" });
+      }
       const { salon, selectedService } = await getSalonBookingContext(payload.salonId, serviceId, barberId);
       if (!salon.bookingIntakeEnabled) {
         return reply.code(409).send({ error: "Booking intake is currently disabled" });
@@ -205,7 +223,8 @@ export async function bookingRoutes(app: any) {
         return reply.code(409).send({ error: "Booking slot is no longer available" });
       }
 
-      const booking = await prisma.booking.create({
+      const booking = await prisma.$transaction(async (tx) => {
+      const booking = await tx.booking.create({
         data: {
           userId: user.id,
           salonId: payload.salonId,
@@ -225,22 +244,18 @@ export async function bookingRoutes(app: any) {
         },
       });
 
-      await notifyBookingEvent({
-        userId: user.id,
-        ownerId: booking.salon.ownerId,
-        bookingId: booking.id,
-        salonId: booking.salonId,
-        type: "booking-created",
-        title: "Booking received",
-        body: `Your booking at ${booking.salon.name} is pending confirmation.`,
+      await notifyOperationalEvent(tx, { entity: "booking", id: booking.id, salonId: booking.salonId,
+        customerId: user.id, ownerId: booking.salon.ownerId, actorId: user.id, state: "CREATED", revision: "created" });
+      return booking;
       });
 
       return { booking };
     } catch (error: any) {
+      if (reply.sent) return reply;
       if (error?.statusCode === 404) {
         return reply.code(error.statusCode).send({ error: error.message });
       }
-      return reply.code(401).send({ error: "Unauthorized" });
+      return reply.code(500).send({ error: "Operation could not be saved" });
     }
   });
 
@@ -276,6 +291,22 @@ export async function bookingRoutes(app: any) {
       if (nextServiceId && !nextService) {
         return reply.code(404).send({ error: "Service not found" });
       }
+      if (nextService && nextService.salonId !== booking.salonId) {
+        return reply.code(400).send({ error: "Service must belong to the booking salon" });
+      }
+
+      if (nextBarberId) {
+        const nextBarber = await prisma.barber.findUnique({
+          where: { id: nextBarberId },
+          select: { id: true, salonId: true },
+        });
+        if (!nextBarber) {
+          return reply.code(404).send({ error: "Barber not found" });
+        }
+        if (nextBarber.salonId !== booking.salonId) {
+          return reply.code(400).send({ error: "Barber must belong to the booking salon" });
+        }
+      }
 
       const validationError = validateBookingWindow(
         booking.salon,
@@ -302,7 +333,8 @@ export async function bookingRoutes(app: any) {
         return reply.code(409).send({ error: "Booking slot is no longer available" });
       }
 
-      const updated = await prisma.booking.update({
+      const updated = await prisma.$transaction(async (tx) => {
+      const updated = await tx.booking.update({
         where: { id: booking.id },
         data: {
           serviceId: nextServiceId ?? booking.serviceId,
@@ -317,35 +349,20 @@ export async function bookingRoutes(app: any) {
         include: { salon: true, service: true, barber: true },
       });
 
-      const statusTitleMap: Record<string, string> = {
-        PENDING: "Booking updated",
-        CONFIRMED: "Booking confirmed",
-        CANCELLED: "Booking cancelled",
-        COMPLETED: "Booking completed",
-        NO_SHOW: "Booking marked no-show",
-      };
-
-      const notificationType = updated.status === "CANCELLED"
-        ? "booking-cancelled"
-        : updated.status === "CONFIRMED"
-          ? "booking-confirmed"
-          : "booking-updated";
-
-      await notifyBookingEvent({
-        userId: booking.userId,
-        ownerId: booking.salon.ownerId,
-        bookingId: updated.id,
-        salonId: updated.salonId,
-        type: notificationType,
-        title: statusTitleMap[updated.status] ?? "Booking update",
-        body: updated.status === "CANCELLED"
-          ? `Your booking at ${updated.salon.name} was cancelled.`
-          : `Your booking at ${updated.salon.name} has been updated.`,
+        if (booking.status !== updated.status) await earnCompletedBooking(tx, updated);
+      const changed = booking.status !== updated.status || +booking.startAt !== +updated.startAt ||
+        +booking.endAt !== +updated.endAt || booking.serviceId !== updated.serviceId || booking.barberId !== updated.barberId;
+      if (changed) await notifyOperationalEvent(tx, { entity: "booking", id: updated.id, salonId: updated.salonId,
+        customerId: booking.userId, ownerId: booking.salon.ownerId, actorId: user.id,
+        state: booking.status !== updated.status ? updated.status : "UPDATED",
+        revision: [updated.status, updated.startAt.toISOString(), updated.endAt.toISOString(), updated.serviceId, updated.barberId].join(":") });
+      return updated;
       });
 
       return { booking: updated };
     } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+      if (reply.sent) return reply;
+      return reply.code(500).send({ error: "Operation could not be saved" });
     }
   });
 
@@ -365,7 +382,8 @@ export async function bookingRoutes(app: any) {
         return reply.code(403).send({ error: "Forbidden" });
       }
 
-      const cancelled = await prisma.booking.update({
+      const cancelled = await prisma.$transaction(async (tx) => {
+      const cancelled = await tx.booking.update({
         where: { id: booking.id },
         data: {
           status: "CANCELLED",
@@ -375,19 +393,17 @@ export async function bookingRoutes(app: any) {
         include: { salon: true },
       });
 
-      await notifyBookingEvent({
-        userId: booking.userId,
-        ownerId: cancelled.salon.ownerId,
-        bookingId: cancelled.id,
-        salonId: cancelled.salonId,
-        type: "booking-cancelled",
-        title: "Booking cancelled",
-        body: `Your booking at ${cancelled.salon.name} has been cancelled.`,
+      if (booking.status !== "CANCELLED") await notifyOperationalEvent(tx, {
+        entity: "booking", id: cancelled.id, salonId: cancelled.salonId, customerId: booking.userId,
+        ownerId: cancelled.salon.ownerId, actorId: user.id, state: "CANCELLED",
+        revision: [cancelled.status, cancelled.startAt.toISOString(), cancelled.endAt.toISOString(), cancelled.serviceId, cancelled.barberId].join(":") });
+      return cancelled;
       });
 
       return { booking: cancelled };
     } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+      if (reply.sent) return reply;
+      return reply.code(500).send({ error: "Operation could not be saved" });
     }
   });
 }

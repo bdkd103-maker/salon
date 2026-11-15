@@ -96,3 +96,25 @@ test("POST booking rejects new intake when booking intake is disabled", async ()
     await app.close();
   }
 });
+
+test("unauthorized booking mutations reply once without double-send", async () => {
+  const app = Fastify();
+
+  try {
+    await bookingRoutes(app);
+
+    for (const method of ["GET", "POST", "PATCH", "DELETE"] as const) {
+      const response = await app.inject({
+        method,
+        url: method === "GET" ? "/api/v1/bookings" : method === "POST" ? "/api/v1/bookings" : "/api/v1/bookings/booking-1",
+        ...(method === "POST" || method === "PATCH" ? { payload: {} } : {}),
+      });
+
+      assert.equal(response.statusCode, 401, `${method}: ${response.body}`);
+      assert.deepEqual(response.json(), { error: "Unauthorized" });
+      assert.equal(createCalls, 0);
+    }
+  } finally {
+    await app.close();
+  }
+});

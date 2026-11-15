@@ -2339,6 +2339,22 @@
       color: var(--accent-strong);
       font-size: 0.86rem;
     }
+    .salon-profile-extras {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .salon-profile-extras li {
+      color: var(--accent-strong);
+      font-size: 0.84rem;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(120, 80, 72, 0.12);
+    }
     .salon-profile-gallery {
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
@@ -2796,10 +2812,13 @@
     #customerRegisterModal .registration-phone input { min-width: 0; flex: 1; width: 100%; padding-inline-start: 12px; }
     #customerRegisterModal .verify-row { display: flex; flex-wrap: wrap; gap: 8px; }
     #customerRegisterModal .verify-row input { min-width: 0; flex: 1; }
+    .salo-header .salo-official-logo { display:block; width:140px; height:auto; object-fit:contain; direction:ltr; }
+    @media(max-width:767px){ .salo-header .salo-official-logo { width:104px; } }
   </style>
   <link rel="stylesheet" href="./assets/customer-header.css">
   <link rel="stylesheet" href="./assets/customer-hero.css">
   <link rel="stylesheet" href="./assets/customer-salon-card.css">
+  <link rel="stylesheet" href="./assets/salo-brand-lockup.css">
 </head>
 <body>
   <div class="experience-gate" id="experienceGate" aria-modal="true" role="dialog" aria-labelledby="experienceGateTitle">
@@ -2836,7 +2855,7 @@
   <div class="container">
   <header class="salo-header" data-salo-experience="women">
     <div class="salo-header-inner">
-      <a class="salo-brand"  href="women.html" data-salo-label="home"><span>SALO</span><small>SMART SALON</small></a>
+      <a class="salo-brand"  href="women.html" data-salo-label="home"><span class="salo-brand-lockup"><img class="salo-official-logo" src="./assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span></a>
       <nav class="salo-experience" aria-label="Experience" data-salo-label="experience"><a href="women.html" data-salo-mode="women" aria-current="page" data-salo-text="women">Damen</a><a href="index.html" data-salo-mode="men" data-salo-text="men">Herren</a></nav>
       <a class="salo-discover" href="#womenGrid" data-salo-text="discover">Entdecken</a>
       <div class="lang-select-shell">
@@ -3086,8 +3105,9 @@
     <div class="container footer-inner">
       <div>© 2026 <span data-i18n="brandName">صالونك</span> · <span data-i18n="rights">جميع الحقوق محفوظة</span></div>
       <div class="legal-links">
-        <a href="#privacy" data-legal="privacy" data-i18n="privacy">الخصوصية</a>
-        <a href="#imprint" data-legal="imprint" data-i18n="imprint">البيانات القانونية</a>
+        <a href="datenschutz.html" data-i18n="privacy">الخصوصية</a>
+        <a href="impressum.html" data-i18n="imprint">البيانات القانونية</a>
+        <a href="agb.html">AGB</a>
       </div>
     </div>
   </footer>
@@ -3527,6 +3547,7 @@
         route: "الاتجاه",
         call: "اتصال",
         favorite: "المفضلة",
+        favoriteSignInHint: "سجّلي الدخول لحفظ الصالونات",
         chooseSalon: "اختاري الصالون",
         city: "المدينة",
         address: "العنوان",
@@ -3693,6 +3714,7 @@
         route: "Route",
         call: "Call",
         favorite: "Favorite",
+        favoriteSignInHint: "Sign in to save salons",
         chooseSalon: "Choose salon",
         city: "City",
         address: "Address",
@@ -3859,6 +3881,7 @@
         route: "Route",
         call: "Anrufen",
         favorite: "Favorit",
+        favoriteSignInHint: "Anmelden, um Salons zu merken",
         chooseSalon: "Salon wählen",
         city: "Stadt",
         address: "Adresse",
@@ -4208,6 +4231,8 @@
     };
     let selectedWomenSalon = null;
     const womenCandidateCache = { value: null, loadedAt: 0, ttlMs: 60000 };
+    let womenLiveSalons = [];
+    let womenApiLoaded = false;
     const beautyBackgrounds = [
       "/assets/womens/501bd8ef-356a-4e1d-97e4-1f2456c30390-loreal-professionnel-6.jpg",
       "/assets/womens/3c5324e6a8f09d6cfb91473d718cc268.jpg",
@@ -4445,7 +4470,7 @@
     }
 
     function getWomenCityOptions() {
-      const salons = [...collectWomenSalonCandidates(), ...readList("meshwarSalons"), ...readList("meshwarWomenSalons")];
+      const salons = collectWomenSalonCandidates();
       const cities = salons
         .map(salon => salon && salon.city ? String(salon.city).trim() : "")
         .filter(Boolean)
@@ -4538,6 +4563,8 @@
     function resolveWomenApiBaseUrl() {
       const fallback = "http://localhost:4000";
       try {
+        const explicitApiBaseUrl = String(window.SALO_API_BASE_URL || document.querySelector('meta[name="salo-api-base"]')?.content || "").trim();
+        if (explicitApiBaseUrl) return explicitApiBaseUrl.replace(/\/+$/, "");
         const { protocol, hostname, port } = window.location;
         if (hostname === "localhost" || hostname === "127.0.0.1") {
           return `${protocol}//${hostname}:4000`;
@@ -4552,7 +4579,7 @@
           return `${protocol}//${hostname}:4000`;
         }
 
-        return fallback;
+        return `${protocol}//${hostname}`;
       } catch (error) {
         return fallback;
       }
@@ -4657,6 +4684,9 @@
         localStorage.removeItem("meshwarCustomerAuth");
       }
       womenCustomerProfile = {};
+      womenFavoriteSalonIds = new Set();
+      womenFavoriteSalonIdsLoaded = false;
+      womenFavoriteSalonIdsRequest = null;
     }
 
     function setWomenModalState(id, isOpen) {
@@ -4878,6 +4908,18 @@
       }
     }
 
+    function isValidWomenCoordinate(value, limit) {
+      return value !== null && value !== undefined && String(value).trim() !== "" && Number.isFinite(Number(value)) && Math.abs(Number(value)) <= limit;
+    }
+
+    function getConsentedWomenLocation() {
+      const location = getStoredUserLocation();
+      if (!getLocationConsent() || !location || !isValidWomenCoordinate(location.latitude, 90) || !isValidWomenCoordinate(location.longitude, 180)) return null;
+      const capturedAt = Date.parse(location.capturedAt || "");
+      if (!Number.isFinite(capturedAt) || Date.now() - capturedAt > 600000 || capturedAt > Date.now() + 60000) return null;
+      return location;
+    }
+
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
       const toRad = value => (value * Math.PI) / 180;
       const earthRadius = 6371;
@@ -4887,33 +4929,56 @@
       return 2 * earthRadius * Math.asin(Math.sqrt(a));
     }
 
+    function getWomenSalonDistanceKm(salon) {
+      const userLocation = getConsentedWomenLocation();
+      if (!salon || !userLocation) return Number.NaN;
+      if (!isValidWomenCoordinate(userLocation.latitude, 90) || !isValidWomenCoordinate(userLocation.longitude, 180)) return Number.NaN;
+      if (!isValidWomenCoordinate(salon.latitude, 90) || !isValidWomenCoordinate(salon.longitude, 180)) return Number.NaN;
+      return calculateDistanceKm(Number(userLocation.latitude), Number(userLocation.longitude), Number(salon.latitude), Number(salon.longitude));
+    }
+
     function getNearestWomenSalons(salonsToSort, maxResults = 6) {
-      const userLocation = getStoredUserLocation();
-      if (!userLocation || !Number.isFinite(userLocation.latitude) || !Number.isFinite(userLocation.longitude)) {
-        return salonsToSort;
-      }
-      const candidateSalons = salonsToSort.filter(salon => Number.isFinite(Number(salon.latitude)) && Number.isFinite(Number(salon.longitude)));
-      if (!candidateSalons.length) {
-        return salonsToSort;
-      }
-      return [...candidateSalons].sort((a, b) => {
-        const aDistance = calculateDistanceKm(userLocation.latitude, userLocation.longitude, Number(a.latitude), Number(a.longitude));
-        const bDistance = calculateDistanceKm(userLocation.latitude, userLocation.longitude, Number(b.latitude), Number(b.longitude));
-        return aDistance - bDistance;
+      const userLocation = getConsentedWomenLocation();
+      if (!userLocation) return [];
+      return [...salonsToSort].sort((a, b) => {
+        const aDistance = getWomenSalonDistanceKm(a, userLocation);
+        const bDistance = getWomenSalonDistanceKm(b, userLocation);
+        if (Number.isFinite(aDistance) && Number.isFinite(bDistance)) return aDistance - bDistance;
+        if (Number.isFinite(aDistance)) return -1;
+        if (Number.isFinite(bDistance)) return 1;
+        return (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" });
       }).slice(0, maxResults);
     }
 
-    function requestWomenLocation() {
-      if (!navigator.geolocation) return false;
-      const storedLocation = getStoredUserLocation();
-      const alreadyGranted = getLocationConsent() && storedLocation;
-      if (alreadyGranted && Number.isFinite(Number(storedLocation.latitude)) && Number.isFinite(Number(storedLocation.longitude))) {
+    let womenNearestDiscoveryActive = false;
+    function requestWomenLocation(onGranted = null) {
+      const showUnavailable = () => {
+        localStorage.setItem("meshwarLocationConsent", "false");
+        localStorage.removeItem("meshwarUserLocation");
+        womenNearestDiscoveryActive = false;
         renderNearbySalons();
+        renderWomenSalons();
+      };
+      if (!navigator.geolocation) {
+        showUnavailable();
+        return false;
+      }
+      const storedLocation = getConsentedWomenLocation();
+      if (storedLocation) {
+        if (typeof onGranted === "function") onGranted(storedLocation);
+        else {
+          renderNearbySalons();
+          renderWomenSalons();
+        }
         return true;
       }
 
       navigator.geolocation.getCurrentPosition(
         position => {
+          if (!isValidWomenCoordinate(position?.coords?.latitude, 90) || !isValidWomenCoordinate(position?.coords?.longitude, 180)) {
+            showUnavailable();
+            return;
+          }
           const userLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -4922,13 +4987,13 @@
           };
           localStorage.setItem("meshwarLocationConsent", "true");
           localStorage.setItem("meshwarUserLocation", JSON.stringify(userLocation));
-          renderNearbySalons();
-          renderWomenSalons();
+          if (typeof onGranted === "function") onGranted(userLocation);
+          else {
+            renderNearbySalons();
+            renderWomenSalons();
+          }
         },
-        () => {
-          localStorage.setItem("meshwarLocationConsent", "false");
-          renderNearbySalons();
-        },
+        showUnavailable,
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
       );
       return true;
@@ -5011,7 +5076,9 @@
           noRating: "لا يوجد تقييم",
           vip: "VIP",
           premium: "Premium",
-          regular: "Regular"
+          regular: "Regular",
+          amenities: "المرافق",
+          extras: { coffee: "قهوة", otherDrinks: "مشروبات", wifi: "واي فاي", parking: "موقف سيارات", cashPayment: "دفع نقداً", cardPayment: "دفع بالبطاقة", applePay: "أبل باي", googlePay: "جوجل باي", wheelchairAccess: "مخصص لمستخدمي الكرسي المتحرك" }
         },
         en: {
           loading: "Loading salon details...",
@@ -5031,7 +5098,9 @@
           noRating: "No rating",
           vip: "VIP",
           premium: "Premium",
-          regular: "Regular"
+          regular: "Regular",
+          amenities: "Amenities",
+          extras: { coffee: "Coffee", otherDrinks: "Drinks", wifi: "Wi-Fi", parking: "Parking", cashPayment: "Cash payment", cardPayment: "Card payment", applePay: "Apple Pay", googlePay: "Google Pay", wheelchairAccess: "Wheelchair access" }
         },
         de: {
           loading: "Salondetails werden geladen...",
@@ -5051,7 +5120,9 @@
           noRating: "Keine Bewertung",
           vip: "VIP",
           premium: "Premium",
-          regular: "Regular"
+          regular: "Regular",
+          amenities: "Ausstattung",
+          extras: { coffee: "Kaffee", otherDrinks: "Getränke", wifi: "WLAN", parking: "Parkplatz", cashPayment: "Barzahlung", cardPayment: "Kartenzahlung", applePay: "Apple Pay", googlePay: "Google Pay", wheelchairAccess: "Rollstuhlgerecht" }
         }
       };
       return map[lang] || map.en;
@@ -5203,6 +5274,12 @@
       })).filter(service => service.name);
     }
 
+    function getWomenSalonProfileExtras(salon) {
+      const catalog = ['coffee', 'otherDrinks', 'wifi', 'parking', 'cashPayment', 'cardPayment', 'applePay', 'googlePay', 'wheelchairAccess'];
+      const values = Array.isArray(salon?.extras) ? salon.extras : [];
+      return catalog.filter(key => values.includes(key));
+    }
+
     function getWomenSalonProfileBarbers(salon) {
       return (Array.isArray(salon?.barbers) ? salon.barbers : [])
         .map(barber => ({
@@ -5343,6 +5420,7 @@
       const reviewCount = getWomenSalonReviewCount(salon);
       const formattedRating = Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : profileCopy.noRating;
       const services = getWomenSalonProfileServices(salon);
+      const extras = getWomenSalonProfileExtras(salon);
       const barbers = getWomenSalonProfileBarbers(salon);
       const hours = getWomenSalonProfileOpeningHours(salon);
       const reviews = getWomenSalonProfileReviews(salon);
@@ -5378,6 +5456,17 @@
                 return `<div class="salon-profile-price-item"><strong>${escapeHtml(service.name)}</strong><span>${escapeHtml(meta || service.description || "")}</span>${service.description && meta ? `<span>${escapeHtml(service.description)}</span>` : ""}</div>`;
               }).join("")}
             </div>
+          </section>
+        `);
+      }
+
+      if (extras.length) {
+        sections.push(`
+          <section class="salon-profile-section salon-profile-extras-section">
+            <h3>${escapeHtml(profileCopy.amenities)}</h3>
+            <ul class="salon-profile-extras">
+              ${extras.map(key => `<li>${escapeHtml(profileCopy.extras?.[key] || key)}</li>`).join("")}
+            </ul>
           </section>
         `);
       }
@@ -5592,20 +5681,111 @@
     async function loadLiveWomenSalons() {
       try {
         const response = await apiRequest("/api/v1/salons");
-        if (!Array.isArray(response.salons)) return;
+        if (!Array.isArray(response.salons)) {
+          womenLiveSalons = [];
+          womenApiLoaded = true;
+          womenCandidateCache.value = null;
+          renderPopularSalons();
+          renderNearbySalons();
+          renderWomenSalons();
+          renderWomenOffers();
+          return;
+        }
         const liveSalons = response.salons.map(normalizeSalon).filter(Boolean);
-        localStorage.setItem("meshwarWomenSalons", JSON.stringify(
-          liveSalons.filter(salon => salon.forWomen || salon.women)
-        ));
-        localStorage.setItem("meshwarSalons", JSON.stringify(liveSalons));
+        womenLiveSalons = liveSalons;
+        await loadMyWomenFavoriteSalonIds();
+        womenApiLoaded = true;
         womenCandidateCache.value = null;
         renderPopularSalons();
         renderNearbySalons();
         renderWomenSalons();
         renderWomenOffers();
       } catch (error) {
-        console.warn("Live women salon load failed, using local fallback.", error);
+        console.warn("Live women salon load failed; showing empty sections.", error);
+        womenLiveSalons = [];
+        womenApiLoaded = true;
+        womenCandidateCache.value = null;
+        renderPopularSalons();
+        renderNearbySalons();
+        renderWomenSalons();
+        renderWomenOffers();
       }
+    }
+
+    let womenFavoriteSalonIds = new Set();
+    let womenFavoriteSalonIdsLoaded = false;
+    let womenFavoriteSalonIdsRequest = null;
+
+    function isWomenFavoriteSalon(salonId) {
+      return womenFavoriteSalonIds.has(String(salonId));
+    }
+
+    function applyWomenFavoriteSalonState(salonId, isFavorite) {
+      const id = String(salonId);
+      if (isFavorite) womenFavoriteSalonIds.add(id);
+      else womenFavoriteSalonIds.delete(id);
+      document.querySelectorAll("[data-favorite-salon]").forEach(button => {
+        const active = isWomenFavoriteSalon(button.dataset.favoriteSalon);
+        button.classList.toggle("is-favorite", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+        const copy = getWomenCopy(document.documentElement.lang || defaultLang);
+        button.innerHTML = `<i class="fa-${active ? "solid" : "regular"} fa-heart"></i> ${copy.favorite}`;
+        button.title = active ? "" : (copy.favoriteSignInHint || "");
+      });
+    }
+
+    async function loadMyWomenFavoriteSalonIds(options = {}) {
+      const { force = false } = options;
+      if (!hasStoredCustomerAuth()) {
+        womenFavoriteSalonIds = new Set();
+        womenFavoriteSalonIdsLoaded = true;
+        return womenFavoriteSalonIds;
+      }
+      if (womenFavoriteSalonIdsRequest) return womenFavoriteSalonIdsRequest;
+      if (womenFavoriteSalonIdsLoaded && !force) return womenFavoriteSalonIds;
+      womenFavoriteSalonIdsRequest = (async () => {
+        try {
+          const response = await apiRequest("/api/v1/favorites", { headers: getApiHeaders() });
+          const rows = Array.isArray(response?.favorites) ? response.favorites : [];
+          womenFavoriteSalonIds = new Set(rows.map(item => String(item?.salonId || "")).filter(Boolean));
+        } catch (error) {
+          console.warn("Favorites sync failed.", error);
+        } finally {
+          womenFavoriteSalonIdsLoaded = true;
+          womenFavoriteSalonIdsRequest = null;
+        }
+        return womenFavoriteSalonIds;
+      })();
+      return womenFavoriteSalonIdsRequest;
+    }
+
+    async function toggleWomenFavoriteSalon(salonId, button) {
+      const id = String(salonId);
+      if (!hasStoredCustomerAuth()) {
+        openCustomerLoginForWomenPage();
+        return;
+      }
+      const nextFavorite = !isWomenFavoriteSalon(id);
+      applyWomenFavoriteSalonState(id, nextFavorite);
+      try {
+        await apiRequest(`/api/v1/favorites/${encodeURIComponent(id)}`, {
+          method: nextFavorite ? "POST" : "DELETE",
+          headers: getApiHeaders()
+        });
+      } catch (error) {
+        applyWomenFavoriteSalonState(id, !nextFavorite);
+        console.warn("Favorite update failed.", error);
+        return;
+      }
+      if (button) button.blur();
+    }
+
+    function handleWomenSalonDeepLink() {
+      if (!window.location.hash.startsWith("#salon-")) return;
+      const salonId = decodeURIComponent(window.location.hash.slice("#salon-".length)).trim();
+      if (!salonId) return;
+      const salon = collectWomenSalonCandidates().find(item => String(item.id) === salonId);
+      if (salon) openWomenSalonProfile(salon);
     }
 
     function collectWomenSalonCandidates() {
@@ -5614,40 +5794,9 @@
         return womenCandidateCache.value;
       }
 
-      const dedicatedWomenList = (() => {
-        try {
-          const raw = localStorage.getItem("meshwarWomenSalons");
-          const parsed = raw ? JSON.parse(raw) : [];
-          const list = Array.isArray(parsed) ? parsed : [];
-          return list.filter(item => item && typeof item === "object" && !isDefaultDemoSalon(item));
-        } catch (error) {
-          localStorage.removeItem("meshwarWomenSalons");
-          return [];
-        }
-      })();
-      const legacyWomenEntries = (() => {
-        try {
-          const raw = localStorage.getItem("meshwarSalons");
-          const parsed = raw ? JSON.parse(raw) : [];
-          const list = Array.isArray(parsed) ? parsed : [];
-          return list.filter(item => item && typeof item === "object" && !isDefaultDemoSalon(item) && normalizeBooleanFlag(item.forWomen ?? item.women ?? item.isWomenOnly ?? item.isForWomen ?? item.gender ?? item.category ?? item.targetAudience ?? item.section ?? false));
-        } catch (error) {
-          localStorage.removeItem("meshwarSalons");
-          return [];
-        }
-      })();
-      const singleLegacy = (() => {
-        try {
-          const raw = localStorage.getItem("meshwarSalon");
-          const parsed = raw ? JSON.parse(raw) : null;
-          if (!parsed || typeof parsed !== "object" || isDefaultDemoSalon(parsed)) return [];
-          return normalizeBooleanFlag(parsed.forWomen ?? parsed.women ?? parsed.isWomenOnly ?? parsed.isForWomen ?? parsed.gender ?? parsed.category ?? parsed.targetAudience ?? parsed.section ?? false) ? [parsed] : [];
-        } catch (error) {
-          localStorage.removeItem("meshwarSalon");
-          return [];
-        }
-      })();
-      const candidateList = [...dedicatedWomenList, ...legacyWomenEntries, ...singleLegacy];
+      const candidateList = womenApiLoaded
+        ? womenLiveSalons
+        : [];
       const result = candidateList
         .filter(item => item && typeof item === "object")
         .map(normalizeSalon)
@@ -5682,8 +5831,7 @@
 
       const salons = collectWomenSalonCandidates()
         .filter(salon => categoryMatchesSalon(salon, getActiveCategoryKey()));
-      const userLocation = getStoredUserLocation();
-      const withCoords = salons.filter(salon => Number.isFinite(Number(salon.latitude)) && Number.isFinite(Number(salon.longitude)));
+      const userLocation = getConsentedWomenLocation();
 
       if (!userLocation || !Number.isFinite(userLocation.latitude) || !Number.isFinite(userLocation.longitude)) {
         container.innerHTML = `<p class="nearby-empty" data-i18n="nearbyEmpty">Noch keine Salons in der Nähe. Versuche eine Stadt oder aktiviere den Standort.</p>`;
@@ -5699,10 +5847,8 @@
       const currentLang = document.documentElement.lang || defaultLang;
       const copy = getWomenCopy(currentLang);
       container.innerHTML = nearby.map((salon, index) => {
-        const distance = Number.isFinite(Number(salon.latitude)) && Number.isFinite(Number(salon.longitude))
-          ? calculateDistanceKm(userLocation.latitude, userLocation.longitude, Number(salon.latitude), Number(salon.longitude))
-          : null;
-        const distanceLabel = distance === null ? "—" : `${distance.toFixed(1)} km`;
+        const distance = getWomenSalonDistanceKm(salon, userLocation);
+        const distanceLabel = Number.isFinite(distance) ? `${distance.toFixed(1)} km` : "—";
         const cover = getSalonCover(salon, index);
         const rating = Number(salon.rating || 0);
         const reviewCount = getWomenSalonReviewCount(salon);
@@ -5917,11 +6063,11 @@
 
       if (filters.distance !== "all") {
         const maxDistance = Number(filters.distance);
-        if (!Number.isFinite(maxDistance) || !userLocation || !Number.isFinite(Number(salon.latitude)) || !Number.isFinite(Number(salon.longitude))) {
+        if (!Number.isFinite(maxDistance) || !userLocation) {
           return false;
         }
-        const distance = calculateDistanceKm(userLocation.latitude, userLocation.longitude, Number(salon.latitude), Number(salon.longitude));
-        if (distance > maxDistance) return false;
+        const distance = getWomenSalonDistanceKm(salon, userLocation);
+        if (!Number.isFinite(distance) || distance > maxDistance) return false;
       }
 
       if (filters.rating > 0 && (!Number.isFinite(Number(salon.rating)) || Number(salon.rating) < filters.rating)) {
@@ -6139,14 +6285,23 @@
         const rawQuery = (document.getElementById("headerSearchInput")?.value || document.getElementById("heroSearchInput")?.value || "").trim().toLowerCase();
         const activeCategoryKey = getActiveCategoryKey();
         const filters = getWomenFilterState();
-        const userLocation = getStoredUserLocation();
-        const salonList = collectWomenSalonCandidates()
+        const userLocation = getConsentedWomenLocation();
+        const filteredSalonList = collectWomenSalonCandidates()
           .filter(salon => categoryMatchesSalon(salon, activeCategoryKey))
           .filter(salon => {
             const matchesCity = cityValue === "all" || !salon.city || salon.city.toLowerCase() === cityValue.toLowerCase() || salon.city.toLowerCase().includes(cityValue.toLowerCase());
             return matchesCity && matchesWomenFilters(salon, rawQuery, filters, userLocation);
-          })
-          .sort((a, b) => Number(isPremiumSalon(b)) - Number(isPremiumSalon(a)) || (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }))
+          });
+        const salonList = (womenNearestDiscoveryActive && userLocation
+          ? filteredSalonList.sort((a, b) => {
+              const aDistance = getWomenSalonDistanceKm(a, userLocation);
+              const bDistance = getWomenSalonDistanceKm(b, userLocation);
+              if (Number.isFinite(aDistance) && Number.isFinite(bDistance)) return aDistance - bDistance;
+              if (Number.isFinite(aDistance)) return -1;
+              if (Number.isFinite(bDistance)) return 1;
+              return (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" });
+            })
+          : filteredSalonList.sort((a, b) => Number(isPremiumSalon(b)) - Number(isPremiumSalon(a)) || (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" })))
           .slice(0, 100);
 
         if (!salonList.length) {
@@ -6176,10 +6331,11 @@
           const reviewCount = getWomenSalonReviewCount(salon);
           const ratingValue = Number(salon.rating || 0);
           const rating = reviewCount > 0 && Number.isFinite(ratingValue) && ratingValue > 0 ? ratingValue.toFixed(1) : "";
-          const favoriteSaved = JSON.parse(localStorage.getItem("womenFavorites") || "[]");
-          const isFavorite = favoriteSaved.includes(String(salon.id));
+          const isFavorite = isWomenFavoriteSalon(salon.id);
           const premium = isPremiumSalon(salon);
           const statusClass = operatingState.isOpen ? "status-open" : "status-closed";
+          const distanceKm = getWomenSalonDistanceKm(salon, userLocation);
+          const distanceMarkup = Number.isFinite(distanceKm) ? ` · <span class="women-card-distance">${distanceKm < 1 ? "< 1" : distanceKm.toFixed(1)} km</span>` : "";
           const premiumBadge = premium ? `<span class="premium-badge"><i class="fa-solid fa-crown"></i> ${escapeHtml(copy.premiumBadge)}</span>` : "";
           const serviceLabel = getLocalizedServiceName(salon.specialty || salon.service || salon.category || copy.serviceFallbackLabel, currentLang);
           const servicePreview = getWomenServicePreview(salon);
@@ -6200,7 +6356,7 @@
                 <div class="card-heading">
                   <div class="card-title-group">
                     <h3>${escapeHtml(salon.name)}</h3>
-                    <p class="meta">${escapeHtml(salon.city || "—")} · ${escapeHtml(salon.address || "—")}</p>
+                    <p class="meta">${escapeHtml(salon.city || "—")} · ${escapeHtml(salon.address || "—")}${distanceMarkup}</p>
                   </div>
                   <span class="service-tag">${escapeHtml(String(serviceLabel))}</span>
                 </div>
@@ -6209,7 +6365,7 @@
                 <div class="actions">
                   <button class="btn btn-secondary btn-compact btn-icon" type="button" data-route-salon="${salon.id}" aria-label="${copy.route}"><i class="fa-solid fa-route"></i> ${copy.route}</button>
                   <button class="btn btn-secondary btn-compact btn-icon" type="button" data-call-salon="${salon.id}" aria-label="${copy.call}"><i class="fa-solid fa-phone"></i> ${copy.call}</button>
-                  <button class="btn btn-secondary btn-compact btn-icon ${isFavorite ? "is-favorite" : ""}" type="button" data-favorite-salon="${salon.id}" aria-label="${copy.favorite}" aria-pressed="${isFavorite ? "true" : "false"}"><i class="fa-${isFavorite ? "solid" : "regular"} fa-heart"></i> ${copy.favorite}</button>
+                  <button class="btn btn-secondary btn-compact btn-icon ${isFavorite ? "is-favorite" : ""}" type="button" data-favorite-salon="${salon.id}" aria-label="${copy.favorite}" aria-pressed="${isFavorite ? "true" : "false"}" title="${isFavorite ? "" : (copy.favoriteSignInHint || "")}"><i class="fa-${isFavorite ? "solid" : "regular"} fa-heart"></i> ${copy.favorite}</button>
                 </div>
                 <button class="btn btn-primary" type="button" data-book-salon="${salon.id}">${copy.bookNow}</button>
               </div>
@@ -6253,16 +6409,12 @@
         });
 
         document.querySelectorAll("[data-favorite-salon]").forEach(button => {
-          button.addEventListener("click", () => {
-            const favoriteKey = "womenFavorites";
-            const saved = JSON.parse(localStorage.getItem(favoriteKey) || "[]");
-            const salonId = String(button.dataset.favoriteSalon);
-            const next = saved.includes(salonId) ? saved.filter(item => item !== salonId) : [...saved, salonId];
-            localStorage.setItem(favoriteKey, JSON.stringify(next));
-            const isNowFavorite = next.includes(salonId);
-            button.setAttribute("aria-pressed", String(isNowFavorite));
-            button.classList.toggle("is-favorite", isNowFavorite);
-            button.innerHTML = `<i class="fa-${isNowFavorite ? "solid" : "regular"} fa-heart"></i> ${copy.favorite}`;
+          button.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const salonId = String(button.dataset.favoriteSalon || "");
+            if (!salonId) return;
+            toggleWomenFavoriteSalon(salonId, button);
           });
         });
         bindWomenSalonProfileCardTriggers();
@@ -6359,16 +6511,12 @@
     });
 
     document.getElementById("womenNearbyButton")?.addEventListener("click", () => {
-      requestWomenLocation();
-      const citySelect = document.getElementById("headerCitySelect") || document.getElementById("heroCitySelect");
-      if (!citySelect || citySelect.options.length <= 1) return;
-      const firstCity = citySelect.options[1]?.value || "all";
-      if (citySelect) citySelect.value = firstCity;
-      const heroCity = document.getElementById("heroCitySelect");
-      if (heroCity) heroCity.value = firstCity;
-      renderWomenSalons();
-      renderNearbySalons();
-      document.getElementById("womenGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      requestWomenLocation(() => {
+        womenNearestDiscoveryActive = true;
+        renderWomenSalons();
+        renderNearbySalons();
+        document.getElementById("womenGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     });
 
     document.addEventListener("DOMContentLoaded", initializeWomenPage);
@@ -6446,6 +6594,7 @@
           noticeBox.classList.add("show");
         }
         closeWomenModal("customerLoginModal");
+        loadMyWomenFavoriteSalonIds({ force: true }).then(() => renderWomenSalons());
       } catch (error) {
         errorBox.textContent = error.message || copy.loginErrorInvalid;
         errorBox.classList.add("show");
@@ -6518,6 +6667,7 @@
         noticeBox.textContent = copy.registerSuccess;
         noticeBox.classList.add("show");
         closeWomenModal("customerRegisterModal");
+        loadMyWomenFavoriteSalonIds({ force: true }).then(() => renderWomenSalons());
       } catch (error) {
         noticeBox.textContent = Number(error?.status || 0) === 409 ? copy.registerExists : (error.message || copy.registerExists);
         noticeBox.classList.add("show");
@@ -6607,7 +6757,7 @@
     });
     setInterval(updateBackground, 5000);
     initLegalCompliance();
-    loadLiveWomenSalons();
+    loadLiveWomenSalons().then(handleWomenSalonDeepLink);
     renderCategoryButtons();
     renderPopularSalons();
     renderNearbySalons();
@@ -6622,5 +6772,6 @@
   <script src="./assets/customer-header.js"></script>
   <script src="./assets/customer-hero.js"></script>
   <script src="./assets/customer-salon-card.js"></script>
+  <script src="./assets/smart-core.js"></script>
 </body>
 </html>

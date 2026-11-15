@@ -80,6 +80,7 @@ const { chromium } = require('playwright');
         } else {
           await openOwnerPanel(salon);
           setOwnerPanelSection('settings');
+          setOwnerSettingsPanel('booking');
         }
         }, role);
         assert.equal(subscriptionCalls, role === 'OWNER' ? 1 : 0, 'opening must not fetch the subscription twice');
@@ -216,6 +217,7 @@ const { chromium } = require('playwright');
     session = { role: 'owner' };
     await openOwnerPanel(salon);
     setOwnerPanelSection('settings');
+    setOwnerSettingsPanel('booking');
   });
 
   await page.waitForTimeout(100);

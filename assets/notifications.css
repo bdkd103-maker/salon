@@ -1,0 +1,13 @@
+.salo-notification-entry{display:inline-flex;align-items:center;gap:6px;background:transparent;color:inherit;border:1px solid #8f79524d;border-radius:10px;padding:8px;cursor:pointer;font:inherit;font-size:12px;max-width:100%}.salo-notification-entry[hidden]{display:none}.salo-notification-badge{background:#c6a369;color:#181716;border-radius:12px;padding:1px 6px}.salo-notification-dialog{background:#242220;color:#f5efe5;border:1px solid #8f7952;border-radius:16px;width:min(520px,calc(100vw - 24px));max-height:85dvh;padding:18px;box-sizing:border-box;z-index:99999}.salo-notification-dialog::backdrop{background:#0009}.salo-notification-dialog header{display:flex;align-items:center;gap:12px;justify-content:space-between}.salo-notification-dialog h2{font-size:20px;margin:0}.salo-notification-dialog button,.salo-notification-dialog a{font:inherit;color:inherit;background:transparent;border:1px solid #84745b;border-radius:8px;padding:8px;cursor:pointer}.salo-notification-dialog [data-notification-list]{display:grid;gap:10px;margin-top:12px}.salo-notification-item{padding:12px;border:1px solid #ffffff1a;border-inline-start:3px solid transparent;border-radius:10px;overflow-wrap:anywhere}.salo-notification-item[data-unread=true]{border-inline-start-color:#d3af70;background:#ffffff08}.salo-notification-item p{margin:0 0 8px}.salo-notification-item time{display:block;font-size:12px;opacity:.75;margin-bottom:8px}.salo-notification-item footer{display:flex;flex-wrap:wrap;gap:8px}.salo-notification-dialog [hidden]{display:none!important}
+#ownerModal .owner-panel-scroll > .salo-notification-entry{margin-block:0 12px;justify-self:start;width:max-content;max-width:100%}
+#headerNotificationsButton .salo-notification-badge{position:absolute;inset-block-start:-3px;inset-inline-end:-5px;font-size:10px}
+
+.salo-notification-dialog > header,.salo-notification-item > footer{position:static;inset:auto;width:auto;max-width:none;height:auto;min-height:0;padding:0;margin:0;background:none;box-shadow:none;transform:none;border:0;z-index:auto;backdrop-filter:none}
+.salo-notification-dialog > header{flex-direction:row;flex-wrap:wrap}
+.salo-notification-dialog > header h2{position:static;transform:none;text-align:start}
+.salo-notification-item > footer{justify-content:flex-start}
+
+#headerNotificationsButton{position:relative}
+.salo-notification-dialog{font:14px/1.5 system-ui,sans-serif}
+.salo-notification-dialog > header::before,.salo-notification-dialog > header::after,.salo-notification-item > footer::before,.salo-notification-item > footer::after{content:none}
+.salo-notification-dialog h2{font-family:inherit;color:#f5efe5;background:none;-webkit-text-fill-color:currentColor;text-shadow:none}

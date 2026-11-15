@@ -3,8 +3,18 @@
 ## Purpose
 This repository is maintained by a conservative automation agent that monitors project health, fixes real issues, and improves code while avoiding risky or system-level changes.
 
+## Project context
+SALO SMART SALON is a multi-salon booking, queue, and salon management platform.
+- Frontend: HTML, CSS, JavaScript.
+- Backend: Node.js, TypeScript, Fastify.
+- Database: PostgreSQL with Prisma ORM.
+- Mobile: Capacitor for Android and iOS.
+- Preserve the existing architecture and completed functionality unless a verified regression requires a scoped fix.
+
 ## Non-negotiable safety rules
-- Only work inside the repository root and its tracked files.
+- Work only inside the repository root; tracked and untracked files may be used or modified when explicitly relevant to the authorized task.
+- Preserve all existing untracked files. Never delete, overwrite, or clean them without explicit user approval.
+- Do not create unrelated files or perform unnecessary cleanup.
 - Never modify system files, OS settings, user profiles, global environment variables, SSH keys, Docker daemon, or anything outside the project.
 - Never run destructive commands such as `rm -rf /`, `git reset --hard`, `git clean -fdx`, `sudo`, or package manager commands that modify the global environment.
 - Never touch secrets, credentials, API keys, tokens, or deployment credentials.
@@ -18,6 +28,16 @@ This repository is maintained by a conservative automation agent that monitors p
 - Run project-local validation commands only.
 - Add focused tests for deterministic bug fixes.
 - Make small, reviewable changes with minimal scope.
+
+## Git safety
+- Never commit, push, merge, rebase, reset, clean, or force-push without explicit user approval.
+- Never discard existing changes; preserve the current working tree.
+- Review diffs after modifications and confirm that only authorized changes were made.
+
+## Agent coordination
+- Only one coding agent may modify this repository working tree at a time.
+- Other agents may provide read-only reviews.
+- Do not start parallel write operations against the same files.
 
 ## Workflow
 1. Inspect the repository in read-only mode first.

@@ -21,7 +21,7 @@ export function validateEmailConfig(config: EmailConfig) {
   }
 }
 
-type VerificationEmailContent = { subject: string; text: string };
+export type VerificationEmailContent = { subject: string; text: string };
 
 // Never log this request or the provider response: both may contain sensitive data.
 async function sendCodeEmail(

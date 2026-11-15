@@ -21,4 +21,26 @@
 5. Present the result clearly, including limits and risks.
 
 ## Repository-specific guidance
-This project is a lightweight static web app. Prefer focused edits to HTML, CSS, and front-end behavior only. Avoid introducing new build tooling or heavy infrastructure unless the user explicitly requests it.
+
+SALO SMART SALON is a multi-salon booking, queue, and salon management platform.
+
+Technology stack:
+- Frontend: HTML, CSS, JavaScript
+- Backend: Node.js, TypeScript, Fastify
+- Database: PostgreSQL with Prisma ORM
+- Mobile: Capacitor for Android and iOS
+- Version control: Git and GitHub
+
+Development rules:
+- Preserve the existing architecture and completed features.
+- Work on one clearly defined task at a time.
+- Investigate the root cause before modifying code.
+- Keep modifications minimal and strictly within scope.
+- Never access, modify, or expose secrets or credentials.
+- Never commit, push, deploy, or publish without explicit user approval.
+- Never delete, reset, or overwrite existing work.
+- Do not run destructive cleanup commands.
+- Do not modify unrelated files.
+- Run relevant tests when applicable.
+- Report changed files, validation results, limitations, and risks.
+- Request approval before database migrations, dependency upgrades, or infrastructure changes.

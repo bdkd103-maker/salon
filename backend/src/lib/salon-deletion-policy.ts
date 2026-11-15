@@ -39,6 +39,11 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   // All persisted review fields are archived; no inbound FK depends on this row.
   // Target-salon scope and the separate retention/readiness gates still apply.
   Review: "DELETE_WITH_SALON",
+  // Customer-owned favorite rows. Removed with the salon, exactly like Review;
+  // the customer's remaining favorites are untouched.
+  CustomerFavorite: "DELETE_WITH_SALON",
+  // Owner-configured amenity keys of this salon only. Configuration, not history.
+  SalonExtras: "DELETE_WITH_SALON",
   // Conversation history survives; Salon deletion only sets salonId to null.
   // Never traverse sender/receiver Users or include messages in dependent deletion.
   Message: "SURVIVE_AS_INDEPENDENT_HISTORY",
@@ -47,11 +52,30 @@ const MODEL_POLICY: Readonly<Record<string, SalonDeletionClassification>> = Obje
   SalonMedia: "DELETE_WITH_SALON",
   Session: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   PasswordReset: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Authentication/consent history is never an operational cascade target.
+  // Restrictive invitation FKs deliberately require an explicit future retention policy.
+  StaffInvitation: "SURVIVE_AS_INDEPENDENT_HISTORY",
   Notification: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   AnalyticsEvent: "DELETE_WITH_SALON",
   SalonAvailabilitySubscription: "DELETE_WITH_SALON",
   RegistrationVerificationChallenge: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
   VerificationRateLimitBucket: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform partner-application history. Not salon-scoped.
+  PartnerRequest: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform-wide SALO offers. Not owned by a single salon.
+  GlobalOffer: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform shop catalog. Not salon-scoped.
+  Brand: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform shop catalog. Not salon-scoped.
+  Product: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Independent transactional order history. Never destroy because a Salon is deleted.
+  Order: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Part of Order history. Must survive with its Order.
+  OrderItem: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform-level legal configuration. Not salon-scoped.
+  LegalContent: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
+  // Platform-wide settings singleton. Not salon-scoped.
+  PlatformSettings: "SHARED_OR_GLOBAL_DO_NOT_DELETE",
 });
 
 export function classifySalonDeletionModel(model: string): SalonDeletionClassification {

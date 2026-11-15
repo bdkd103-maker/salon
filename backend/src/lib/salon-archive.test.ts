@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 const rootSalon = {
   id: "target", ownerId: "owner", name: "SALO", slug: "salo", city: "Berlin", address: "Main 1",
   latitude: null, longitude: null, phone: "123", email: null, website: null, description: null,
-  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, status: "OPEN",
+  isVip: false, adminVip: false, classification: "REGULAR", isWomenOnly: false, isActive: true, isVerified: false, status: "OPEN",
   bookingIntakeEnabled: true, saloTicketIntakeEnabled: true, walkInIntakeEnabled: true,
   rating: 0, reviewCount: 0, openingTime: null, closingTime: null, workingDays: ["MON"], timeZone: null,
   createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"),
@@ -11,7 +11,7 @@ const rootSalon = {
 test("V8 root evidence is complete, nullable, canonical and freshness-sensitive", async () => {
   const { Prisma } = await import("@prisma/client");
   const fields = Prisma.dmmf.datamodel.models.find(m => m.name === "Salon")!.fields.filter(f => f.kind !== "object");
-  assert.equal(fields.length, 29);
+  assert.equal(fields.length, 30);
   assert.deepEqual(Object.keys(rootSalon).sort(), fields.map(f => f.name).sort());
   const build = (salon: any) => buildCurrentSalonArchiveState({ salonId: "target", bookingIds: [], serviceVisitIds: [], salonBoostIds: [], salon } as any);
   const before = build(rootSalon);

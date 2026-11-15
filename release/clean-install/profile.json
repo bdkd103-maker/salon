@@ -1,0 +1,2161 @@
+{
+  "format": 1,
+  "preparedDate": "2026-11-15",
+  "cutoff": "20261114010000_staff_onboarding_foundation",
+  "databaseEngine": "PostgreSQL 16",
+  "prismaVersion": "5.22.0",
+  "digestPolicy": "SHA-256 exact file bytes; fail closed on checkout line-ending changes",
+  "canonicalMigrations": [
+    {
+      "filename": "backend/prisma/migrations/20260828222701_init/migration.sql",
+      "sha256": "7fbf6ccbf58ad6a2ea996edfee78748e61ba41a3c9f0cd6f2bff07902e422281"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260830221410_current_schema/migration.sql",
+      "sha256": "8ab8bb1b0c87833ed23483a2d9c8e2cfd7d6100add20e490baeef0289610bada"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260903120000_salon_vip_classification_reviews/migration.sql",
+      "sha256": "a8d2af04fafec71e010c1e73ef9d1271a736ba45e8e19465c63523009ff65936"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260905120000_salon_schedule_timezone/migration.sql",
+      "sha256": "91c25754d89a3f5b6f3e130f2283dd6f23e970bd30336a35acd7fad74729b97c"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260906180000_customer_registration_verification/migration.sql",
+      "sha256": "537d4d790e9042fc3b28fcd6ceaad536ec3e9758e9563699c873cf2ef4703f72"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260907120000_customer_password_reset_challenge/migration.sql",
+      "sha256": "85ea25d67ba2938f84cb14fb1674415af69a85a987adf79ebf5100cb8c4fb6b6"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260909120000_salon_live_status/migration.sql",
+      "sha256": "dbb0f69ab5c760d0fd39f90a436adf49e1844e81513f6bb3d7f606be3971dd01"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260909130000_staff_membership_foundation/migration.sql",
+      "sha256": "6a68146370139ff6f4cdc078b28a504c0194d01e20502d585052360d03745825"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260909140000_staff_presence_foundation/migration.sql",
+      "sha256": "5b2333e8c7fd19a31536b3b2320df6dc018cf5d042ca956a9be07b9def4f4b24"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260909231832_queue_entry_foundation/migration.sql",
+      "sha256": "5893b6b89c9e67a6e03d1b7fa313573f94730c2f06a2b4e847491ba89a6911db"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260910120000_staff_presence_lease_index_name/migration.sql",
+      "sha256": "9b79e98409a87882cdd16733b6043a88062c7cb2b800a4289e6e60c4c3e667a6"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260910130000_service_visit_foundation/migration.sql",
+      "sha256": "bbc60a5f241c5bf5ffe72aba6b4e5333ca7827b3b48fbb8f5b6eb6a0a583454c"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260910134000_salon_intake_controls/migration.sql",
+      "sha256": "dec3f74712ba20665c30a75d23ad2a7aed5f521affe798ffe871542a9789ff6e"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260911120000_add_smart_subscription_plan/migration.sql",
+      "sha256": "e5a318f2e277b46077d3d593fbda91df16a5458379743cc6ce6364be86e402ce"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260912120000_add_salon_enforcement/migration.sql",
+      "sha256": "81c3d5095ae4a123fe7c317463ab2e2be6802658681ca0e31748b1716669415e"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260912150000_add_salon_archive/migration.sql",
+      "sha256": "7ac48c670fa3038c9baf209b8c587b3dbe245596e7d04ac6c71902cfb7b0d972"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260913120000_add_salon_retention_clearance/migration.sql",
+      "sha256": "ac327c745aeac7d005d51d33c3c4f278c89a6faad1ecda0eefd6691202408aa9"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260914120000_add_legal_content/migration.sql",
+      "sha256": "05d3974d55b54c44754f0e12b2ae96cf307d661b79ae9165cb9414a218b9b1dd"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260914130000_admin_features_expansion/migration.sql",
+      "sha256": "44a68a448488b73608facfe85a4a7978a1c58c002d109c5d89a67028b44562cb"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260915120000_add_platform_settings/migration.sql",
+      "sha256": "6a5fc2b73a86d4cf83e9893363787143e791d6280addc31ea812d659711edb1d"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260926120000_notification_read_state/migration.sql",
+      "sha256": "f713717af617012425d15a71120282e398dc031e6906652b8a5d713b68355499"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260927120000_add_customer_favorite/migration.sql",
+      "sha256": "87360b4c6d28e6aab14795f7a2b5de7e0f95242229cac385da5b19b5e9bdbce6"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260929120000_loyalty_ledger/migration.sql",
+      "sha256": "ae3eaeaccc4c40d06cffae2840f9467739ce572d1888fe0fc8d1d2ead1f71a3e"
+    },
+    {
+      "filename": "backend/prisma/migrations/20260930120000_add_salon_extras/migration.sql",
+      "sha256": "1deda4e3882b0e85cdec6d51cfb15a3e7dbd408388d3857c9bb4b3be6d17e4af"
+    },
+    {
+      "filename": "backend/prisma/migrations/20261114010000_staff_onboarding_foundation/migration.sql",
+      "sha256": "491a3a981ca51660c55665886be3d5e1b9b8bd4affc5b41507ddeb055442d0ac"
+    }
+  ],
+  "prismaSchemaSha256": "19c0550ef47f61630b26be41349a06c24efbc7b24d7fc5c2f3e3ece03692a998",
+  "migrationLockSha256": "693566b52c49db47a2b0901d12400aa3d710d13a49f4a2a154b80c0505ed737c",
+  "baselineSha256": "9f9eb509daa95385bb795d800339e02804cb7e2a7b88586ecc9c7f54d51fc1a9",
+  "derivation": {
+    "kind": "canonical SQL concatenation with one deferred FK",
+    "deferredConstraint": "QueueEntry_serviceVisitId_fkey",
+    "fromMigration": "20260909231832_queue_entry_foundation",
+    "afterMigration": "20260910130000_service_visit_foundation",
+    "otherStatements": "Retained exactly, excluding comments/line endings and transaction/search-path wrapper"
+  },
+  "canonicalReplayRemainsBroken": true,
+  "executionEnabled": false,
+  "postgresqlVerified": false,
+  "expectedSchemaInventory": {
+    "tables": {
+      "User": {
+        "id": "TEXT NOT NULL",
+        "email": "TEXT NOT NULL",
+        "phone": "TEXT",
+        "fullName": "TEXT NOT NULL",
+        "passwordHash": "TEXT",
+        "role": "\"UserRole\" NOT NULL DEFAULT 'CUSTOMER'",
+        "status": "\"UserStatus\" NOT NULL DEFAULT 'ACTIVE'",
+        "emailVerified": "BOOLEAN NOT NULL DEFAULT false",
+        "phoneVerified": "BOOLEAN NOT NULL DEFAULT false",
+        "avatarUrl": "TEXT",
+        "locale": "TEXT NOT NULL DEFAULT 'ar'",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "deletedAt": "TIMESTAMP(3)",
+        "authVersion": "INTEGER NOT NULL DEFAULT 0",
+        "staffPasswordChangeRequired": "BOOLEAN NOT NULL DEFAULT false"
+      },
+      "Salon": {
+        "id": "TEXT NOT NULL",
+        "ownerId": "TEXT NOT NULL",
+        "name": "TEXT NOT NULL",
+        "slug": "TEXT NOT NULL",
+        "city": "TEXT NOT NULL",
+        "address": "TEXT NOT NULL",
+        "latitude": "DOUBLE PRECISION",
+        "longitude": "DOUBLE PRECISION",
+        "phone": "TEXT NOT NULL",
+        "email": "TEXT",
+        "website": "TEXT",
+        "description": "TEXT",
+        "isVip": "BOOLEAN NOT NULL DEFAULT false",
+        "isWomenOnly": "BOOLEAN NOT NULL DEFAULT false",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "status": "\"SalonStatus\" NOT NULL DEFAULT 'OPEN'",
+        "rating": "DOUBLE PRECISION NOT NULL DEFAULT 0",
+        "reviewCount": "INTEGER NOT NULL DEFAULT 0",
+        "openingTime": "TEXT",
+        "closingTime": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "adminVip": "BOOLEAN NOT NULL DEFAULT false",
+        "classification": "\"SalonClassification\" NOT NULL DEFAULT 'REGULAR'",
+        "workingDays": "TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]",
+        "timeZone": "TEXT",
+        "bookingIntakeEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "saloTicketIntakeEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "walkInIntakeEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "isVerified": "BOOLEAN NOT NULL DEFAULT false"
+      },
+      "Barber": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "name": "TEXT NOT NULL",
+        "specialty": "TEXT",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "Service": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "name": "TEXT NOT NULL",
+        "description": "TEXT",
+        "durationMin": "INTEGER NOT NULL",
+        "price": "DECIMAL(10,2) NOT NULL",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "AvailabilitySlot": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "barberId": "TEXT",
+        "startAt": "TIMESTAMP(3) NOT NULL",
+        "endAt": "TIMESTAMP(3) NOT NULL",
+        "status": "\"SlotStatus\" NOT NULL DEFAULT 'AVAILABLE'",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "Booking": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "barberId": "TEXT",
+        "serviceId": "TEXT",
+        "startAt": "TIMESTAMP(3) NOT NULL",
+        "endAt": "TIMESTAMP(3) NOT NULL",
+        "status": "\"BookingStatus\" NOT NULL DEFAULT 'PENDING'",
+        "notes": "TEXT",
+        "customerName": "TEXT",
+        "customerPhone": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "cancelledAt": "TIMESTAMP(3)",
+        "cancellationReason": "TEXT"
+      },
+      "Offer": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT",
+        "title": "TEXT NOT NULL",
+        "description": "TEXT",
+        "price": "DECIMAL(10,2)",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "availableSlots": "INTEGER",
+        "discount": "DECIMAL(10,2)",
+        "endAt": "TIMESTAMP(3)",
+        "endTime": "TEXT",
+        "serviceName": "TEXT",
+        "startAt": "TIMESTAMP(3)",
+        "startTime": "TEXT",
+        "type": "TEXT NOT NULL DEFAULT 'REGULAR'"
+      },
+      "Review": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "rating": "INTEGER NOT NULL",
+        "comment": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "Message": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT",
+        "senderId": "TEXT",
+        "receiverId": "TEXT",
+        "subject": "TEXT",
+        "body": "TEXT NOT NULL",
+        "isRead": "BOOLEAN NOT NULL DEFAULT false",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "SalonMedia": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "kind": "TEXT NOT NULL DEFAULT 'image'",
+        "url": "TEXT NOT NULL",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "Session": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "tokenHash": "TEXT NOT NULL",
+        "refreshToken": "TEXT",
+        "userAgent": "TEXT",
+        "ipAddress": "TEXT",
+        "expiresAt": "TIMESTAMP(3) NOT NULL",
+        "revokedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "PasswordReset": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "tokenHash": "TEXT NOT NULL",
+        "expiresAt": "TIMESTAMP(3) NOT NULL",
+        "usedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "codeDigest": "TEXT",
+        "generation": "INTEGER NOT NULL DEFAULT 1",
+        "deliveryState": "TEXT NOT NULL DEFAULT 'PENDING'",
+        "providerMessageId": "TEXT",
+        "attemptCount": "INTEGER NOT NULL DEFAULT 0",
+        "sendCount": "INTEGER NOT NULL DEFAULT 0",
+        "lastSendAt": "TIMESTAMP(3)",
+        "verifiedAt": "TIMESTAMP(3)",
+        "invalidatedAt": "TIMESTAMP(3)",
+        "updatedAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "purpose": "TEXT NOT NULL DEFAULT 'CUSTOMER_PASSWORD_RESET'"
+      },
+      "Notification": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "title": "TEXT NOT NULL",
+        "body": "TEXT NOT NULL",
+        "type": "TEXT NOT NULL",
+        "isRead": "BOOLEAN NOT NULL DEFAULT false",
+        "metadata": "JSONB",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "readAt": "TIMESTAMP(3)",
+        "eventKey": "TEXT"
+      },
+      "UserSubscription": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "plan": "\"SubscriptionPlan\" NOT NULL DEFAULT 'FREE'",
+        "status": "\"SubscriptionStatus\" NOT NULL DEFAULT 'ACTIVE'",
+        "monthlyPrice": "DECIMAL(10,2)",
+        "startDate": "TIMESTAMP(3)",
+        "renewalDate": "TIMESTAMP(3)",
+        "cancellationDate": "TIMESTAMP(3)",
+        "providerReference": "TEXT",
+        "notes": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "DeviceToken": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "platform": "\"DevicePlatform\" NOT NULL",
+        "token": "TEXT NOT NULL",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "lastSeenAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "SalonBoost": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "status": "\"BoostStatus\" NOT NULL DEFAULT 'ACTIVE'",
+        "durationDays": "INTEGER NOT NULL DEFAULT 7",
+        "startsAt": "TIMESTAMP(3)",
+        "endsAt": "TIMESTAMP(3)",
+        "amountCents": "INTEGER DEFAULT 0",
+        "currency": "TEXT DEFAULT 'EUR'",
+        "providerReference": "TEXT",
+        "paymentIntentId": "TEXT",
+        "notes": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "LoyaltyCard": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "requiredStamps": "INTEGER NOT NULL DEFAULT 8",
+        "rewardType": "\"LoyaltyRewardType\" NOT NULL DEFAULT 'FREE_SERVICE'",
+        "rewardTitle": "TEXT NOT NULL DEFAULT 'Free haircut'",
+        "rewardText": "TEXT NOT NULL DEFAULT 'Free haircut'",
+        "description": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "rewardActive": "BOOLEAN NOT NULL DEFAULT true"
+      },
+      "LoyaltyCustomer": {
+        "id": "TEXT NOT NULL",
+        "cardId": "TEXT NOT NULL",
+        "customerId": "TEXT NOT NULL",
+        "currentStamps": "INTEGER NOT NULL DEFAULT 0",
+        "totalVisits": "INTEGER NOT NULL DEFAULT 0",
+        "lastStampedAt": "TIMESTAMP(3)",
+        "rewardRedeemedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "LoyaltyStamp": {
+        "id": "TEXT NOT NULL",
+        "cardId": "TEXT NOT NULL",
+        "customerId": "TEXT NOT NULL",
+        "barberId": "TEXT",
+        "transactionId": "TEXT NOT NULL",
+        "stampAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "isValid": "BOOLEAN NOT NULL DEFAULT true",
+        "verificationToken": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "kind": "TEXT NOT NULL DEFAULT 'EARN'",
+        "amount": "INTEGER NOT NULL DEFAULT 1",
+        "sourceVisitId": "TEXT",
+        "sourceBookingId": "TEXT",
+        "rewardTitle": "TEXT"
+      },
+      "AnalyticsEvent": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "userId": "TEXT",
+        "eventType": "TEXT NOT NULL",
+        "source": "TEXT NOT NULL DEFAULT 'app'",
+        "metadata": "JSONB",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "SalonAvailabilitySubscription": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "status": "\"AvailabilityWatchStatus\" NOT NULL DEFAULT 'ACTIVE'",
+        "lastKnownAvailableChairs": "INTEGER NOT NULL DEFAULT 0",
+        "lastNotifiedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "RegistrationVerificationChallenge": {
+        "id": "TEXT NOT NULL",
+        "channel": "TEXT NOT NULL",
+        "purpose": "TEXT NOT NULL",
+        "destination": "TEXT NOT NULL",
+        "codeDigest": "TEXT",
+        "generation": "INTEGER NOT NULL",
+        "deliveryState": "TEXT NOT NULL",
+        "providerMessageId": "TEXT",
+        "expiresAt": "TIMESTAMP(3) NOT NULL",
+        "attemptCount": "INTEGER NOT NULL DEFAULT 0",
+        "sendCount": "INTEGER NOT NULL DEFAULT 0",
+        "lastSendAt": "TIMESTAMP(3) NOT NULL",
+        "verifiedAt": "TIMESTAMP(3)",
+        "registrationTokenHash": "TEXT",
+        "registrationTokenExpiresAt": "TIMESTAMP(3)",
+        "consumedAt": "TIMESTAMP(3)",
+        "invalidatedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "VerificationRateLimitBucket": {
+        "id": "TEXT NOT NULL",
+        "count": "INTEGER NOT NULL",
+        "expiresAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "SalonLiveStatus": {
+        "salonId": "TEXT NOT NULL",
+        "operationalState": "TEXT",
+        "observedAt": "TIMESTAMP(3)",
+        "expiresAt": "TIMESTAMP(3)",
+        "source": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "StaffMembership": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "barberId": "TEXT NOT NULL",
+        "status": "\"StaffMembershipStatus\" NOT NULL DEFAULT 'ACTIVE'",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "revokedAt": "TIMESTAMP(3)"
+      },
+      "StaffPresence": {
+        "staffMembershipId": "TEXT NOT NULL",
+        "dutyState": "\"StaffDutyState\" NOT NULL",
+        "generation": "INTEGER NOT NULL",
+        "changedAt": "TIMESTAMP(3) NOT NULL",
+        "changedByUserId": "TEXT",
+        "changeSource": "\"StaffPresenceChangeSource\" NOT NULL",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "StaffPresenceLease": {
+        "id": "TEXT NOT NULL",
+        "staffMembershipId": "TEXT NOT NULL",
+        "generation": "INTEGER NOT NULL",
+        "evidenceSource": "\"StaffPresenceEvidenceSource\" NOT NULL",
+        "producerKey": "TEXT NOT NULL",
+        "observedAt": "TIMESTAMP(3) NOT NULL",
+        "validUntil": "TIMESTAMP(3) NOT NULL",
+        "revokedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "QueueEntry": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "customerId": "TEXT",
+        "serviceVisitId": "TEXT",
+        "source": "\"QueueEntrySource\" NOT NULL",
+        "status": "\"QueueEntryStatus\" NOT NULL DEFAULT 'WAITING'",
+        "joinedAt": "TIMESTAMP(3) NOT NULL",
+        "calledAt": "TIMESTAMP(3)",
+        "startedAt": "TIMESTAMP(3)",
+        "cancelledAt": "TIMESTAMP(3)",
+        "expiredAt": "TIMESTAMP(3)",
+        "noShowAt": "TIMESTAMP(3)",
+        "version": "INTEGER NOT NULL DEFAULT 1",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "ServiceVisit": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "bookingId": "TEXT",
+        "staffMembershipId": "TEXT NOT NULL",
+        "source": "\"ServiceVisitSource\" NOT NULL",
+        "status": "\"ServiceVisitStatus\" NOT NULL",
+        "startedAt": "TIMESTAMP(3) NOT NULL",
+        "completedAt": "TIMESTAMP(3)",
+        "cancelledAt": "TIMESTAMP(3)",
+        "version": "INTEGER NOT NULL DEFAULT 1",
+        "startedByUserId": "TEXT",
+        "completedByUserId": "TEXT",
+        "cancelledByUserId": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "SalonEnforcement": {
+        "id": "UUID NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "salonName": "TEXT NOT NULL",
+        "ownerUserId": "TEXT NOT NULL",
+        "reason": "TEXT NOT NULL",
+        "actorUserId": "TEXT NOT NULL",
+        "enforcedAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "previousIsActive": "BOOLEAN NOT NULL",
+        "subscription": "JSONB"
+      },
+      "SalonArchive": {
+        "archiveId": "UUID NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "salonName": "TEXT NOT NULL",
+        "ownerUserId": "TEXT NOT NULL",
+        "archiveVersion": "INTEGER NOT NULL DEFAULT 1",
+        "payloadVersion": "INTEGER NOT NULL DEFAULT 1",
+        "coverage": "JSONB NOT NULL",
+        "sourceState": "JSONB NOT NULL",
+        "evidence": "JSONB",
+        "source": "TEXT NOT NULL",
+        "finalizedAt": "TIMESTAMP(3) NOT NULL",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "SalonRetentionHold": {
+        "id": "UUID NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "reason": "TEXT NOT NULL",
+        "actorUserId": "TEXT NOT NULL",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "releasedAt": "TIMESTAMP(3)",
+        "releasedByUserId": "TEXT",
+        "releaseReason": "TEXT"
+      },
+      "SalonPurgeClearance": {
+        "id": "UUID NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "archiveId": "UUID NOT NULL",
+        "archiveVersion": "INTEGER NOT NULL",
+        "payloadVersion": "INTEGER NOT NULL",
+        "archiveFinalizedAt": "TIMESTAMP(3) NOT NULL",
+        "sourceState": "JSONB NOT NULL",
+        "coverage": "JSONB NOT NULL",
+        "actorUserId": "TEXT NOT NULL",
+        "issuedAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "revokedAt": "TIMESTAMP(3)",
+        "revokedByUserId": "TEXT",
+        "revocationReason": "TEXT"
+      },
+      "LegalContent": {
+        "id": "TEXT NOT NULL",
+        "impressum": "TEXT NOT NULL DEFAULT ''",
+        "datenschutz": "TEXT NOT NULL DEFAULT ''",
+        "agb": "TEXT NOT NULL DEFAULT ''",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL",
+        "imprintOwnerName": "TEXT NOT NULL DEFAULT ''",
+        "imprintCompanyName": "TEXT NOT NULL DEFAULT ''",
+        "imprintStreet": "TEXT NOT NULL DEFAULT ''",
+        "imprintCity": "TEXT NOT NULL DEFAULT ''",
+        "imprintCountry": "TEXT NOT NULL DEFAULT ''",
+        "imprintEmail": "TEXT NOT NULL DEFAULT ''",
+        "imprintPhone": "TEXT NOT NULL DEFAULT ''",
+        "imprintRepresentative": "TEXT NOT NULL DEFAULT ''",
+        "imprintRegister": "TEXT NOT NULL DEFAULT ''"
+      },
+      "PartnerRequest": {
+        "id": "TEXT NOT NULL",
+        "salonName": "TEXT NOT NULL",
+        "contactName": "TEXT NOT NULL",
+        "contactEmail": "TEXT NOT NULL",
+        "contactPhone": "TEXT",
+        "city": "TEXT NOT NULL",
+        "message": "TEXT",
+        "status": "TEXT NOT NULL DEFAULT 'PENDING'",
+        "rejectReason": "TEXT",
+        "reviewedByUserId": "TEXT",
+        "reviewedAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "GlobalOffer": {
+        "id": "TEXT NOT NULL",
+        "title": "TEXT NOT NULL",
+        "description": "TEXT",
+        "priceText": "TEXT",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "Brand": {
+        "id": "TEXT NOT NULL",
+        "name": "TEXT NOT NULL",
+        "slug": "TEXT NOT NULL",
+        "description": "TEXT",
+        "logoUrl": "TEXT",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "Product": {
+        "id": "TEXT NOT NULL",
+        "brandId": "TEXT",
+        "name": "TEXT NOT NULL",
+        "description": "TEXT",
+        "imageUrl": "TEXT",
+        "retailPrice": "DECIMAL(10,2)",
+        "wholesalePrice": "DECIMAL(10,2)",
+        "isActive": "BOOLEAN NOT NULL DEFAULT true",
+        "isPublished": "BOOLEAN NOT NULL DEFAULT false",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "Order": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "status": "TEXT NOT NULL DEFAULT 'PENDING'",
+        "totalCents": "INTEGER NOT NULL DEFAULT 0",
+        "currency": "TEXT NOT NULL DEFAULT 'EUR'",
+        "notes": "TEXT",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "OrderItem": {
+        "id": "TEXT NOT NULL",
+        "orderId": "TEXT NOT NULL",
+        "productId": "TEXT NOT NULL",
+        "quantity": "INTEGER NOT NULL DEFAULT 1",
+        "priceCents": "INTEGER NOT NULL"
+      },
+      "PlatformSettings": {
+        "id": "TEXT NOT NULL",
+        "siteName": "TEXT NOT NULL DEFAULT 'SALO'",
+        "supportEmail": "TEXT NOT NULL DEFAULT ''",
+        "defaultLocale": "TEXT NOT NULL DEFAULT 'ar'",
+        "customerRegistrationEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "salonApplicationsEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "bookingGloballyEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "saloTicketGloballyEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "walkInGloballyEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "staffStatusLiveEnabled": "BOOLEAN NOT NULL DEFAULT true",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "CustomerFavorite": {
+        "id": "TEXT NOT NULL",
+        "userId": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+      },
+      "SalonExtras": {
+        "salonId": "TEXT NOT NULL",
+        "extras": "TEXT[] DEFAULT ARRAY[]::TEXT[]",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      },
+      "StaffInvitation": {
+        "id": "TEXT NOT NULL",
+        "salonId": "TEXT NOT NULL",
+        "initiatedByUserId": "TEXT NOT NULL",
+        "destinationEmail": "TEXT NOT NULL",
+        "intendedUserId": "TEXT",
+        "fullName": "TEXT NOT NULL",
+        "phone": "TEXT",
+        "barberName": "TEXT NOT NULL",
+        "secretDigest": "TEXT",
+        "generation": "INTEGER NOT NULL DEFAULT 1",
+        "expiresAt": "TIMESTAMP(3) NOT NULL",
+        "status": "\"StaffInvitationStatus\" NOT NULL DEFAULT 'PENDING'",
+        "deliveryState": "\"StaffInvitationDelivery\" NOT NULL DEFAULT 'PENDING'",
+        "providerMessageId": "TEXT",
+        "acceptedAt": "TIMESTAMP(3)",
+        "revokedAt": "TIMESTAMP(3)",
+        "declinedAt": "TIMESTAMP(3)",
+        "consumedAt": "TIMESTAMP(3)",
+        "acceptedByUserId": "TEXT",
+        "sendCount": "INTEGER NOT NULL DEFAULT 0",
+        "resendCount": "INTEGER NOT NULL DEFAULT 0",
+        "lastSendAt": "TIMESTAMP(3)",
+        "createdAt": "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "updatedAt": "TIMESTAMP(3) NOT NULL"
+      }
+    },
+    "enums": {
+      "UserRole": [
+        "CUSTOMER",
+        "OWNER",
+        "STAFF",
+        "ADMIN"
+      ],
+      "UserStatus": [
+        "ACTIVE",
+        "INACTIVE",
+        "SUSPENDED",
+        "DELETED"
+      ],
+      "SalonStatus": [
+        "OPEN",
+        "BUSY",
+        "QUIET",
+        "CLOSED"
+      ],
+      "BookingStatus": [
+        "PENDING",
+        "CONFIRMED",
+        "CANCELLED",
+        "COMPLETED",
+        "NO_SHOW"
+      ],
+      "SlotStatus": [
+        "AVAILABLE",
+        "BOOKED",
+        "BLOCKED"
+      ],
+      "DevicePlatform": [
+        "ANDROID",
+        "IOS"
+      ],
+      "SubscriptionPlan": [
+        "FREE",
+        "SMART",
+        "PRO",
+        "PREMIUM"
+      ],
+      "LoyaltyRewardType": [
+        "FREE_SERVICE",
+        "PERCENTAGE_DISCOUNT",
+        "FIXED_DISCOUNT"
+      ],
+      "SubscriptionStatus": [
+        "ACTIVE",
+        "TRIAL",
+        "PAST_DUE",
+        "CANCELLED",
+        "EXPIRED"
+      ],
+      "BoostStatus": [
+        "ACTIVE",
+        "EXPIRED",
+        "CANCELLED"
+      ],
+      "AvailabilityWatchStatus": [
+        "ACTIVE",
+        "FIRED",
+        "CANCELLED"
+      ],
+      "SalonClassification": [
+        "REGULAR",
+        "PREMIUM"
+      ],
+      "StaffMembershipStatus": [
+        "ACTIVE",
+        "SUSPENDED",
+        "REVOKED"
+      ],
+      "StaffDutyState": [
+        "ON_DUTY",
+        "OFF_DUTY"
+      ],
+      "StaffPresenceChangeSource": [
+        "STAFF",
+        "OWNER",
+        "SYSTEM"
+      ],
+      "StaffPresenceEvidenceSource": [
+        "STAFF_APP",
+        "OWNER",
+        "SALO_STATION",
+        "SERVICE_EVENT"
+      ],
+      "QueueEntrySource": [
+        "SALO_TICKET",
+        "MANUAL_WALK_IN"
+      ],
+      "QueueEntryStatus": [
+        "WAITING",
+        "CALLED",
+        "STARTED",
+        "CANCELLED",
+        "EXPIRED",
+        "NO_SHOW"
+      ],
+      "ServiceVisitSource": [
+        "BOOKING",
+        "WALK_IN"
+      ],
+      "ServiceVisitStatus": [
+        "IN_SERVICE",
+        "COMPLETED",
+        "CANCELLED"
+      ],
+      "StaffInvitationStatus": [
+        "PENDING",
+        "ACCEPTED",
+        "DECLINED",
+        "REVOKED",
+        "EXPIRED"
+      ],
+      "StaffInvitationDelivery": [
+        "PENDING",
+        "ACCEPTED",
+        "FAILED",
+        "UNKNOWN"
+      ]
+    },
+    "constraints": [
+      {
+        "table": "User",
+        "name": "User_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Salon",
+        "name": "Salon_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Barber",
+        "name": "Barber_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Service",
+        "name": "Service_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "AvailabilitySlot",
+        "name": "AvailabilitySlot_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Booking",
+        "name": "Booking_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Offer",
+        "name": "Offer_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Review",
+        "name": "Review_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Message",
+        "name": "Message_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonMedia",
+        "name": "SalonMedia_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Session",
+        "name": "Session_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "PasswordReset",
+        "name": "PasswordReset_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Notification",
+        "name": "Notification_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Salon",
+        "name": "Salon_ownerId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"ownerId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Barber",
+        "name": "Barber_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Service",
+        "name": "Service_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "AvailabilitySlot",
+        "name": "AvailabilitySlot_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "AvailabilitySlot",
+        "name": "AvailabilitySlot_barberId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"barberId\") REFERENCES \"Barber\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "Booking",
+        "name": "Booking_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Booking",
+        "name": "Booking_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Booking",
+        "name": "Booking_barberId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"barberId\") REFERENCES \"Barber\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "Booking",
+        "name": "Booking_serviceId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"serviceId\") REFERENCES \"Service\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "Offer",
+        "name": "Offer_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Review",
+        "name": "Review_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Review",
+        "name": "Review_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Message",
+        "name": "Message_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "Message",
+        "name": "Message_senderId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"senderId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "Message",
+        "name": "Message_receiverId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"receiverId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "SalonMedia",
+        "name": "SalonMedia_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Session",
+        "name": "Session_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "PasswordReset",
+        "name": "PasswordReset_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "Notification",
+        "name": "Notification_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "UserSubscription",
+        "name": "UserSubscription_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "DeviceToken",
+        "name": "DeviceToken_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonBoost",
+        "name": "SalonBoost_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "LoyaltyCard",
+        "name": "LoyaltyCard_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "LoyaltyCustomer",
+        "name": "LoyaltyCustomer_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "LoyaltyStamp",
+        "name": "LoyaltyStamp_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "AnalyticsEvent",
+        "name": "AnalyticsEvent_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonAvailabilitySubscription",
+        "name": "SalonAvailabilitySubscription_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "UserSubscription",
+        "name": "UserSubscription_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "DeviceToken",
+        "name": "DeviceToken_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "SalonBoost",
+        "name": "SalonBoost_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyCard",
+        "name": "LoyaltyCard_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyCustomer",
+        "name": "LoyaltyCustomer_cardId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"cardId\") REFERENCES \"LoyaltyCard\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyCustomer",
+        "name": "LoyaltyCustomer_customerId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"customerId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyStamp",
+        "name": "LoyaltyStamp_cardId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"cardId\") REFERENCES \"LoyaltyCard\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyStamp",
+        "name": "LoyaltyStamp_customerId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"customerId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "AnalyticsEvent",
+        "name": "AnalyticsEvent_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "AnalyticsEvent",
+        "name": "AnalyticsEvent_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "SalonAvailabilitySubscription",
+        "name": "SalonAvailabilitySubscription_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "SalonAvailabilitySubscription",
+        "name": "SalonAvailabilitySubscription_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "RegistrationVerificationChallenge",
+        "name": "RegistrationVerificationChallenge_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "VerificationRateLimitBucket",
+        "name": "VerificationRateLimitBucket_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonLiveStatus",
+        "name": "SalonLiveStatus_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"salonId\")"
+      },
+      {
+        "table": "SalonLiveStatus",
+        "name": "SalonLiveStatus_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffMembership",
+        "name": "StaffMembership_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "StaffMembership",
+        "name": "StaffMembership_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffMembership",
+        "name": "StaffMembership_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffMembership",
+        "name": "StaffMembership_barberId_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"barberId\", \"salonId\") REFERENCES \"Barber\"(\"id\", \"salonId\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffPresence",
+        "name": "StaffPresence_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"staffMembershipId\")"
+      },
+      {
+        "table": "StaffPresenceLease",
+        "name": "StaffPresenceLease_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "StaffPresence",
+        "name": "StaffPresence_staffMembershipId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"staffMembershipId\") REFERENCES \"StaffMembership\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffPresence",
+        "name": "StaffPresence_changedByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"changedByUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffPresenceLease",
+        "name": "StaffPresenceLease_staffMembershipId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"staffMembershipId\") REFERENCES \"StaffPresence\"(\"staffMembershipId\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_customerId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"customerId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_source_customer_check",
+        "kind": "CHECK",
+        "definition": "CHECK ( (\"source\" = 'SALO_TICKET' AND \"customerId\" IS NOT NULL) OR (\"source\" = 'MANUAL_WALK_IN' AND \"customerId\" IS NULL) )"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_version_check",
+        "kind": "CHECK",
+        "definition": "CHECK (\"version\" >= 1)"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_lifecycle_check",
+        "kind": "CHECK",
+        "definition": "CHECK ( (\"status\" = 'WAITING' AND \"calledAt\" IS NULL AND \"startedAt\" IS NULL AND \"cancelledAt\" IS NULL AND \"expiredAt\" IS NULL AND \"noShowAt\" IS NULL AND \"serviceVisitId\" IS NULL) OR (\"status\" = 'CALLED' AND \"calledAt\" IS NOT NULL AND \"startedAt\" IS NULL AND \"cancelledAt\" IS NULL AND \"expiredAt\" IS NULL AND \"noShowAt\" IS NULL AND \"serviceVisitId\" IS NULL) OR (\"status\" = 'STARTED' AND \"startedAt\" IS NOT NULL AND \"cancelledAt\" IS NULL AND \"expiredAt\" IS NULL AND \"noShowAt\" IS NULL AND \"serviceVisitId\" IS NOT NULL) OR (\"status\" = 'CANCELLED' AND \"startedAt\" IS NULL AND \"cancelledAt\" IS NOT NULL AND \"expiredAt\" IS NULL AND \"noShowAt\" IS NULL AND \"serviceVisitId\" IS NULL) OR (\"status\" = 'EXPIRED' AND \"startedAt\" IS NULL AND \"cancelledAt\" IS NULL AND \"expiredAt\" IS NOT NULL AND \"noShowAt\" IS NULL AND \"serviceVisitId\" IS NULL) OR (\"status\" = 'NO_SHOW' AND \"startedAt\" IS NULL AND \"cancelledAt\" IS NULL AND \"expiredAt\" IS NULL AND \"noShowAt\" IS NOT NULL AND \"serviceVisitId\" IS NULL) )"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_source_booking_check",
+        "kind": "CHECK",
+        "definition": "CHECK ( (\"source\" = 'BOOKING' AND \"bookingId\" IS NOT NULL) OR (\"source\" = 'WALK_IN' AND \"bookingId\" IS NULL) )"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_version_check",
+        "kind": "CHECK",
+        "definition": "CHECK (\"version\" >= 1)"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_lifecycle_check",
+        "kind": "CHECK",
+        "definition": "CHECK ( (\"status\" = 'IN_SERVICE' AND \"completedAt\" IS NULL AND \"cancelledAt\" IS NULL) OR (\"status\" = 'COMPLETED' AND \"completedAt\" IS NOT NULL AND \"cancelledAt\" IS NULL AND \"completedAt\" >= \"startedAt\") OR (\"status\" = 'CANCELLED' AND \"cancelledAt\" IS NOT NULL AND \"completedAt\" IS NULL AND \"cancelledAt\" >= \"startedAt\") )"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_bookingId_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"bookingId\", \"salonId\") REFERENCES \"Booking\"(\"id\", \"salonId\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_staffMembershipId_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"staffMembershipId\", \"salonId\") REFERENCES \"StaffMembership\"(\"id\", \"salonId\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_startedByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"startedByUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_completedByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"completedByUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "ServiceVisit",
+        "name": "ServiceVisit_cancelledByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"cancelledByUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "QueueEntry",
+        "name": "QueueEntry_serviceVisitId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"serviceVisitId\") REFERENCES \"ServiceVisit\"(\"id\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "SalonEnforcement",
+        "name": "SalonEnforcement_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonArchive",
+        "name": "SalonArchive_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"archiveId\")"
+      },
+      {
+        "table": "SalonRetentionHold",
+        "name": "SalonRetentionHold_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "SalonPurgeClearance",
+        "name": "SalonPurgeClearance_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "LegalContent",
+        "name": "LegalContent_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "PartnerRequest",
+        "name": "PartnerRequest_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "GlobalOffer",
+        "name": "GlobalOffer_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Brand",
+        "name": "Brand_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Product",
+        "name": "Product_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "Order",
+        "name": "Order_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "OrderItem",
+        "name": "OrderItem_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "OrderItem",
+        "name": "OrderItem_orderId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"orderId\") REFERENCES \"Order\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "OrderItem",
+        "name": "OrderItem_productId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"productId\") REFERENCES \"Product\"(\"id\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "Product",
+        "name": "Product_brandId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"brandId\") REFERENCES \"Brand\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "PlatformSettings",
+        "name": "PlatformSettings_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "CustomerFavorite",
+        "name": "CustomerFavorite_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "CustomerFavorite",
+        "name": "CustomerFavorite_userId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"userId\") REFERENCES \"User\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "CustomerFavorite",
+        "name": "CustomerFavorite_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "LoyaltyStamp",
+        "name": "LoyaltyStamp_value_check",
+        "kind": "CHECK",
+        "definition": "CHECK ((\"kind\" = 'EARN' AND \"amount\" = 1) OR (\"kind\" = 'REDEEM' AND \"amount\" < 0))"
+      },
+      {
+        "table": "SalonExtras",
+        "name": "SalonExtras_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"salonId\")"
+      },
+      {
+        "table": "SalonExtras",
+        "name": "SalonExtras_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE CASCADE ON UPDATE CASCADE"
+      },
+      {
+        "table": "User",
+        "name": "User_authVersion_nonnegative",
+        "kind": "CHECK",
+        "definition": "CHECK (\"authVersion\" >= 0)"
+      },
+      {
+        "table": "PasswordReset",
+        "name": "PasswordReset_purpose_check",
+        "kind": "CHECK",
+        "definition": "CHECK (\"purpose\" IN ('CUSTOMER_PASSWORD_RESET', 'STAFF_PASSWORD_RESET'))"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_pkey",
+        "kind": "PRIMARY KEY",
+        "definition": "PRIMARY KEY (\"id\")"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_email_normalized",
+        "kind": "CHECK",
+        "definition": "CHECK ( \"destinationEmail\" = lower(btrim(\"destinationEmail\")) AND length(\"destinationEmail\") BETWEEN 3 AND 254 )"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_digest_format",
+        "kind": "CHECK",
+        "definition": "CHECK (\"secretDigest\" IS NULL OR \"secretDigest\" ~ '^[0-9a-f]{64}$')"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_counters_check",
+        "kind": "CHECK",
+        "definition": "CHECK (\"generation\" >= 1 AND \"sendCount\" >= 0 AND \"resendCount\" >= 0)"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_expiry_check",
+        "kind": "CHECK",
+        "definition": "CHECK (\"expiresAt\" > \"createdAt\")"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_lifecycle_check",
+        "kind": "CHECK",
+        "definition": "CHECK ( (\"status\" = 'PENDING' AND \"secretDigest\" IS NOT NULL AND \"acceptedAt\" IS NULL AND \"revokedAt\" IS NULL AND \"declinedAt\" IS NULL AND \"consumedAt\" IS NULL) OR (\"status\" = 'ACCEPTED' AND \"acceptedAt\" IS NOT NULL AND \"consumedAt\" IS NOT NULL AND \"secretDigest\" IS NULL) OR (\"status\" = 'REVOKED' AND \"revokedAt\" IS NOT NULL AND \"secretDigest\" IS NULL) OR (\"status\" = 'DECLINED' AND \"declinedAt\" IS NOT NULL AND \"secretDigest\" IS NULL) OR (\"status\" = 'EXPIRED' AND \"secretDigest\" IS NULL) )"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_salonId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"salonId\") REFERENCES \"Salon\"(\"id\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_initiatedByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"initiatedByUserId\") REFERENCES \"User\"(\"id\") ON DELETE RESTRICT ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_intendedUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"intendedUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      },
+      {
+        "table": "StaffInvitation",
+        "name": "StaffInvitation_acceptedByUserId_fkey",
+        "kind": "FOREIGN KEY",
+        "definition": "FOREIGN KEY (\"acceptedByUserId\") REFERENCES \"User\"(\"id\") ON DELETE SET NULL ON UPDATE CASCADE"
+      }
+    ],
+    "indexes": {
+      "User_email_key": {
+        "table": "User",
+        "unique": true,
+        "columns": [
+          "email"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"User_email_key\" ON \"User\"(\"email\")"
+      },
+      "Salon_slug_key": {
+        "table": "Salon",
+        "unique": true,
+        "columns": [
+          "slug"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Salon_slug_key\" ON \"Salon\"(\"slug\")"
+      },
+      "AvailabilitySlot_salonId_startAt_idx": {
+        "table": "AvailabilitySlot",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "startAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"AvailabilitySlot_salonId_startAt_idx\" ON \"AvailabilitySlot\"(\"salonId\", \"startAt\")"
+      },
+      "AvailabilitySlot_salonId_barberId_startAt_key": {
+        "table": "AvailabilitySlot",
+        "unique": true,
+        "columns": [
+          "salonId",
+          "barberId",
+          "startAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"AvailabilitySlot_salonId_barberId_startAt_key\" ON \"AvailabilitySlot\"(\"salonId\", \"barberId\", \"startAt\")"
+      },
+      "Booking_salonId_startAt_idx": {
+        "table": "Booking",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "startAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"Booking_salonId_startAt_idx\" ON \"Booking\"(\"salonId\", \"startAt\")"
+      },
+      "Booking_userId_createdAt_idx": {
+        "table": "Booking",
+        "unique": false,
+        "columns": [
+          "userId",
+          "createdAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"Booking_userId_createdAt_idx\" ON \"Booking\"(\"userId\", \"createdAt\")"
+      },
+      "Review_userId_salonId_key": {
+        "table": "Review",
+        "unique": true,
+        "columns": [
+          "userId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Review_userId_salonId_key\" ON \"Review\"(\"userId\", \"salonId\")"
+      },
+      "UserSubscription_userId_key": {
+        "table": "UserSubscription",
+        "unique": true,
+        "columns": [
+          "userId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"UserSubscription_userId_key\" ON \"UserSubscription\"(\"userId\")"
+      },
+      "DeviceToken_userId_isActive_idx": {
+        "table": "DeviceToken",
+        "unique": false,
+        "columns": [
+          "userId",
+          "isActive"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"DeviceToken_userId_isActive_idx\" ON \"DeviceToken\"(\"userId\", \"isActive\")"
+      },
+      "DeviceToken_userId_token_key": {
+        "table": "DeviceToken",
+        "unique": true,
+        "columns": [
+          "userId",
+          "token"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"DeviceToken_userId_token_key\" ON \"DeviceToken\"(\"userId\", \"token\")"
+      },
+      "SalonBoost_salonId_key": {
+        "table": "SalonBoost",
+        "unique": true,
+        "columns": [
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"SalonBoost_salonId_key\" ON \"SalonBoost\"(\"salonId\")"
+      },
+      "SalonBoost_status_endsAt_idx": {
+        "table": "SalonBoost",
+        "unique": false,
+        "columns": [
+          "status",
+          "endsAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonBoost_status_endsAt_idx\" ON \"SalonBoost\"(\"status\", \"endsAt\")"
+      },
+      "LoyaltyCustomer_cardId_customerId_key": {
+        "table": "LoyaltyCustomer",
+        "unique": true,
+        "columns": [
+          "cardId",
+          "customerId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"LoyaltyCustomer_cardId_customerId_key\" ON \"LoyaltyCustomer\"(\"cardId\", \"customerId\")"
+      },
+      "LoyaltyStamp_transactionId_key": {
+        "table": "LoyaltyStamp",
+        "unique": true,
+        "columns": [
+          "transactionId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"LoyaltyStamp_transactionId_key\" ON \"LoyaltyStamp\"(\"transactionId\")"
+      },
+      "LoyaltyStamp_cardId_customerId_idx": {
+        "table": "LoyaltyStamp",
+        "unique": false,
+        "columns": [
+          "cardId",
+          "customerId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"LoyaltyStamp_cardId_customerId_idx\" ON \"LoyaltyStamp\"(\"cardId\", \"customerId\")"
+      },
+      "LoyaltyStamp_transactionId_idx": {
+        "table": "LoyaltyStamp",
+        "unique": false,
+        "columns": [
+          "transactionId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"LoyaltyStamp_transactionId_idx\" ON \"LoyaltyStamp\"(\"transactionId\")"
+      },
+      "AnalyticsEvent_salonId_createdAt_idx": {
+        "table": "AnalyticsEvent",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "createdAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"AnalyticsEvent_salonId_createdAt_idx\" ON \"AnalyticsEvent\"(\"salonId\", \"createdAt\")"
+      },
+      "AnalyticsEvent_eventType_createdAt_idx": {
+        "table": "AnalyticsEvent",
+        "unique": false,
+        "columns": [
+          "eventType",
+          "createdAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"AnalyticsEvent_eventType_createdAt_idx\" ON \"AnalyticsEvent\"(\"eventType\", \"createdAt\")"
+      },
+      "SalonAvailabilitySubscription_userId_status_idx": {
+        "table": "SalonAvailabilitySubscription",
+        "unique": false,
+        "columns": [
+          "userId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonAvailabilitySubscription_userId_status_idx\" ON \"SalonAvailabilitySubscription\"(\"userId\", \"status\")"
+      },
+      "SalonAvailabilitySubscription_salonId_status_idx": {
+        "table": "SalonAvailabilitySubscription",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonAvailabilitySubscription_salonId_status_idx\" ON \"SalonAvailabilitySubscription\"(\"salonId\", \"status\")"
+      },
+      "SalonAvailabilitySubscription_userId_salonId_key": {
+        "table": "SalonAvailabilitySubscription",
+        "unique": true,
+        "columns": [
+          "userId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"SalonAvailabilitySubscription_userId_salonId_key\" ON \"SalonAvailabilitySubscription\"(\"userId\", \"salonId\")"
+      },
+      "RegistrationVerificationChallenge_destination_purpose_idx": {
+        "table": "RegistrationVerificationChallenge",
+        "unique": false,
+        "columns": [
+          "destination",
+          "purpose"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"RegistrationVerificationChallenge_destination_purpose_idx\" ON \"RegistrationVerificationChallenge\"(\"destination\", \"purpose\")"
+      },
+      "RegistrationVerificationChallenge_expiresAt_idx": {
+        "table": "RegistrationVerificationChallenge",
+        "unique": false,
+        "columns": [
+          "expiresAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"RegistrationVerificationChallenge_expiresAt_idx\" ON \"RegistrationVerificationChallenge\"(\"expiresAt\")"
+      },
+      "VerificationRateLimitBucket_expiresAt_idx": {
+        "table": "VerificationRateLimitBucket",
+        "unique": false,
+        "columns": [
+          "expiresAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"VerificationRateLimitBucket_expiresAt_idx\" ON \"VerificationRateLimitBucket\"(\"expiresAt\")"
+      },
+      "PasswordReset_userId_expiresAt_idx": {
+        "table": "PasswordReset",
+        "unique": false,
+        "columns": [
+          "userId",
+          "expiresAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"PasswordReset_userId_expiresAt_idx\" ON \"PasswordReset\"(\"userId\", \"expiresAt\")"
+      },
+      "PasswordReset_expiresAt_idx": {
+        "table": "PasswordReset",
+        "unique": false,
+        "columns": [
+          "expiresAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"PasswordReset_expiresAt_idx\" ON \"PasswordReset\"(\"expiresAt\")"
+      },
+      "Barber_id_salonId_key": {
+        "table": "Barber",
+        "unique": true,
+        "columns": [
+          "id",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Barber_id_salonId_key\" ON \"Barber\"(\"id\", \"salonId\")"
+      },
+      "StaffMembership_barberId_key": {
+        "table": "StaffMembership",
+        "unique": true,
+        "columns": [
+          "barberId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"StaffMembership_barberId_key\" ON \"StaffMembership\"(\"barberId\")"
+      },
+      "StaffMembership_userId_salonId_key": {
+        "table": "StaffMembership",
+        "unique": true,
+        "columns": [
+          "userId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"StaffMembership_userId_salonId_key\" ON \"StaffMembership\"(\"userId\", \"salonId\")"
+      },
+      "StaffMembership_barberId_salonId_key": {
+        "table": "StaffMembership",
+        "unique": true,
+        "columns": [
+          "barberId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"StaffMembership_barberId_salonId_key\" ON \"StaffMembership\"(\"barberId\", \"salonId\")"
+      },
+      "StaffMembership_salonId_status_idx": {
+        "table": "StaffMembership",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffMembership_salonId_status_idx\" ON \"StaffMembership\"(\"salonId\", \"status\")"
+      },
+      "StaffPresence_changedByUserId_idx": {
+        "table": "StaffPresence",
+        "unique": false,
+        "columns": [
+          "changedByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffPresence_changedByUserId_idx\" ON \"StaffPresence\"(\"changedByUserId\")"
+      },
+      "StaffPresenceLease_staffMembershipId_generation_validUntil_idx": {
+        "table": "StaffPresenceLease",
+        "unique": false,
+        "columns": [
+          "staffMembershipId",
+          "generation",
+          "validUntil"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffPresenceLease_staffMembershipId_generation_validUntil_idx\" ON \"StaffPresenceLease\"(\"staffMembershipId\", \"generation\", \"validUntil\")"
+      },
+      "QueueEntry_serviceVisitId_key": {
+        "table": "QueueEntry",
+        "unique": true,
+        "columns": [
+          "serviceVisitId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"QueueEntry_serviceVisitId_key\" ON \"QueueEntry\"(\"serviceVisitId\")"
+      },
+      "QueueEntry_salonId_status_joinedAt_idx": {
+        "table": "QueueEntry",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "status",
+          "joinedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"QueueEntry_salonId_status_joinedAt_idx\" ON \"QueueEntry\"(\"salonId\", \"status\", \"joinedAt\")"
+      },
+      "QueueEntry_customerId_status_idx": {
+        "table": "QueueEntry",
+        "unique": false,
+        "columns": [
+          "customerId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"QueueEntry_customerId_status_idx\" ON \"QueueEntry\"(\"customerId\", \"status\")"
+      },
+      "QueueEntry_one_active_salo_ticket_per_customer_key": {
+        "table": "QueueEntry",
+        "unique": true,
+        "columns": [
+          "customerId"
+        ],
+        "predicate": "WHERE \"source\" = 'SALO_TICKET' AND \"status\" IN ('WAITING', 'CALLED')",
+        "definition": "CREATE UNIQUE INDEX \"QueueEntry_one_active_salo_ticket_per_customer_key\" ON \"QueueEntry\" (\"customerId\") WHERE \"source\" = 'SALO_TICKET' AND \"status\" IN ('WAITING', 'CALLED')"
+      },
+      "StaffPresenceLease_source_key": {
+        "table": "StaffPresenceLease",
+        "unique": true,
+        "columns": [
+          "staffMembershipId",
+          "evidenceSource",
+          "producerKey"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"StaffPresenceLease_source_key\" ON \"StaffPresenceLease\"(\"staffMembershipId\", \"evidenceSource\", \"producerKey\")"
+      },
+      "Booking_id_salonId_key": {
+        "table": "Booking",
+        "unique": true,
+        "columns": [
+          "id",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Booking_id_salonId_key\" ON \"Booking\"(\"id\", \"salonId\")"
+      },
+      "StaffMembership_id_salonId_key": {
+        "table": "StaffMembership",
+        "unique": true,
+        "columns": [
+          "id",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"StaffMembership_id_salonId_key\" ON \"StaffMembership\"(\"id\", \"salonId\")"
+      },
+      "ServiceVisit_bookingId_key": {
+        "table": "ServiceVisit",
+        "unique": true,
+        "columns": [
+          "bookingId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"ServiceVisit_bookingId_key\" ON \"ServiceVisit\"(\"bookingId\")"
+      },
+      "ServiceVisit_bookingId_salonId_key": {
+        "table": "ServiceVisit",
+        "unique": true,
+        "columns": [
+          "bookingId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"ServiceVisit_bookingId_salonId_key\" ON \"ServiceVisit\"(\"bookingId\", \"salonId\")"
+      },
+      "ServiceVisit_salonId_status_startedAt_idx": {
+        "table": "ServiceVisit",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "status",
+          "startedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"ServiceVisit_salonId_status_startedAt_idx\" ON \"ServiceVisit\"(\"salonId\", \"status\", \"startedAt\")"
+      },
+      "ServiceVisit_staffMembershipId_status_idx": {
+        "table": "ServiceVisit",
+        "unique": false,
+        "columns": [
+          "staffMembershipId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"ServiceVisit_staffMembershipId_status_idx\" ON \"ServiceVisit\"(\"staffMembershipId\", \"status\")"
+      },
+      "ServiceVisit_startedByUserId_idx": {
+        "table": "ServiceVisit",
+        "unique": false,
+        "columns": [
+          "startedByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"ServiceVisit_startedByUserId_idx\" ON \"ServiceVisit\"(\"startedByUserId\")"
+      },
+      "ServiceVisit_completedByUserId_idx": {
+        "table": "ServiceVisit",
+        "unique": false,
+        "columns": [
+          "completedByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"ServiceVisit_completedByUserId_idx\" ON \"ServiceVisit\"(\"completedByUserId\")"
+      },
+      "ServiceVisit_cancelledByUserId_idx": {
+        "table": "ServiceVisit",
+        "unique": false,
+        "columns": [
+          "cancelledByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"ServiceVisit_cancelledByUserId_idx\" ON \"ServiceVisit\"(\"cancelledByUserId\")"
+      },
+      "ServiceVisit_one_active_per_staff_key": {
+        "table": "ServiceVisit",
+        "unique": true,
+        "columns": [
+          "staffMembershipId"
+        ],
+        "predicate": "WHERE \"status\" = 'IN_SERVICE'",
+        "definition": "CREATE UNIQUE INDEX \"ServiceVisit_one_active_per_staff_key\" ON \"ServiceVisit\"(\"staffMembershipId\") WHERE \"status\" = 'IN_SERVICE'"
+      },
+      "SalonEnforcement_salonId_enforcedAt_idx": {
+        "table": "SalonEnforcement",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "enforcedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonEnforcement_salonId_enforcedAt_idx\" ON \"SalonEnforcement\"(\"salonId\", \"enforcedAt\")"
+      },
+      "SalonArchive_salonId_finalizedAt_idx": {
+        "table": "SalonArchive",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "finalizedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonArchive_salonId_finalizedAt_idx\" ON \"SalonArchive\"(\"salonId\", \"finalizedAt\")"
+      },
+      "SalonRetentionHold_salonId_releasedAt_idx": {
+        "table": "SalonRetentionHold",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "releasedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonRetentionHold_salonId_releasedAt_idx\" ON \"SalonRetentionHold\"(\"salonId\", \"releasedAt\")"
+      },
+      "SalonPurgeClearance_salonId_revokedAt_idx": {
+        "table": "SalonPurgeClearance",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "revokedAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonPurgeClearance_salonId_revokedAt_idx\" ON \"SalonPurgeClearance\"(\"salonId\", \"revokedAt\")"
+      },
+      "SalonPurgeClearance_archiveId_idx": {
+        "table": "SalonPurgeClearance",
+        "unique": false,
+        "columns": [
+          "archiveId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"SalonPurgeClearance_archiveId_idx\" ON \"SalonPurgeClearance\"(\"archiveId\")"
+      },
+      "Brand_slug_key": {
+        "table": "Brand",
+        "unique": true,
+        "columns": [
+          "slug"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Brand_slug_key\" ON \"Brand\"(\"slug\")"
+      },
+      "Notification_eventKey_key": {
+        "table": "Notification",
+        "unique": true,
+        "columns": [
+          "eventKey"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"Notification_eventKey_key\" ON \"Notification\"(\"eventKey\")"
+      },
+      "Notification_userId_isRead_createdAt_idx": {
+        "table": "Notification",
+        "unique": false,
+        "columns": [
+          "userId",
+          "isRead",
+          "createdAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"Notification_userId_isRead_createdAt_idx\" ON \"Notification\"(\"userId\", \"isRead\", \"createdAt\")"
+      },
+      "CustomerFavorite_userId_salonId_key": {
+        "table": "CustomerFavorite",
+        "unique": true,
+        "columns": [
+          "userId",
+          "salonId"
+        ],
+        "predicate": "",
+        "definition": "CREATE UNIQUE INDEX \"CustomerFavorite_userId_salonId_key\" ON \"CustomerFavorite\"(\"userId\", \"salonId\")"
+      },
+      "CustomerFavorite_userId_createdAt_idx": {
+        "table": "CustomerFavorite",
+        "unique": false,
+        "columns": [
+          "userId",
+          "createdAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"CustomerFavorite_userId_createdAt_idx\" ON \"CustomerFavorite\"(\"userId\", \"createdAt\")"
+      },
+      "StaffInvitation_one_pending_per_salon_email_key": {
+        "table": "StaffInvitation",
+        "unique": true,
+        "columns": [
+          "salonId",
+          "destinationEmail"
+        ],
+        "predicate": "WHERE \"status\" = 'PENDING'",
+        "definition": "CREATE UNIQUE INDEX \"StaffInvitation_one_pending_per_salon_email_key\" ON \"StaffInvitation\"(\"salonId\", \"destinationEmail\") WHERE \"status\" = 'PENDING'"
+      },
+      "StaffInvitation_salonId_status_idx": {
+        "table": "StaffInvitation",
+        "unique": false,
+        "columns": [
+          "salonId",
+          "status"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffInvitation_salonId_status_idx\" ON \"StaffInvitation\"(\"salonId\", \"status\")"
+      },
+      "StaffInvitation_destinationEmail_expiresAt_idx": {
+        "table": "StaffInvitation",
+        "unique": false,
+        "columns": [
+          "destinationEmail",
+          "expiresAt"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffInvitation_destinationEmail_expiresAt_idx\" ON \"StaffInvitation\"(\"destinationEmail\", \"expiresAt\")"
+      },
+      "StaffInvitation_initiatedByUserId_idx": {
+        "table": "StaffInvitation",
+        "unique": false,
+        "columns": [
+          "initiatedByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffInvitation_initiatedByUserId_idx\" ON \"StaffInvitation\"(\"initiatedByUserId\")"
+      },
+      "StaffInvitation_intendedUserId_idx": {
+        "table": "StaffInvitation",
+        "unique": false,
+        "columns": [
+          "intendedUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffInvitation_intendedUserId_idx\" ON \"StaffInvitation\"(\"intendedUserId\")"
+      },
+      "StaffInvitation_acceptedByUserId_idx": {
+        "table": "StaffInvitation",
+        "unique": false,
+        "columns": [
+          "acceptedByUserId"
+        ],
+        "predicate": "",
+        "definition": "CREATE INDEX \"StaffInvitation_acceptedByUserId_idx\" ON \"StaffInvitation\"(\"acceptedByUserId\")"
+      }
+    },
+    "dataStatements": [
+      "UPDATE \"Salon\" SET \"adminVip\" = COALESCE(\"isVip\", false) WHERE \"adminVip\" = false",
+      "INSERT INTO \"PlatformSettings\" (\"id\", \"updatedAt\") VALUES ('platform', CURRENT_TIMESTAMP) ON CONFLICT (\"id\") DO NOTHING",
+      "UPDATE \"Notification\" SET \"readAt\" = \"createdAt\" WHERE \"isRead\" = true"
+    ],
+    "orderingIssues": []
+  },
+  "verificationRequirements": [
+    "Verify SQL execution on an exclusively owned empty disposable PostgreSQL 16 database.",
+    "Compare catalogs against a corrected disposable reference replay, including enum order, columns/types/nullability/defaults, indexes, partial predicates, CHECKs, FK actions and singleton settings.",
+    "Verify installed extension/default-privilege policy, identity receipt, role, network exclusivity and same-session target/catalog recheck before any future write.",
+    "Exercise queue, service, loyalty and invitation invariants with synthetic fixtures only.",
+    "Test rollback/crash handling, freeze canonical hashes, and independently verify schema equivalence before any future history reconciliation.",
+    "No historical migrations may be marked satisfied until separate approval and successful PostgreSQL verification.",
+    "Do not treat the static inventory as a PostgreSQL parser or proof of schema equivalence.",
+    "Resolve or explicitly approve the pre-existing SubscriptionPlan enum ordering difference before asserting full Prisma/catalog equivalence; do not silently reorder the database enum."
+  ],
+  "knownSchemaFindings": [
+    {
+      "kind": "enum-order",
+      "name": "SubscriptionPlan",
+      "canonicalBaselineOrder": [
+        "FREE",
+        "SMART",
+        "PRO",
+        "PREMIUM"
+      ],
+      "prismaSchemaOrder": [
+        "FREE",
+        "SMART",
+        "PREMIUM",
+        "PRO"
+      ]
+    }
+  ]
+}

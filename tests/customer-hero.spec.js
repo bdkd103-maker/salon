@@ -21,11 +21,13 @@ const expectedTitles = {
   let layouts = 0;
   try {
     for (const file of ['index.html', 'women.html']) {
-      const page = await browser.newPage();
+      const page = await browser.newPage({ reducedMotion: file === 'index.html' ? 'reduce' : 'no-preference' });
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
       await page.route('**/*', route => {
         const url = new URL(route.request().url());
+        if (url.pathname === '/api/v1/salons') return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ salons: [] }) });
+        if (url.pathname.startsWith('/api/')) return route.fulfill({ contentType: 'application/json', body: '{}' });
         if (url.hostname !== 'hero.test') return route.abort();
         if (url.pathname.startsWith('/api/')) {
           return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ salons: [] }) });
@@ -48,7 +50,7 @@ const expectedTitles = {
       for (const lang of ['de', 'en', 'ar']) {
         await page.locator('#languageSelect').selectOption(lang);
         assert.equal(await page.locator('html').getAttribute('dir'), lang === 'ar' ? 'rtl' : 'ltr');
-        assert.ok((await page.locator('.salo-hero-copy h1').textContent()).includes(expectedTitles[lang]));
+        assert.ok((await page.locator('.salo-hero-copy h1').textContent()).includes((file === "index.html" ? {de:"Finde deinen Salon.",en:"Find your salon.",ar:"اعثر على صالونك."}[lang] : expectedTitles[lang])));
 
         for (const width of [320, 375, 430, 768, 1024, 1440, 1920, 2560]) {
           await page.setViewportSize({ width, height: 1000 });
@@ -70,7 +72,7 @@ const expectedTitles = {
           });
           assert.equal(result.documentOverflow, false, `${file}/${lang}/${width} document overflow`);
           assert.deepEqual(result.overflow, [], `${file}/${lang}/${width} control overflow`);
-          assert.ok(result.innerWidth <= 1181, `${file}/${lang}/${width} Hero is not bounded`);
+          assert.ok(result.innerWidth <= (file === "index.html" ? 1401 : 1181), `${file}/${lang}/${width} Hero is not bounded`);
           assert.equal(result.pressed, 1, `${file}/${lang}/${width} selected intent count`);
           if (width <= 430) assert.ok(result.heroHeight < 800, `${file}/${lang}/${width} Hero crowds first viewport: ${result.heroHeight}`);
           layouts++;

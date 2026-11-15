@@ -1050,7 +1050,7 @@
         justify-self: start;
       }
       .layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
       .sidebar {
         border-inline-end: 0;
@@ -1110,13 +1110,36 @@
       .page-header {
         padding: 14px;
         gap: 14px;
+        grid-template-columns: minmax(0, 1fr);
       }
       .header-tools,
       .brand-block {
         width: 100%;
+        grid-column: 1 / -1;
+      }
+      .brand-block {
+        grid-row: 1;
+      }
+      .header-tools {
+        grid-row: 2;
+      }
+      .gender-switch {
+        grid-row: 3;
       }
       .header-tools {
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .lang-control {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .profile-chip {
+        margin-inline-start: auto;
+        min-width: 0;
+        max-width: 100%;
       }
       .brand {
         font-size: 1.7rem;
@@ -1236,6 +1259,8 @@
         padding: 0 12px 12px;
       }
     }
+    #profileBrand .salo-official-logo { display:block; width:140px; height:auto; object-fit:contain; direction:ltr; transform:none; }
+    @media(max-width:600px){ #profileBrand .salo-official-logo { width:104px; } }
   </style>
   <script>
     (function () {
@@ -1246,14 +1271,17 @@
       } catch (error) {}
     })();
   </script>
+  <link rel="stylesheet" href="./assets/salo-brand-lockup.css">
+<link rel="stylesheet" href="./assets/notifications.css">
+<link rel="stylesheet" href="./assets/loyalty.css">
 </head>
 <body>
   <div class="page-shell">
     <header class="page-header">
       <div class="brand-block">
-        <div class="brand-mark" aria-hidden="true"></div>
+        
         <div class="brand-copy">
-          <div class="brand" id="profileBrand">Beauty &amp; Hair</div>
+          <div class="brand" id="profileBrand"><span class="salo-brand-lockup"><img class="salo-official-logo" src="./assets/salo-official-logo.webp" width="840" height="280" alt="SALO" decoding="async"><small class="salo-brand-tagline">SMART SALON</small></span></div>
           <div class="brand-subtitle" id="profileBrandSubtitle">مساحة العميلة</div>
         </div>
       </div>
@@ -1303,6 +1331,12 @@
               <svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
             </span>
             <span class="nav-text" id="navBookings">الحجوزات</span>
+          </a>
+          <a class="nav-item" href="#favoriteSalonsCard">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg>
+            </span>
+            <span class="nav-text" id="navFavorites">المفضلة</span>
           </a>
           <a class="nav-item" href="#notesCard">
             <span class="nav-icon" aria-hidden="true">
@@ -1494,6 +1528,18 @@
                   </div>
                   <div class="recent-bookings-list" id="recentBookingsList"></div>
                 </section>
+
+                <section class="card" id="customerLoyalty"></section>
+                <section class="card recent-card" id="favoriteSalonsCard">
+                  <div class="card-header">
+                    <div class="card-heading">
+                      <h2 id="favoriteSalonsTitle">صالوناتي المفضلة</h2>
+                      <p id="favoriteSalonsIntro">احفظي الصالونات المهمة وارجعي إليها بسرعة في أي وقت.</p>
+                    </div>
+                    <span class="section-badge" id="favoriteSalonsCount">0</span>
+                  </div>
+                  <div class="recent-bookings-list" id="favoriteSalonsList"></div>
+                </section>
               </div>
 
               <div class="secondary-column">
@@ -1576,6 +1622,15 @@
         sidebarLabel: "التنقل",
         navProfile: "الملف الشخصي",
         navBookings: "الحجوزات",
+        navFavorites: "المفضلة",
+        favoriteSalonsTitle: "صالوناتي المفضلة",
+        favoriteSalonsIntro: "احفظي الصالونات المهمة وارجعي إليها بسرعة في أي وقت.",
+        favoriteSalonsEmpty: "لم تحفظي أي صالون بعد.",
+        favoriteSalonsLoading: "جارٍ تحميل صالوناتك المفضلة...",
+        favoriteSalonsError: "تعذّر تحميل صالوناتك المفضلة، حاولي مرة أخرى.",
+        favoriteSalonsRetry: "إعادة المحاولة",
+        favoriteOpen: "فتح الصالون",
+        favoriteRemove: "إزالة من المفضلة",
         navNotes: "الملاحظات",
         navSecurity: "الأمان",
         navQuickAccess: "وصول سريع",
@@ -1658,6 +1713,15 @@
         sidebarLabel: "Navigation",
         navProfile: "Profile",
         navBookings: "Bookings",
+        navFavorites: "Favorites",
+        favoriteSalonsTitle: "Your favorite salons",
+        favoriteSalonsIntro: "Keep the salons you care about close and reopen them anytime.",
+        favoriteSalonsEmpty: "You have not saved any salons yet.",
+        favoriteSalonsLoading: "Loading your favorite salons...",
+        favoriteSalonsError: "We could not load your favorite salons. Please try again.",
+        favoriteSalonsRetry: "Try again",
+        favoriteOpen: "Open salon",
+        favoriteRemove: "Remove from favorites",
         navNotes: "Notes",
         navSecurity: "Security",
         navQuickAccess: "Quick access",
@@ -1740,6 +1804,15 @@
         sidebarLabel: "Navigation",
         navProfile: "Profil",
         navBookings: "Buchungen",
+        navFavorites: "Favoriten",
+        favoriteSalonsTitle: "Deine Lieblingssalons",
+        favoriteSalonsIntro: "Merke dir die Salons, die dir wichtig sind, und öffne sie jederzeit wieder.",
+        favoriteSalonsEmpty: "Du hast noch keine Salons gespeichert.",
+        favoriteSalonsLoading: "Lieblingssalons werden geladen...",
+        favoriteSalonsError: "Die Lieblingssalons konnten nicht geladen werden. Bitte erneut versuchen.",
+        favoriteSalonsRetry: "Erneut versuchen",
+        favoriteOpen: "Salon öffnen",
+        favoriteRemove: "Aus Favoriten entfernen",
         navNotes: "Notizen",
         navSecurity: "Sicherheit",
         navQuickAccess: "Schnellzugriff",
@@ -1914,6 +1987,8 @@
     function resolveApiBaseUrl() {
       const fallback = "http://localhost:4000";
       try {
+        const explicitApiBaseUrl = String(window.SALO_API_BASE_URL || document.querySelector('meta[name="salo-api-base"]')?.content || "").trim();
+        if (explicitApiBaseUrl) return explicitApiBaseUrl.replace(/\/+$/, "");
         const { protocol, hostname, port } = window.location;
         if (hostname === "localhost" || hostname === "127.0.0.1") {
           return `${protocol}//${hostname}:4000`;
@@ -1925,7 +2000,7 @@
         if (port) {
           return `${protocol}//${hostname}:4000`;
         }
-        return fallback;
+        return `${protocol}//${hostname}`;
       } catch (error) {
         return fallback;
       }
@@ -2112,6 +2187,7 @@
 
       const servicePills = document.getElementById("profileServicePills");
       servicePills.innerHTML = `<span class="service-chip">${escapeHtml(serviceLabel)}</span>`;
+      loadRecentBookingsFromApi().finally(() => renderRecentBookings());
       renderRecentBookings();
     }
 
@@ -2181,52 +2257,70 @@
       return { label: text.recentStatusConfirmed, className: "confirmed" };
     }
 
+    let apiRecentBookings = null;
+
+    async function loadRecentBookingsFromApi() {
+      const tokenData = readStoredAuthToken();
+      if (!tokenData?.accessToken || String(tokenData.role || "").toUpperCase() !== "CUSTOMER") {
+        apiRecentBookings = [];
+        return;
+      }
+      try {
+        const response = await apiRequest("/api/v1/bookings/me", { headers: getApiHeaders() });
+        apiRecentBookings = Array.isArray(response?.bookings) ? response.bookings : [];
+      } catch (error) {
+        console.warn("Recent bookings load failed.", error);
+        apiRecentBookings = [];
+      }
+    }
+
+    function mapApiBookingToRecent(booking, index) {
+      const salon = booking?.salon || {};
+      const service = booking?.service || {};
+      const barber = booking?.barber || null;
+      const startAt = String(booking?.startAt || "");
+      const startDate = startAt ? new Date(startAt) : null;
+      const datePart = startDate && !Number.isNaN(startDate.getTime())
+        ? `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, "0")}-${String(startDate.getDate()).padStart(2, "0")}`
+        : "";
+      const timePart = startDate && !Number.isNaN(startDate.getTime())
+        ? `${String(startDate.getHours()).padStart(2, "0")}:${String(startDate.getMinutes()).padStart(2, "0")}`
+        : "";
+      return {
+        _id: String(booking?.id || index),
+        id: booking?.id,
+        status: booking?.status || "confirmed",
+        date: datePart,
+        time: timePart,
+        startAt,
+        notes: booking?.notes || "",
+        service: service?.name || booking?.serviceId || "",
+        barber: barber?.name || "",
+        salonName: salon?.name || getText().recentFallbackSalon,
+        salonCity: salon?.city || "",
+        salonImage: getBookingImage(salon),
+        email: booking?.customerEmail || "",
+        phone: booking?.customerPhone || "",
+        name: booking?.customerName || ""
+      };
+    }
+
     function collectRecentBookings() {
-      const salons = [
-        ...readList("meshwarWomenSalons"),
-        ...readList("meshwarSalons"),
-        ...(readObject("meshwarSalon") ? [readObject("meshwarSalon")] : [])
-      ].filter(item => item && typeof item === "object");
-
-      const email = (fields.email.value || savedLogin?.email || customerProfile.email || "").trim().toLowerCase();
-      const phone = normalizePhone(fields.phone.value || customerProfile.phone || "");
-      const name = (fields.name.value || customerProfile.name || "").trim().toLowerCase();
-      const items = salons.flatMap((salon, salonIndex) => {
-        const bookings = Array.isArray(salon.bookings) ? salon.bookings : [];
-        return bookings.map((booking, bookingIndex) => ({
-          ...booking,
-          _id: `${salon.id || salonIndex}-${bookingIndex}`,
-          salonName: booking?.salon || salon?.name || getText().recentFallbackSalon,
-          salonCity: salon?.city || booking?.city || "",
-          salonImage: getBookingImage(salon),
-        }));
-      }).filter(booking => {
-        const bookingEmail = String(booking.email || "").trim().toLowerCase();
-        const bookingPhone = normalizePhone(booking.phone || "");
-        const bookingName = String(booking.name || "").trim().toLowerCase();
-        if (email && bookingEmail && bookingEmail === email) return true;
-        if (phone && bookingPhone && bookingPhone === phone) return true;
-        if (!email && !phone && name && bookingName && bookingName === name) return true;
-        return false;
-      });
-
-      if (items.length) {
-        return items.sort((a, b) => {
-          const aTime = new Date(`${a.date || ""}T${a.time || "00:00"}`).getTime() || 0;
-          const bTime = new Date(`${b.date || ""}T${b.time || "00:00"}`).getTime() || 0;
-          return bTime - aTime;
-        }).slice(0, 5);
+      if (Array.isArray(apiRecentBookings)) {
+        return apiRecentBookings
+          .map(mapApiBookingToRecent)
+          .sort((a, b) => (new Date(b.startAt || 0).getTime()) - (new Date(a.startAt || 0).getTime()))
+          .slice(0, 5);
       }
 
       const quickInfo = readObject("meshwarCustomerQuickInfo");
-      const currentSalon = readObject("meshwarSalon");
       if (quickInfo && (quickInfo.date || quickInfo.time || quickInfo.service || quickInfo.name)) {
         return [{
           ...quickInfo,
           status: "draft",
-          salonName: currentSalon?.name || quickInfo.salon || getText().recentFallbackSalon,
-          salonCity: currentSalon?.city || quickInfo.city || "",
-          salonImage: getBookingImage(currentSalon),
+          salonName: quickInfo.salon || getText().recentFallbackSalon,
+          salonCity: quickInfo.city || "",
+          salonImage: null,
         }];
       }
 
@@ -2273,6 +2367,117 @@
       }).join("");
     }
 
+    let apiFavoriteSalons = [];
+    let favoriteSalonsState = "loading";
+
+    function getFavoriteSalonImage(salon) {
+      const media = Array.isArray(salon?.media) ? salon.media : [];
+      const first = media.find(item => item && item.url);
+      if (first) return String(first.url);
+      return getBookingImage(salon);
+    }
+
+    async function loadFavoriteSalonsFromApi() {
+      const tokenData = readStoredAuthToken();
+      if (!tokenData?.accessToken || String(tokenData.role || "").toUpperCase() !== "CUSTOMER") {
+        apiFavoriteSalons = [];
+        favoriteSalonsState = "ready";
+        renderFavoriteSalons();
+        return;
+      }
+      favoriteSalonsState = "loading";
+      renderFavoriteSalons();
+      try {
+        const response = await apiRequest("/api/v1/favorites", { headers: getApiHeaders() });
+        apiFavoriteSalons = Array.isArray(response?.favorites) ? response.favorites : [];
+        favoriteSalonsState = "ready";
+      } catch (error) {
+        console.warn("Favorite salons load failed.", error);
+        apiFavoriteSalons = [];
+        favoriteSalonsState = "error";
+      }
+      renderFavoriteSalons();
+    }
+
+    async function removeFavoriteSalon(salonId) {
+      try {
+        await apiRequest(`/api/v1/favorites/${encodeURIComponent(salonId)}`, {
+          method: "DELETE",
+          headers: getApiHeaders()
+        });
+        apiFavoriteSalons = apiFavoriteSalons.filter(item => String(item?.salonId || "") !== String(salonId));
+      } catch (error) {
+        console.warn("Favorite salon removal failed.", error);
+      }
+      renderFavoriteSalons();
+    }
+
+    function openFavoriteSalon(salonId, salon) {
+      const womenOnly = Boolean(salon?.isWomenOnly || salon?.forWomen);
+      const target = womenOnly ? "./women.html" : "./index.html";
+      window.location.href = `${target}#salon-${encodeURIComponent(salonId)}`;
+    }
+
+    function renderFavoriteSalons() {
+      const list = document.getElementById("favoriteSalonsList");
+      const counter = document.getElementById("favoriteSalonsCount");
+      if (!list || !counter) return;
+      const text = getText();
+
+      if (favoriteSalonsState === "loading") {
+        counter.textContent = "…";
+        list.innerHTML = `<div class="recent-empty">${escapeHtml(text.favoriteSalonsLoading)}</div>`;
+        return;
+      }
+
+      if (favoriteSalonsState === "error") {
+        counter.textContent = "!";
+        list.innerHTML = `<div class="recent-empty">${escapeHtml(text.favoriteSalonsError)}</div><button class="text-button" type="button" id="favoriteSalonsRetryButton">${escapeHtml(text.favoriteSalonsRetry)}</button>`;
+        document.getElementById("favoriteSalonsRetryButton")?.addEventListener("click", () => loadFavoriteSalonsFromApi());
+        return;
+      }
+
+      counter.textContent = String(apiFavoriteSalons.length);
+      if (!apiFavoriteSalons.length) {
+        list.innerHTML = `<div class="recent-empty">${escapeHtml(text.favoriteSalonsEmpty)}</div>`;
+        return;
+      }
+
+      list.innerHTML = apiFavoriteSalons.map(item => {
+        const salon = item?.salon || {};
+        const salonId = String(item?.salonId || salon.id || "");
+        return `
+          <article class="recent-booking-item">
+            <div class="recent-booking-media" style="background-image:url('${escapeHtml(getFavoriteSalonImage(salon))}')"></div>
+            <div class="recent-booking-body">
+              <div class="recent-booking-top">
+                <div>
+                  <h3>${escapeHtml(salon.name || text.recentFallbackSalon)}</h3>
+                  <p>${escapeHtml(salon.city || text.fallbackCity)}</p>
+                </div>
+              </div>
+              <div class="booking-meta">
+                <button class="text-button" type="button" data-open-favorite="${escapeHtml(salonId)}">${escapeHtml(text.favoriteOpen)}</button>
+                <button class="text-button" type="button" data-remove-favorite="${escapeHtml(salonId)}">${escapeHtml(text.favoriteRemove)}</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      list.querySelectorAll("[data-open-favorite]").forEach(button => {
+        button.addEventListener("click", () => {
+          const salonId = button.dataset.openFavorite;
+          const item = apiFavoriteSalons.find(row => String(row?.salonId || "") === String(salonId));
+          if (!salonId || !item) return;
+          openFavoriteSalon(salonId, item.salon || {});
+        });
+      });
+      list.querySelectorAll("[data-remove-favorite]").forEach(button => {
+        button.addEventListener("click", () => removeFavoriteSalon(button.dataset.removeFavorite));
+      });
+    }
+
     function applyCustomerProfileLanguage() {
       const lang = getCurrentLanguage();
       const text = getText();
@@ -2286,7 +2491,7 @@
       if (languageSelect) languageSelect.value = lang;
 
       const ids = {
-        profileBrand: text.brandName,
+
         profileBrandSubtitle: text.profileBrandSubtitle,
         womenModeLink: text.womenMode,
         menModeLink: text.menMode,
@@ -2295,6 +2500,7 @@
         navHome: text.backNav,
         navProfile: text.navProfile,
         navBookings: text.navBookings,
+        navFavorites: text.navFavorites,
         navNotes: text.navNotes,
         navSecurity: text.navSecurity,
         navQuickAccess: text.navQuickAccess,
@@ -2315,6 +2521,8 @@
         notesEditButton: text.editAction,
         recentBookingsTitle: text.recentBookingsTitle,
         recentBookingsIntro: text.recentBookingsIntro,
+        favoriteSalonsTitle: text.favoriteSalonsTitle,
+        favoriteSalonsIntro: text.favoriteSalonsIntro,
         accountManagementTitle: text.accountManagement,
         securityIntro: text.securityIntro,
         quickAccessTitle: text.quickAccessTitle,
@@ -2362,6 +2570,7 @@
       setSelectOptions(fields.service.value || customerProfile.service || "");
       syncExperienceLinks();
       syncProfilePreview();
+      renderFavoriteSalons();
     }
 
     function syncExperienceLinks() {
@@ -2553,8 +2762,12 @@
       if (!isAuthenticated) return;
       fillFields();
       setEditMode(false);
+      loadFavoriteSalonsFromApi();
+      window.SaloLoyalty?.loadCustomer();
       document.body.dataset.ready = "true";
     })();
   </script>
+<script src="./assets/notifications.js"></script>
+<script src="./assets/loyalty.js"></script>
 </body>
 </html>

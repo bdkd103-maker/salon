@@ -5,7 +5,11 @@ import { requireRole, requireUserFromAuthHeader, sanitizeUser } from "../lib/aut
 import { summarizeAdminDashboard } from "../lib/admin-dashboard.js";
 import { serializeSalonMedia } from "../lib/salon-media.js";
 import { buildPublicSalonState, getAutoVipSalonIds, getManualVipSalonIds } from "../lib/salon-vip.js";
-import { getSubscriptionMeta, normalizeSubscriptionPlan } from "../lib/subscription-plan.js";
+import {
+  SUBSCRIPTION_PLAN_ORDER,
+  getSubscriptionMeta,
+  normalizeSubscriptionPlan,
+} from "../lib/subscription-plan.js";
 
 const profileUpdateSchema = z.object({
   fullName: z.string().trim().min(2).max(80).optional(),
@@ -70,6 +74,7 @@ export async function dashboardRoutes(app: any) {
       const user = await requireUserFromAuthHeader(request, reply);
       return { user: sanitizeUser(user) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -107,6 +112,7 @@ export async function dashboardRoutes(app: any) {
 
       return { user: sanitizeUser(nextUser) };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -407,6 +413,7 @@ export async function dashboardRoutes(app: any) {
         },
       };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -438,6 +445,7 @@ export async function dashboardRoutes(app: any) {
 
       return { subscription: result };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -454,9 +462,14 @@ export async function dashboardRoutes(app: any) {
 
       const plan = normalizeSubscriptionPlan(parsed.data.plan ?? "FREE");
       const status = parsed.data.status ?? "ACTIVE";
-      if (user.role === "OWNER" && plan !== "FREE") {
-  return reply.code(403).send({ error: "Paid subscription plans cannot be self-assigned" });
-}
+      if (user.role === "OWNER") {
+        const current = await prisma.userSubscription.findUnique({ where: { userId: user.id } });
+        const currentPlan = normalizeSubscriptionPlan(current?.plan ?? "FREE");
+        const isSelfEscalation = SUBSCRIPTION_PLAN_ORDER.indexOf(plan) > SUBSCRIPTION_PLAN_ORDER.indexOf(currentPlan);
+        if (isSelfEscalation) {
+          return reply.code(403).send({ error: "Paid subscription plans cannot be self-assigned" });
+        }
+      }
       const meta = getSubscriptionMeta(plan);
       const now = new Date();
       const renewalDate = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30);
@@ -499,6 +512,7 @@ export async function dashboardRoutes(app: any) {
         },
       };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -515,15 +529,16 @@ export async function dashboardRoutes(app: any) {
           ],
         },
         include: {
-          sender: true,
-          receiver: true,
-          salon: true,
+          sender: { select: { id: true, fullName: true, email: true, phone: true } },
+          receiver: { select: { id: true, fullName: true, email: true, phone: true } },
+          salon: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
       });
 
       return { messages };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -569,21 +584,26 @@ export async function dashboardRoutes(app: any) {
 
       return { message };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
 
+  // Ownership is always the authenticated account, including ADMIN.
   app.get("/api/v1/notifications", async (request: any, reply: any) => {
     try {
       const user = await requireUserFromAuthHeader(request, reply);
-      const notifications = await prisma.notification.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: "desc" },
-      });
-
-      return { notifications };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+      const where = { userId: user.id, type: { not: "gdpr" } };
+      const [notifications, unreadCount] = await prisma.$transaction([
+        prisma.notification.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 100 }),
+        prisma.notification.count({ where: { ...where, isRead: false } }),
+      ]);
+      reply.header("Cache-Control", "no-store");
+      return { notifications, unreadCount };
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log?.error?.(error);
+      return reply.code(500).send({ error: "Notifications unavailable" });
     }
   });
 
@@ -591,32 +611,24 @@ export async function dashboardRoutes(app: any) {
     try {
       const user = await requireUserFromAuthHeader(request, reply);
       const parsed = notificationReadSchema.safeParse(request.body ?? {});
-
-      if (!parsed.success) {
-        return reply.code(400).send({ error: "Invalid payload", details: parsed.error.flatten() });
+      if (!parsed.success || (!parsed.data.readAll && !parsed.data.notificationIds?.length)) {
+        return reply.code(400).send({ error: "Invalid payload" });
       }
-
-      if (parsed.data.readAll) {
-        await prisma.notification.updateMany({
-          where: { userId: user.id, isRead: false },
-          data: { isRead: true },
-        });
-        return { ok: true };
+      const ids = [...new Set(parsed.data.notificationIds || [])];
+      if (ids.length > 100) return reply.code(400).send({ error: "Too many notifications" });
+      if (!parsed.data.readAll) {
+        const owned = await prisma.notification.count({ where: { id: { in: ids }, userId: user.id, type: { not: "gdpr" } } });
+        if (owned !== ids.length) return reply.code(404).send({ error: "Notification not found" });
       }
-
-      if (parsed.data.notificationIds && parsed.data.notificationIds.length) {
-        await prisma.notification.updateMany({
-          where: {
-            id: { in: parsed.data.notificationIds },
-            userId: user.id,
-          },
-          data: { isRead: true },
-        });
-      }
-
+      await prisma.notification.updateMany({
+        where: { userId: user.id, type: { not: "gdpr" }, isRead: false, ...(!parsed.data.readAll ? { id: { in: ids } } : {}) },
+        data: { isRead: true, readAt: new Date() },
+      });
       return { ok: true };
-    } catch {
-      return reply.code(401).send({ error: "Unauthorized" });
+    } catch (error) {
+      if (reply.sent) return reply;
+      request.log?.error?.(error);
+      return reply.code(500).send({ error: "Notifications unavailable" });
     }
   });
 
@@ -629,6 +641,7 @@ export async function dashboardRoutes(app: any) {
       });
       return { subscriptions };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -647,6 +660,7 @@ export async function dashboardRoutes(app: any) {
 
       return { subscription: subscription ?? null };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -686,6 +700,7 @@ export async function dashboardRoutes(app: any) {
 
       return { subscription };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
@@ -706,6 +721,7 @@ export async function dashboardRoutes(app: any) {
 
       return { ok: true, updated: subscription.count };
     } catch {
+      if (reply.sent) return reply;
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });

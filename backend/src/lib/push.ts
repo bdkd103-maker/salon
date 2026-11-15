@@ -76,7 +76,3 @@ export async function notifyAvailabilityWatchEvent({
 
   return { created: true, notification };
 }
-
-export async function notifyBookingEvent(_payload?: any) {
-  return { ok: true };
-}
