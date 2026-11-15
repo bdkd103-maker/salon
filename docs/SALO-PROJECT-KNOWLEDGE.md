@@ -233,3 +233,33 @@ Date.UTC rollover from silently changing a requested booking. Fourteen booking
 tests pass (29 application regressions total), including malformed-input HTTP
 400 coverage with fake persistence and zero booking access. Legacy year 0-99,
 full grammar and DST/offset behavior are not solved by these checks.
+
+## AI development tooling source of truth
+
+See [SALO-AI-TOOLING.md](SALO-AI-TOOLING.md) for the four new repository-scoped
+skills, fixed safe commands, installation policy, browser modes and PR checks.
+Root npm test now invokes the safe suite rather than the old placeholder.
+VS Code can use these npm scripts without new extensions; Codex clients may
+need reload to discover SKILL.md files. Existing two skills remain unchanged.
+
+The safe suite passes 72 tests and six intercepted browser suites pass in
+explicit system Chromium mode, including in a fresh local clone with locked
+ignore-scripts installs. The workflow parses as YAML and enforces read-only,
+non-deploying jobs. TypeScript and frozen preparation remain non-passing and
+are separate visible CI checks. No source/schema/SQL/profile integrity rewrite
+is part of tooling setup. GitHub execution/branch protection is not activated
+without a separately approved push/settings change.
+
+The environment completion adds AGENTS skill links, real offline Prisma Client
+generation via version-matched WASM/Generator APIs, and explicit browser support
+in the scoped gate. Copied schema/client/type config stay in ignored disposable
+folders; env reads/network/native engine execution are denied. The canonical
+schema, migrations, profile, runtime client and backend tsconfig are unchanged.
+One test-only NodeNext import was corrected. Eight existing pure queue tests
+are included in isolation, bringing the safe suite to 86 passing tests.
+
+Fresh generated types resolve the tooling defect; 21 genuine source/test type
+errors remain documented in the backlog. The frozen preparation refusal stays
+enforced as a separate release gate. All three workflows are now syntactically
+valid: ordinary read-only PR checks and permanently disabled manual release
+placeholders. Local config is ready for publication review, not yet pushed.

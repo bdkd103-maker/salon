@@ -83,7 +83,7 @@ export function syntaxCheck(file, bytes) {
 function executeNode(args, label) {
   const result = spawnSync(process.execPath, args, { cwd: repository, env: childEnv(), encoding: 'utf8', timeout: 180_000, maxBuffer: 4 * 1024 * 1024 });
   const output = `${result.stdout || ''}${result.stderr || ''}`;
-  return { check: label, status: result.status === 0 ? 'PASS' : result.error || result.status === 2 || /BLOCKED:|re-audit required|Executable doesn't exist/.test(output) ? 'BLOCKED' : 'FAIL', exitCode: result.status, evidence: output.slice(-14000) };
+  return { check: label, status: result.status === 0 ? 'PASS' : /error TS\d+:/.test(output) ? 'FAIL' : result.error || result.status === 2 || /BLOCKED:|re-audit required|Executable doesn't exist|Chromium distribution .* is not found/.test(output) ? 'BLOCKED' : 'FAIL', exitCode: result.status, evidence: output.slice(-14000) };
 }
 export function summarize(results) {
   return results.some(result => result.status === 'FAIL') ? 'FAIL' : results.some(result => result.status === 'BLOCKED') ? 'BLOCKED' : 'PASS';
@@ -95,16 +95,18 @@ function baselinePath(relative) {
   return full;
 }
 export function main(argv) {
-  let mode = 'fast', capture = false, baseline;
+  let mode = 'fast', capture = false, baseline, browser = 'msedge';
   const files = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--capture' && !capture) capture = true;
     else if (argv[i] === '--mode' && argv[i + 1]) mode = argv[++i];
     else if (argv[i] === '--baseline' && argv[i + 1]) baseline = argv[++i];
+    else if (argv[i] === '--browser' && ['msedge', 'chromium', 'system-chromium'].includes(argv[i + 1])) browser = argv[++i];
     else if (argv[i] === '--files') { while (argv[i + 1] && !argv[i + 1].startsWith('--')) files.push(argv[++i]); }
     else block('unknown command argument');
   }
   const plan = selectChecks([...new Set(files)], mode);
+  plan.browserMode = browser;
   for (const file of files) sourcePath(repository, file);
   if (capture) {
     if (baseline || mode !== 'fast') block('capture must be separate from validation');
@@ -149,8 +151,8 @@ export function main(argv) {
     if (plan.needsWorkflow) results.push(executeNode(['--test', 'tests/development-workflow.test.mjs'], 'workflow regression tests'));
     for (const group of plan.unitGroups) results.push(executeNode(['scripts/test-backend-unit.mjs', '--group', group], `pure backend: ${group}`));
     if (plan.unverifiedBackend.length) results.push({ check: 'backend behavior coverage', status: 'BLOCKED', evidence: plan.unverifiedBackend });
-    if (plan.backend) results.push(executeNode(['backend/node_modules/typescript/bin/tsc', '-p', 'backend/tsconfig.json', '--noEmit', '--pretty', 'false'], 'backend TypeScript (full project)'));
-    if (plan.needsBrowser) results.push(executeNode(['scripts/test-browser-mock.mjs'], 'six audited mock browser suites'));
+    if (plan.backend) results.push(executeNode(['scripts/salo-checks.mjs', 'typecheck'], 'backend TypeScript (full project, isolated Prisma)'));
+    if (plan.needsBrowser) results.push(executeNode(['scripts/test-browser-mock.mjs', '--browser', browser], 'six audited mock browser suites'));
   }
   return { status: summarize(results), plan, results, coverage: mode === 'fast' ? 'FAST STATIC ONLY; not task completion or application correctness.' : 'Selected checks only; acceptance criteria and independent review remain required.', unavailable: ['ESLint is not installed/configured; no lint pass claimed.'], deploymentReady: false };
 }

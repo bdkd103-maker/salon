@@ -16,9 +16,9 @@ authorization to migrate, deploy, access credentials or change product policy.
 | --- | --- | --- |
 | R01 | P1 / fixed locally | server.ts formerly trusted decoded JWT sub. Now uses existing verifyAccessToken; signature/expiry/claims validated before selecting user bucket, invalid headers use IP. Six regression tests pass; see batch log. |
 | M01 | P0 launch / blocked | 20260909231832 QueueEntry FK references ServiceVisit before 20260910130000 creates it. Requires approved migration strategy and disposable PostgreSQL install/upgrade validation; do not reorder history blindly. |
-| V01 | P0 verification / blocked | Full-project tsc fails, including generated Prisma type gaps and unrelated existing errors. Establish migrated-schema/client compatibility locally through separately scoped generation review, then repair real remaining compiler failures. |
+| V01 | Tooling repaired; application debt remains | Isolated engine-free Prisma generation and temporary type mapping now work without .env/network/database access. One NodeNext test import fixed. Full tsc retains 21 real source/test diagnostics; see completion record. |
 | V02 | P1 / fixed locally | Four mismatched suites manually re-audited and explicitly pinned; byte-preserving CRLF normalization avoids checkout-only drift. Ten workflow and 27 audited pure-unit tests pass; browser guard passes. See V03 for browser execution. |
-| V03 | P2 / environment blocked | The six browser suites configure headless Microsoft Edge; Edge is absent in this Cloud image. System Chromium exists but is not silently substituted. No browser installation or configured-mode change performed. |
+| V03 | P2 / Cloud mode verified | Explicit system-chromium mode now passes all six intercepted suites in current and fresh Cloud checkouts. Legacy Edge default is preserved and still requires Edge. No implicit fallback, suite-pin change or OS installation. |
 | B01 | P1 / fixed locally | booking-time.ts formerly compared only clock minutes; now requires same salon-local date for daytime intervals. Nine tests pass including existing helper tests and route validator coverage; overnight helper branch preserved. |
 | B06 | P1 / fixed locally | Missing/unparseable timestamp components now return Invalid Date, reaching existing invalid-window validation. Twelve booking tests pass, including six in-memory POST requests returning 400 before overlap reads/writes. |
 | B07 | P1 / fixed locally | Impossible calendar dates and out-of-range clock fields no longer normalize into a different booking date/time. Fourteen booking tests pass, including leap-day/month-end boundaries and in-memory POST rejection before booking access. |
@@ -261,3 +261,146 @@ immediately afterward. Nothing was pushed or merged.
 - No production/database/provider access, deployment, push or merge occurred.
   M01 migration sequencing, V01 generated-client/type health, B02 concurrent
   booking enforcement, S01 consent cutover and owner policy questions remain.
+
+## Consolidated AI tooling setup (initial validation record)
+
+Repository/revision and clean starting tree verified at a8429d3. Scope captured
+before edits in `.verification-test-build/quality-gate/d5e152e3-ec88-43e8-94ef-f3e87e9502d9.json`.
+All changes are tooling/configuration/documentation; production source, schema,
+SQL migrations, frozen profile/baseline and existing commits remain unchanged.
+
+Created four supported repository skills: salo-project-expert, salo-bug-hunter,
+salo-feature-developer and salo-quality-gate. Existing development/review skills
+remain unchanged. Metadata/source-doc checks pass; actual client UI discovery
+may require reload and has not been represented as a tool-verified UI action.
+
+Files created/changed in this batch:
+- `.agents/skills/salo-project-expert/SKILL.md`
+- `.agents/skills/salo-bug-hunter/SKILL.md`
+- `.agents/skills/salo-feature-developer/SKILL.md`
+- `.agents/skills/salo-quality-gate/SKILL.md`
+- `scripts/salo-checks.mjs`, `scripts/test-browser-mock.mjs`
+- `tests/ai-tooling.test.mjs`
+- `.github/workflows/ci.yml`
+- `package.json`, `package-lock.json` (only new dependency: pinned yaml parser)
+- `docs/SALO-AI-TOOLING.md`, `docs/development-workflow.md`
+- These three SALO knowledge/status/backlog documents
+
+Safe PR checks use Node 24, locked ignore-scripts installs, read-only contents,
+non-persisted checkout credentials and pinned official actions. Four independent
+matrix checks cover safe tests, intercepted browser tests, full tsc and unchanged
+frozen integrity. YAML/config and changed-source scan run first. No deployments,
+services, credentials or database operations. No workflow was pushed/activated;
+branch protection requires later explicit GitHub settings approval.
+
+Validation:
+- PASS: four skill metadata/path checks; real YAML parse and workflow safety
+  contract tests; child environment stripping; explicit browser mode tests;
+  redacted sensitive-pattern findings and invalid-command rejection.
+- PASS: 72 tests (45 tooling/workflow/application + 27 audited pure units).
+- PASS: all six browser suites on explicitly selected /usr/bin/chromium,
+  including Admin session, Staff auth/logout/localization, Owner authorization
+  and reminders. Existing guards and suite digests remain unchanged.
+- PASS: fresh local clone at a8429d3 with only the 15 scoped setup files overlaid,
+  no ignored environment files or existing node_modules copied. Fresh root and
+  backend npm ci --ignore-scripts succeeded, then skills/config/safe tests and
+  six Cloud browser suites passed. No commits were created in either checkout.
+- PASS: bounded local changed-source scan reports zero findings; static syntax,
+  parity and scoped review checks. This is not an exhaustive secret audit.
+- FAIL: full backend tsc exits 2, including existing Prisma generated-type/test
+  errors; the fresh ignore-scripts install has no generated Prisma client.
+  No errors were waived or unrelated source fixed to make CI pass.
+- BLOCKED: unchanged verifyPreparation returns CANONICAL_HASH_MISMATCH in both
+  checkouts. Earlier root-cause review proves all twelve migration mismatches are
+  EOL-only (admin migration has only a final CRLF); original schema bytes remain
+  unresolved. No frozen checksums were rewritten or historical SQL changed.
+- Legacy scoped finish still selects missing Edge; explicit standalone Cloud
+  browser validation is the verified alternative, not a fabricated finish PASS.
+
+Local diagnostic logs/copies remain under ignored .verification-test-build/.
+The consolidated guide contains commands for Codex Cloud and VS Code, limits and
+activation steps. No redundant editor extensions/global tools were installed.
+
+Remaining essential green-CI blockers: authorize a separate offline generated
+Prisma Client/type-health repair and recover/review the frozen schema/source
+bytes for Step 04. Do not weaken these checks. Publishing/required-check settings
+are deferred until owner approval; no push, deployment or DB access occurred.
+
+## AI environment completion - current result
+
+The owner authorized finishing tooling and local commits, without push/merge.
+All prior modified/untracked tooling files were preserved and completed. HEAD
+and ancestry were verified at a8429d3 before changes. Completion scope was
+captured before edits and expanded before adding quality-gate integration and
+valid disabled release placeholders. Final scope is recorded in the local
+tooling-completion-scope.json diagnostic (22 reviewed paths).
+
+### Completed tooling fixes
+
+- Four valid SKILL.md files are linked explicitly from AGENTS.md and project
+  guidance. Metadata, document paths and instruction references pass. Clients
+  may need reload; executor's generic skill catalog is not a repository UI
+  discovery probe, so no UI-load claim is made. Agents can discover/read every
+  skill directly from AGENTS.md without global plugin/extension installation.
+- New prisma-tooling.mjs uses pinned @prisma/internals 5.22.0 WASM parsing and
+  the matching installed Client Generator API. No native query/schema engine
+  or engine download is used. CLI/Client/SDK versions must match. Copied schema,
+  private package boundary, client/config/logs stay in a new ignored directory.
+- offline-tool-guard.cjs blocks environment-file reads/streams, TCP/TLS/HTTP/
+  fetch/DNS, shell and non-Node execution. Child environments are constructed
+  from platform basics, explicit flags and one synthetic datasource marker.
+  Successful receipts show only guard installation, no blocked network/env
+  attempts. Failed experiments stayed fail-closed and contacted no database.
+- Normal CLI generation tried to download engines despite --no-engine; that
+  attempt was blocked. The SDK getGenerators skipDownload path also tried
+  checksum fetching and was rejected. Final WASM + direct Generator API avoids
+  both paths, with empty engine maps/noEngine and no disabling of checksums.
+- Fresh generated types eliminate the tooling's missing/stale Prisma errors.
+  TypeScript uses only a temporary paths mapping; canonical schema/tsconfig and
+  the existing runtime client are unchanged. Generated engine-free client is
+  tooling-only and must never be deployed/copied into the backend runtime.
+- Fixed the one extensionless queue-entry.test.ts import to .js for NodeNext.
+  Its eight existing pure transition tests are manually audited and evaluated
+  with only assert/test and the dependency-free helper. No routes/DB imported.
+- Scoped quality gate now accepts explicit browser modes and uses isolated
+  Prisma type generation for backend checks. Actual TS errors are FAIL, not
+  BLOCKED merely because tsc exits 2. Missing browser binaries remain BLOCKED.
+- PR checks are safe tests, intercepted browser and full type checking. Frozen
+  integrity is separately enforced on manual workflow dispatch, not an ordinary
+  PR prerequisite. The two previously empty release workflow files are valid
+  manual placeholders with permanently skipped jobs and no deployment code.
+
+### Current validation
+
+- PASS: 86 tests (59 tooling/workflow/application/queue plus 27 audited units).
+- PASS: all six intercepted system-Chromium suites, current and fresh checkout.
+- PASS: fresh locked root/backend ignore-scripts installs, skill references,
+  all three workflow YAML/safety contracts and real offline client generation.
+- PASS: offline guard negative regressions, generator-version/output boundaries,
+  explicit browser selection, bounded scan, whitespace and source-scope review.
+- FAIL (unrelated application/test debt): full generated-client tsc has 21
+  diagnostics: salon-archive.test.ts (18), salon-deletion-policy.test.ts (1),
+  staff-membership.test.ts (1), routes/salons.ts:942 (1). The route passes a
+  string-or-number duration to ServiceInput; fixture errors include nullability,
+  missing fields, array shapes and an outdated function call. No strictness
+  relaxation, error waiver or production logic repair was made in this task.
+- Scoped finish likewise reports these real compiler errors rather than a
+  fabricated overall PASS. The explicit browser check passes within finish.
+- BLOCKED (release-only): unchanged verifyPreparation refuses
+  CANONICAL_HASH_MISMATCH. No hash rewrite, SQL alteration, bypass, migration
+  history marking or real PostgreSQL validation. Enum ordering remains a
+  separate database/Prisma compatibility decision.
+
+Fresh validation used a new local clone, with only explicit setup paths overlaid,
+no ignored .env/client/modules copied, then locked installs. SDK generation
+works there without native engines, not just against a cached local client.
+GitHub workflow execution remains untested until separately approved publishing;
+configurations are locally validated and ready for review, with expected type
+debt reported by CI. No production settings, data or deployment were accessed.
+
+Additional completion paths beyond the initial setup manifest: AGENTS.md,
+scripts/prisma-tooling.mjs, scripts/offline-tool-guard.cjs,
+scripts/quality-gate.mjs, backend/src/lib/queue-entry.test.ts, and the two
+disabled release workflows. All previous 15 setup paths remain included.
+Ordinary offline cloud application development is supported; release readiness
+is not asserted. Local preservation commits are authorized, never push/merge.

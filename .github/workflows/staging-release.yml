@@ -1,0 +1,11 @@
+name: Staging deployment disabled
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  disabled:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deployment disabled; separate authorization required."

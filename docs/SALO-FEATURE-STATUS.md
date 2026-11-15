@@ -71,3 +71,32 @@ V02 is preserved in local commit `5d9850f`. B07 rejects Date.UTC calendar/clock
 rollover while retaining valid leap days/month ends. All 29 application
 regressions and targeted booking-helper TypeScript pass. The restored audited
 runner separately passes 27 pure-unit tests, and workflow tests pass 10.
+
+## Consolidated tooling follow-up
+
+The four repository AI skills, safe command entrypoint, YAML/config/security
+checks and PR workflow are implemented locally. The safe suite now passes 72
+tests. Explicit Cloud Chromium mode passes all six intercepted browser suites;
+the same results were reproduced after locked ignore-scripts installs in a
+fresh local clone with the proposed setup overlaid.
+
+Full TypeScript remains FAIL and Step 04 frozen integrity remains BLOCKED.
+Neither was waived. New PR automation has not run on GitHub because no push was
+authorized. Metadata validation does not prove every editor's UI discovery.
+Application behavior and historical migrations were not changed for tooling.
+See SALO-AI-TOOLING.md and the backlog for exact files, commands and next actions.
+
+## Completed ordinary-development environment
+
+Four skills are valid, referenced by AGENTS.md and directly discoverable through
+repository guidance (client UI reload remains client-dependent). Safe commands,
+explicit browser modes, YAML/security and scoped checks are implemented. Fresh
+offline engine-free Prisma generation removes the generated-client tooling
+blocker; current and fresh safe suites pass 86 tests and six browser suites.
+
+Full tsc intentionally retains 21 unrelated application/test diagnostics. Frozen
+database integrity remains an isolated, enforced release-only blocker. The
+ordinary PR checks do not run migrations or require production credentials;
+the two release workflow placeholders are permanently skipped. No production
+feature was implemented here. Ordinary safe development is supported; no
+database/deployment readiness or remotely executed Actions result is claimed.

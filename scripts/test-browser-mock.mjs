@@ -50,10 +50,17 @@ export function check() {
   return { suites: suites.map(suite => suite.file), auditedHashesMatch: true, developmentServerRequired: false, databaseRequired: false };
 }
 
-function childEnvironment() {
+export function browserOptions(mode, options = {}) {
+  if (!['msedge', 'chromium', 'system-chromium'].includes(mode)) throw new Error('BLOCKED: unsupported browser mode');
+  if (mode === 'msedge') return options;
+  const { channel, executablePath, ...rest } = options;
+  return mode === 'system-chromium' ? { ...rest, executablePath: '/usr/bin/chromium' } : rest;
+}
+
+function childEnvironment(mode) {
   // Do not inherit application credentials, database URLs, NODE_OPTIONS,
   // debugging hooks, remote-browser endpoints, or other test-mode overrides.
-  const env = { SALO_MOCK_BROWSER_CHILD: '1' };
+  const env = { SALO_MOCK_BROWSER_CHILD: '1', SALO_MOCK_BROWSER_MODE: mode };
   for (const key of ['PATH', 'SystemRoot', 'WINDIR', 'COMSPEC', 'TEMP', 'TMP', 'TMPDIR', 'USERPROFILE', 'LOCALAPPDATA', 'PROGRAMFILES', 'PROGRAMFILES(X86)', 'PROGRAMDATA', 'HOME', 'HOMEDRIVE', 'HOMEPATH']) {
     if (process.env[key]) env[key] = process.env[key];
   }
@@ -65,7 +72,7 @@ async function installBrowserGuard(suite) {
   const { chromium } = require('playwright');
   const launch = chromium.launch.bind(chromium);
   chromium.launch = async options => {
-    const browser = await launch(options);
+    const browser = await launch(browserOptions(process.env.SALO_MOCK_BROWSER_MODE, options));
     const newContext = browser.newContext.bind(browser);
     browser.newContext = async options => {
       const context = await newContext({ ...options, serviceWorkers: 'block' });
@@ -79,7 +86,8 @@ async function installBrowserGuard(suite) {
   };
 }
 
-export async function run() {
+export async function run(mode = 'msedge') {
+  browserOptions(mode); // Refuse unknown modes before launching children.
   check(); // Validate every suite before launching any of them.
   const failures = [];
   for (const suite of suites) {
@@ -88,7 +96,7 @@ export async function run() {
     const result = await new Promise(resolve => {
       // Import this same file as a child preload to install the browser guard.
       // Node receives one fixed, audited entrypoint; no shell or user test args.
-      const child = spawn(process.execPath, ['--import', pathToFileURL(fileURLToPath(import.meta.url)).href, file], { cwd: root, env: childEnvironment(), shell: false, stdio: 'inherit' });
+      const child = spawn(process.execPath, ['--import', pathToFileURL(fileURLToPath(import.meta.url)).href, file], { cwd: root, env: childEnvironment(mode), shell: false, stdio: 'inherit' });
       child.once('error', () => resolve({ failed: true }));
       child.once('exit', (code, signal) => resolve({ failed: code !== 0 || Boolean(signal) }));
     });
@@ -104,6 +112,7 @@ if (entry === fileURLToPath(import.meta.url)) {
   try {
     if (process.argv.length === 2) process.exitCode = await run();
     else if (process.argv.length === 3 && process.argv[2] === '--check') console.log(JSON.stringify(check(), null, 2));
+    else if (process.argv.length === 4 && process.argv[2] === '--browser') process.exitCode = await run(process.argv[3]);
     else throw new Error('Only the fixed allowlist or --check is supported');
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 } else if (process.env.SALO_MOCK_BROWSER_CHILD === '1') {
