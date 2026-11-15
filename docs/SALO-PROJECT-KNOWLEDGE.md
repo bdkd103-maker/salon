@@ -3,7 +3,8 @@
 Reviewed 2026-11-15 in Codex Cloud. Repository: `bdkd103-maker/salon`.
 Base/source revision: `6d541047ca095c2c6f1acf0d399513c587df9b10` from
 `origin/salo-cloud-development`; local review branch: `salo-cloud-work`.
-Uncommitted opening-hours changes from the preceding task are preserved.
+Opening-hours changes from the preceding task are preserved in local commit
+`c5cbf3e`; subsequent local batches are recorded below.
 
 ## Evidence and scope
 
@@ -225,3 +226,10 @@ only CRLF is canonicalized for hashing, without decoding/altering other bytes.
 Ten workflow and 27 audited pure-unit tests now pass. Browser guard checks pass,
 but actual suites configure headless Microsoft Edge, absent here; no fallback
 to available system Chromium was performed. Full-project tsc still fails.
+
+V02 was preserved in local commit `5d9850f`. B07 subsequently adds numeric-range
+and calendar month/day round-trip checks before timezone conversion, preventing
+Date.UTC rollover from silently changing a requested booking. Fourteen booking
+tests pass (29 application regressions total), including malformed-input HTTP
+400 coverage with fake persistence and zero booking access. Legacy year 0-99,
+full grammar and DST/offset behavior are not solved by these checks.

@@ -23,7 +23,7 @@ Other commercial/scheduling assumptions below are observations or open questions
 | Customer email registration/reset | Implemented: challenge, purpose/role checks, provider transport and route tests | Real email delivery unknown; no provider contacted |
 | Login/refresh/auth status | Implemented: Argon2, signed tokens, persisted status/role/authVersion checks and conditional refresh rotation | Session integration unknown; logout access-token lifetime policy unresolved |
 | Global rate limiting | Verified locally R01: six tests, including in-memory Fastify 429 enforcement; fixed unsigned-sub bucket selection | Uses existing signature/expiry/claim verifier; no persisted-account authorization added to rate limiter |
-| Bookings | Implemented: creation/update/cancellation/statuses and overlap checks; daytime containment and malformed-input rejection verified locally B01/B06 (12 booking tests) | Race between overlap count and write; weekend/holiday/timezone/cancellation policy questions; parser calendar/DST edge cases remain |
+| Bookings | Implemented: creation/update/cancellation/statuses and overlap checks; containment, malformed-input and calendar/clock rejection verified locally B01/B06/B07 (14 booking tests) | Race between overlap count and write; weekend/holiday/timezone/cancellation policy questions; grammar/DST/offset/year edge cases remain |
 | Owner dashboard/salon configuration | Implemented: dashboard, services/media/extras/intake controls/schedule routes and UI | No full owner browser flow or persisted API contract validation here |
 | Team management | Implemented: provision/list/update/revoke, salon access checks | Existing-user linking and verified-account creation need consent/security cutover |
 | Staff invitation/recovery | Incomplete: dormant StaffInvitation/version/purpose foundation, documented no enabled invitation/acceptance routes | Migration/Prisma rollout, consent and recovery acceptance criteria required |
@@ -66,3 +66,8 @@ V02's subsequent isolation re-audit restores the allowlist guards and pure-unit
 runner; historical hash-blocked results above remain previous-task evidence.
 Full-project compiler failures remain unresolved. No database/native/browser
 execution success is inferred from the restored guards.
+
+V02 is preserved in local commit `5d9850f`. B07 rejects Date.UTC calendar/clock
+rollover while retaining valid leap days/month ends. All 29 application
+regressions and targeted booking-helper TypeScript pass. The restored audited
+runner separately passes 27 pure-unit tests, and workflow tests pass 10.

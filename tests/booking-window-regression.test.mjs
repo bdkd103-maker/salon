@@ -75,6 +75,23 @@ test('existing supported wall-clock forms retain their conversion behavior', () 
   }
 });
 
+test('impossible calendar dates and out-of-range clocks cannot roll into bookings', () => {
+  for (const input of ['2026-02-29T09:00', '2026-09-31T09:00', '2026-04-31T09:00', '2026-13-01T09:00', '2026-00-01T09:00', '2026-09-00T09:00', '2026-09-07T24:00', '2026-09-07T09:60', '2026-09-07T09:00:60', '2026-09-07T09.5:00']) {
+    assert.equal(Number.isNaN(context.parseWallClockInTimeZone(input, 'Europe/Berlin').getTime()), true, input);
+    assert.equal(validate(input, '2026-09-07T10:00'), 'Invalid time window', input);
+  }
+});
+
+test('valid leap days, month ends and clock boundaries retain their conversion', () => {
+  for (const [input, expected] of [
+    ['2028-02-29T09:00', '2028-02-29T08:00:00.000Z'],
+    ['2026-01-31T09:00', '2026-01-31T08:00:00.000Z'],
+    ['2026-04-30T09:00', '2026-04-30T07:00:00.000Z'],
+    ['2026-09-07T00:00:00', '2026-09-06T22:00:00.000Z'],
+    ['2026-09-07T23:59:59', '2026-09-07T21:59:59.000Z'],
+  ]) assert.equal(context.parseWallClockInTimeZone(input, 'Europe/Berlin').toISOString(), expected, input);
+});
+
 test('booking POST returns 400 for malformed dates before overlap checks or writes', async () => {
   const Fastify = require('fastify');
   const { z } = require('zod');
@@ -102,7 +119,7 @@ test('booking POST returns 400 for malformed dates before overlap checks or writ
   const source = helper + routes.slice(schemaStart, schemaEnd) + routes.slice(start, contextEnd) + routes.slice(postStart, postEnd);
   try {
     vm.runInContext(stripTypeScriptTypes(source).replace(/^export /gm, ''), fixture, { timeout: 1000 });
-    for (const invalid of ['2026-09-07', 'not-a-dateT09:00', '2026-09-07Tbad']) {
+    for (const invalid of ['2026-09-07', 'not-a-dateT09:00', '2026-09-07Tbad', '2026-09-31T09:00', '2026-09-07T09:60']) {
       for (const field of ['startAt', 'endAt']) {
         const response = await app.inject({ method: 'POST', url: '/api/v1/bookings', payload: {
           salonId: 'fixture-salon', startAt: '2026-09-07T09:00', endAt: '2026-09-07T10:00', [field]: invalid,
@@ -111,6 +128,11 @@ test('booking POST returns 400 for malformed dates before overlap checks or writ
         assert.equal(response.json().error, 'Invalid time window');
       }
     }
+    const rolledDate = await app.inject({ method: 'POST', url: '/api/v1/bookings', payload: {
+      salonId: 'fixture-salon', startAt: '2026-09-31T09:00', endAt: '2026-09-31T10:00',
+    } });
+    assert.equal(rolledDate.statusCode, 400);
+    assert.equal(rolledDate.json().error, 'Invalid time window');
     assert.equal(bookingOperations, 0);
   } finally {
     await app.close();

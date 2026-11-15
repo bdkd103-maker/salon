@@ -21,6 +21,7 @@ authorization to migrate, deploy, access credentials or change product policy.
 | V03 | P2 / environment blocked | The six browser suites configure headless Microsoft Edge; Edge is absent in this Cloud image. System Chromium exists but is not silently substituted. No browser installation or configured-mode change performed. |
 | B01 | P1 / fixed locally | booking-time.ts formerly compared only clock minutes; now requires same salon-local date for daytime intervals. Nine tests pass including existing helper tests and route validator coverage; overnight helper branch preserved. |
 | B06 | P1 / fixed locally | Missing/unparseable timestamp components now return Invalid Date, reaching existing invalid-window validation. Twelve booking tests pass, including six in-memory POST requests returning 400 before overlap reads/writes. |
+| B07 | P1 / fixed locally | Impossible calendar dates and out-of-range clock fields no longer normalize into a different booking date/time. Fourteen booking tests pass, including leap-day/month-end boundaries and in-memory POST rejection before booking access. |
 | B02 | P1 / confirmed code race | bookings.ts checks overlaps before its creation/update transaction, with no matching exclusion constraint in schema/SQL. Concurrent writers can pass the count. Needs concurrency model, capacity rules and isolated DB evidence; not fixed by moving count alone. |
 | S01 | P1 / blocked cutover | owner-team.ts creates ACTIVE staff with emailVerified true and links existing STAFF by email without consent. Dormant invitation foundation is not a fix. Define consent/linking/recovery policy, migration/client rollout and staged cutover tests. |
 | B03 | P1 / owner questions | Booking STAFF access uses salon.ownerId=user.id, despite active-membership-based operations elsewhere. Which booking operations may STAFF perform? Avoid granting access until specified. |
@@ -134,7 +135,7 @@ owner instruction authorizes local commits but not migration application,
 production/customer data, provider calls, deployment, merge or push. Work may continue on independent
 deterministic local fixes while those items remain blocked.
 
-## Final validation for this task
+## Validation from the preceding development task
 
 | Check | Result | Evidence / limitation |
 | --- | --- | --- |
@@ -213,3 +214,50 @@ immediately afterward. Nothing was pushed or merged.
   `/opt/microsoft/msedge/msedge`. No browser process reached test execution.
   This is the recorded environment blocker, not six demonstrated app failures.
   No suggested installation command was run.
+- Reviewed six-file staged-source pattern scan: zero findings. Preserved in
+  local commit `5d9850f4977e35a32d6662d33d49f174acca2850`; no push/merge.
+
+## Batch B07 - reject booking calendar rollover
+
+- Scope capture:
+  `.verification-test-build/quality-gate/aa094388-533c-45b4-8829-0ce1768a496b.json`.
+  Files: booking-time.ts, booking-window regression and these three docs.
+- Reproduction: adding calendar/clock regression coverage produced two failing
+  tests. Non-leap February 29 and September 31 became valid Date objects;
+  out-of-range fields could normalize rather than fail input validation.
+- Root cause: Date.UTC intentionally rolls numeric components into other dates,
+  while the parser checked only NaN. That is inappropriate for booking input.
+- Fix: require integer year/month/day/hour/minute, bound clock/month/day fields,
+  and round-trip UTC month/day before applying the existing zone offset.
+  Fractional seconds and existing explicit-offset interpretation are unchanged.
+  No scheduling, holiday, staff/capacity, cancellation or DST policy was added.
+- PASS: 14 booking tests; combined with rate-limit/opening-hours tests, 29 tests.
+  In-memory POST fixture checks ten malformed start/end variants plus one
+  pair of September-31 timestamps: 400 Invalid time window, zero overlap reads
+  or booking writes. Real Prisma and databases are never imported/contacted.
+- PASS: targeted strict booking-helper TypeScript (same command as above).
+- Limits: full grammar, Date.UTC's legacy handling of years 0-99, DST gaps/folds,
+  timezone ownership and ignored explicit offsets remain separate concerns.
+  Previously recorded calendar-rollover limitations in B06 are resolved only
+  to the scope described here. Full-project TypeScript remains non-passing.
+- Fast gate and final scope review PASS. Finish gate BLOCKED because the helper
+  has no audited behavior mapping and full-project TypeScript exits 2. The
+  explicit 14-test booking suite and targeted strict type check pass; compiler
+  failures elsewhere are not waived or silently repaired.
+
+## Current preservation/development summary
+
+- Commits on `salo-cloud-work`: `c5cbf3e` preserves H01/R01/B01/B06 and project
+  documents; `5d9850f` restores reviewed suite pins and portable digest checks.
+- Current independent pass counts: 29 application regressions, 27 audited pure
+  unit tests and 10 workflow tests (66 tests total). Targeted strict booking
+  helper type checking passes. Existing application fixes remain covered.
+- Browser finish execution failed at missing configured Edge before any UI
+  tests ran; no browser substitution/install. Full-project compiler still fails.
+- Documentation is updated per batch. Scan scope is full staged content of only
+  reviewed paths; scan output never includes possible secret values. History,
+  ignored files and real credentials remain untouched. No dedicated scanner
+  was available; this is bounded pattern evidence, not a complete secret audit.
+- No production/database/provider access, deployment, push or merge occurred.
+  M01 migration sequencing, V01 generated-client/type health, B02 concurrent
+  booking enforcement, S01 consent cutover and owner policy questions remain.
